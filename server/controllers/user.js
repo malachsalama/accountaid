@@ -1,7 +1,9 @@
 const User = require("../models/user");
+const userService = require("../services/user");
+const bcrypt = require("bcrypt");
 
 // Controller function to create a new user
-exports.createUser = async (req, res) => {
+async function userSignUp(req, res) {
   try {
     // Extract user data from the request body
     const {
@@ -22,6 +24,10 @@ exports.createUser = async (req, res) => {
         .json({ message: "User with the same user_id already exists" });
     }
 
+    // Hash the password before storing it in the database
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Create a new user instance
     const user = new User({
       username,
@@ -30,7 +36,7 @@ exports.createUser = async (req, res) => {
       designation,
       department_no,
       user_id,
-      password,
+      password: hashedPassword,
     });
 
     // Save the user to the database
@@ -42,4 +48,38 @@ exports.createUser = async (req, res) => {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
+}
+
+async function userLogin(req, res) {
+  try {
+    const { user_id, password } = req.body;
+
+    // Find the user by user_id
+    const user = await User.findOne({ user_id });
+
+    if (!user) {
+      return res.status(401).json({ message: "Invalid user credentials" });
+    }
+
+    // Compare the provided password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid user credentials" });
+    }
+
+    // Generate a JWT token
+    const token = userService.generateToken(user);
+
+    // Send the token in the response
+    res.status(200).json({ token });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+module.exports = {
+  userSignUp,
+  userLogin,
 };
