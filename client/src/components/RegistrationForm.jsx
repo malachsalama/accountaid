@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+axios.defaults.baseURL = "http://localhost:8000";
 
 function RegistrationForm() {
   const [formData, setFormData] = useState({
@@ -7,6 +8,7 @@ function RegistrationForm() {
     phone_no: "",
     department: "",
     designation: "",
+    department_no: "",
     user_id: "",
     password: "",
   });
@@ -21,7 +23,7 @@ function RegistrationForm() {
 
     try {
       // Send a POST request using Axios
-      const response = await axios.post("/api/auth/user/signup", formData);
+      const response = await axios.post(`/api/auth/user/signup`, formData);
 
       if (response.status === 201) {
         console.log("User registered successfully");
@@ -74,12 +76,23 @@ function RegistrationForm() {
           />
         </div>
         <div>
-          <label htmlFor="designation">Department Number:</label>
+          <label htmlFor="designation">Designation:</label>
           <input
             type="text"
             id="designation"
             name="designation"
             value={formData.designation}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="department_no">Department Number:</label>
+          <input
+            type="text"
+            id="department_no"
+            name="department_no"
+            value={formData.department_no}
             onChange={handleChange}
             required
           />
