@@ -1,6 +1,6 @@
 const Department = require("../models/department");
 
-// Controller for adding a department
+// Adding a department
 async function addDepartment(req, res) {
   try {
     const { department, department_no, designation } = req.body; // Assuming the request body contains a 'name' field for the department
