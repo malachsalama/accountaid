@@ -2,9 +2,10 @@ import { useState } from "react";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8000";
 
-import { Navigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     user_id: "",
     password: "",
@@ -21,8 +22,10 @@ export default function Login() {
       const response = await axios.post(`/api/auth/user/login`, formData);
 
       if (response.status === 200) {
-        console.log("User logged in successfully");
-        Navigate("/home");
+        console.log(response);
+
+
+        navigate("/home");
       } else {
         // Handle login error
         console.error("Login failed");
