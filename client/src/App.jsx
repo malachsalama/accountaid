@@ -1,9 +1,9 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { Login } from "./components/Form";
-import Home from "./pages/home/Home";
+import Login from "./components/authentication/Login";
+import Home from "./pages/admin/Home";
 
 const router = createBrowserRouter([
-  { path: "/login", element: <Login /> },
+  { path: "/", element: <Login /> },
   { path: "/home", element: <Home /> },
   // Add more routes as needed
 ]);
