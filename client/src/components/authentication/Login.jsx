@@ -24,14 +24,13 @@ export default function Login() {
       if (response.status === 200) {
         console.log(response);
 
-
         navigate("/home");
       } else {
         // Handle login error
         console.error("Login failed");
-        Navigate("/");
       }
     } catch (error) {
+      navigate("/");
       console.error("An error occurred", error);
     }
   };

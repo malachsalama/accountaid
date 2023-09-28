@@ -1,8 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { addDepartment } = require("../controllers/admin");
+const { addDepartment, getAllDepartments } = require("../controllers/admin");
 
-router.post("/department/", addDepartment);
+router.post("/departments", addDepartment);
+router.get("/departments", getAllDepartments);
 
 module.exports = router;

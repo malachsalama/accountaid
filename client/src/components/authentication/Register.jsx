@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8000";
@@ -13,6 +13,7 @@ export default function Registration() {
     user_id: "",
     password: "",
   });
+  const [departments, setDepartments] = useState([]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,6 +39,19 @@ export default function Registration() {
       console.error("An error occurred", error);
     }
   };
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await axios.get("/api/auth/departments");
+        setDepartments(response.data);
+      } catch (error) {
+        console.error("An error occurred while fetching departments:", error);
+      }
+    };
+
+    fetchDepartments();
+  }, []);
 
   return (
     <div>
@@ -67,14 +81,20 @@ export default function Registration() {
         </div>
         <div>
           <label htmlFor="department">Department:</label>
-          <input
-            type="text"
+          <select
             id="department"
             name="department"
             value={formData.department}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Select a department</option>
+            {departments.map((dept) => (
+              <option key={dept._id} value={dept.department}>
+                {dept.department}
+              </option>
+            ))}
+          </select>
         </div>
         <div>
           <label htmlFor="designation">Designation:</label>
