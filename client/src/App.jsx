@@ -1,15 +1,20 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+/* eslint-disable react/prop-types */
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { decodeJWT } from "../utils/jwtUtils";
 import Login from "./components/authentication/Login";
 import Home from "./pages/admin/Home";
 
-const router = createBrowserRouter([
-  { path: "/", element: <Login /> },
-  { path: "/home", element: <Home /> },
-  // Add more routes as needed
-]);
+function App({ token }) {
+  const decodedUser = decodeJWT(token);
+  const isSuperAdmin = decodedUser && decodedUser.role === "superadmin";
 
-function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={isSuperAdmin ? <Home /> : <Login />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
 export default App;

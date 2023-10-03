@@ -3,7 +3,7 @@ const Department = require("../models/department");
 // Adding a department
 async function addDepartment(req, res) {
   try {
-    const { department, department_no, designation } = req.body; // Assuming the request body contains a 'name' field for the department
+    const { department, department_no, designation } = req.body;
 
     // Check if the department name already exists
     const existingDepartment = await Department.findOne({ department });
