@@ -1,5 +1,11 @@
 const jwt = require("jsonwebtoken");
-const { JWT_SECRET } = require("../config/config");
+const { JWT_SECRET, JWT_EXPIRE } = require("../config/config");
+
+const createToken = (user_id, designation) => {
+  return jwt.sign({ user_id, designation }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRE,
+  });
+};
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"];
@@ -15,16 +21,16 @@ const authenticateToken = (req, res, next) => {
     }
 
     // Check the user's role from the decoded token
-    const userRole = decodedToken.role;
+    const userRole = decodedToken.designation;
 
     // Check if the user is a superadmin or admin
     if (userRole === "superadmin" || userRole === "admin") {
       req.user = decodedToken;
       next();
     } else {
-      return res.status(403).json({ error: "Forbidden" });
+      return res.status(403).json({ error: "Forbidden!!" });
     }
   });
 };
 
-module.exports = authenticateToken;
+module.exports = { createToken, authenticateToken };

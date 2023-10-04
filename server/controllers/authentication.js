@@ -1,6 +1,6 @@
 const User = require("../models/user");
-const userService = require("../services/user");
 const bcrypt = require("bcrypt");
+const { createToken } = require("../middleware/user");
 
 // Controller function to create a new user
 async function userSignUp(req, res) {
@@ -42,8 +42,11 @@ async function userSignUp(req, res) {
     // Save the user to the database
     await user.save();
 
+    // Create a token for the user
+    const token = createToken(user.user_id, user.designation);
+
     // Respond with a success message or the created user object
-    res.status(201).json({ message: "User created successfully", user });
+    res.status(201).json({ message: "User created successfully", user, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -68,11 +71,11 @@ async function userLogin(req, res) {
       return res.status(401).json({ message: "Invalid user credentials" });
     }
 
-    // Generate a JWT token
-    const token = userService.generateToken(user);
+    // Create a token for the user
+    const token = createToken(user.user_id, user.designation);
 
     // Send the token in the response
-    res.status(200).json({ token });
+    res.status(200).json({ user, token });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
