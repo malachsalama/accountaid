@@ -9,7 +9,6 @@ export default function RetailHome() {
     const fetchRetailNames = async () => {
       try {
         const response = await axios.get("/api/auth/retailnames");
-        console.log(response.data);
         setRetailNames(response.data);
       } catch (error) {
         console.error("An error occurred while fetching retailnames:", error);
@@ -18,6 +17,7 @@ export default function RetailHome() {
 
     fetchRetailNames();
   }, []);
+
   return (
     <div>
       {retailNames.map((retailname) => (
