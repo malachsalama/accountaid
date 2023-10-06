@@ -20,9 +20,9 @@ export default function RetailHome() {
   }, []);
   return (
     <div>
-      {retailNames.map((retailname) => {
-        <button>{retailname}</button>;
-      })}
+      {retailNames.map((retailname) => (
+        <button key={retailname._id}>{retailname.retailname}</button>
+      ))}
     </div>
   );
 }
