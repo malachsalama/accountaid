@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { decodeJWT } from "../../../utils/jwtUtils";
+// import { decodeJWT } from "../../../utils/jwtUtils";
 
-axios.defaults.baseURL = "http://localhost:8000";
+// axios.defaults.baseURL = "http://localhost:8000";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,39 +20,41 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      // Send a POST request using Axios
-      const response = await axios.post(`/api/auth/user/login`, formData);
+    console.log(formData);
 
-      if (response.status === 200) {
-        // Assuming the server responds with a JWT token upon successful login
-        const token = response.data.token;
+    // try {
+    //   // Send a POST request using Axios
+    //   const response = await axios.post(`/api/auth/user/login`, formData);
 
-        // Store the token in session storage
-        sessionStorage.setItem("authToken", token);
+    //   if (response.status === 200) {
+    //     // Assuming the server responds with a JWT token upon successful login
+    //     const token = response.data.token;
 
-        // Redirect to the "/home" route
-        navigate("/home");
-      } else {
-        // Handle login error
-        console.error("Login failed");
-      }
-    } catch (error) {
-      navigate("/");
-      console.error("An error occurred", error);
-    }
+    //     // Store the token in session storage
+    //     sessionStorage.setItem("authToken", token);
+
+    //     // Redirect to the "/home" route
+    //     // navigate("/home");
+    //   } else {
+    //     // Handle login error
+    //     console.error("Login failed");
+    //   }
+    // } catch (error) {
+    //   // navigate("/");
+    //   console.error("An error occurred", error);
+    // }
   };
 
-  useEffect(() => {
-    // Retrieve the token from session storage (if it exists)
-    const authToken = sessionStorage.getItem("authToken");
+  // useEffect(() => {
+  //   // Retrieve the token from session storage (if it exists)
+  //   const authToken = sessionStorage.getItem("authToken");
 
-    // If a token exists, you can check its contents (e.g., roles) using decodeJWT
-    if (authToken) {
-      const decodedToken = decodeJWT(authToken);
-      console.log("Decoded Token:", decodedToken);
-    }
-  }, []);
+  //   // If a token exists, you can check its contents (e.g., roles) using decodeJWT
+  //   if (authToken) {
+  //     const decodedToken = decodeJWT(authToken);
+  //     console.log("Decoded Token:", decodedToken);
+  //   }
+  // }, []);
 
   return (
     <div>

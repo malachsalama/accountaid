@@ -17,7 +17,7 @@ const authenticateToken = (req, res, next) => {
 
   jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
     if (err) {
-      return res.status(403).json({ error: "Forbidden" });
+      return res.status(403).json({ error: err.message });
     }
 
     // Check the user's role from the decoded token

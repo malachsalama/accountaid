@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
-axios.defaults.baseURL = "http://localhost:8000";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function Registration() {
   const [formData, setFormData] = useState({
@@ -14,6 +14,9 @@ export default function Registration() {
     password: "",
   });
   const [departments, setDepartments] = useState([]);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(null);
+  const { dispatch } = useAuthContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,15 +26,29 @@ export default function Registration() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    console.log(formData);
+
     try {
+      setIsLoading(true);
+      setError(null);
       // Send a POST request using Axios
       const response = await axios.post(`/api/auth/user/signup`, formData);
 
+      const data = response.data;
+
       if (response.status === 201) {
-        console.log("User registered successfully");
+        // Save the user to local storage
+        localStorage.setItem("user", JSON.stringify(data));
+
+        // Update the Auth context
+        dispatch({ type: "LOGIN", payload: data });
+
+        setIsLoading(false);
         // You can also redirect the user to a success page or perform other actions here
       } else {
         // Handle registration error
+        setIsLoading(false);
+        setError(error);
         console.error("Registration failed");
         // You can display an error message to the user
       }
@@ -140,7 +157,9 @@ export default function Registration() {
             required
           />
         </div>
-        <button type="submit">Register</button>
+        <button type="submit" disabled={isLoading}>
+          Register
+        </button>
       </form>
     </div>
   );

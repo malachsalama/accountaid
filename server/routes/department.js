@@ -5,6 +5,6 @@ const { authenticateToken } = require("../middleware/user");
 const { addDepartment, getAllDepartments } = require("../controllers/admin");
 
 router.post("/departments", authenticateToken, addDepartment);
-router.get("/departments", authenticateToken, getAllDepartments);
+router.get("/departments", getAllDepartments);
 
 module.exports = router;
