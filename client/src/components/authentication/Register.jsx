@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import "./auth.css";
 
 export default function Registration() {
   const [formData, setFormData] = useState({
@@ -71,13 +72,14 @@ export default function Registration() {
   }, []);
 
   return (
-    <div>
+    <div className="registration-form">
       <h1>User Registration</h1>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username:</label>
+        <div className="form-group">
+          <label className="form-label">Username:</label>
           <input
             type="text"
+            className="form-control"
             id="username"
             name="username"
             value={formData.username}
@@ -85,10 +87,11 @@ export default function Registration() {
             required
           />
         </div>
-        <div>
-          <label htmlFor="phone_no">Phone Number:</label>
+        <div className="form-group">
+          <label className="form-label">Phone Number:</label>
           <input
             type="text"
+            className="form-control"
             id="phone_no"
             name="phone_no"
             value={formData.phone_no}
@@ -96,9 +99,10 @@ export default function Registration() {
             required
           />
         </div>
-        <div>
-          <label htmlFor="department">Department:</label>
+        <div className="form-group">
+          <label className="form-label">Department:</label>
           <select
+            className="form-control"
             id="department"
             name="department"
             value={formData.department}
@@ -113,10 +117,12 @@ export default function Registration() {
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="designation">Designation:</label>
+
+        <div className="form-group">
+          <label className="form-label">Designation:</label>
           <input
             type="text"
+            className="form-control"
             id="designation"
             name="designation"
             value={formData.designation}
@@ -124,10 +130,12 @@ export default function Registration() {
             required
           />
         </div>
-        <div>
-          <label htmlFor="department_no">Department Number:</label>
+
+        <div className="form-group">
+          <label className="form-label">Department Number:</label>
           <input
             type="text"
+            className="form-control"
             id="department_no"
             name="department_no"
             value={formData.department_no}
@@ -135,10 +143,12 @@ export default function Registration() {
             required
           />
         </div>
-        <div>
-          <label htmlFor="user_id">User ID:</label>
+
+        <div className="form-group">
+          <label className="form-label">User ID:</label>
           <input
             type="text"
+            className="form-control"
             id="user_id"
             name="user_id"
             value={formData.user_id}
@@ -146,10 +156,12 @@ export default function Registration() {
             required
           />
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
+
+        <div className="form-group">
+          <label className="form-label">Password:</label>
           <input
             type="password"
+            className="form-control"
             id="password"
             name="password"
             value={formData.password}
@@ -157,7 +169,8 @@ export default function Registration() {
             required
           />
         </div>
-        <button type="submit" disabled={isLoading}>
+
+        <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Register
         </button>
       </form>

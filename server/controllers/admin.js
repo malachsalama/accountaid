@@ -1,4 +1,5 @@
 const Department = require("../models/department");
+const RetailName = require("../models/retailname");
 
 // Adding a department
 async function addDepartment(req, res) {
@@ -38,4 +39,42 @@ async function getAllDepartments(req, res) {
   }
 }
 
-module.exports = { addDepartment, getAllDepartments };
+// Add RetailName
+async function addRetailName(req, res) {
+  try {
+    const { retailname } = req.body;
+
+    // Check if the retailname already exists
+    const existingretailname = await RetailName.findOne({ retailname });
+
+    if (existingretailname) {
+      return res.status(400).json({ error: "RetailName already exists" });
+    }
+
+    const addRetailName = new RetailName({
+      retailname,
+    });
+
+    await addRetailName.save();
+    res.status(201).json({ message: "ReatilName added successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+async function getRetailNames(req, res) {
+  try {
+    const retailNames = await RetailName.find({}, "retailname");
+    res.json(retailNames);
+  } catch (error) {
+    console.error("Error fetching retailnames:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+module.exports = {
+  addDepartment,
+  getAllDepartments,
+  addRetailName,
+  getRetailNames,
+};

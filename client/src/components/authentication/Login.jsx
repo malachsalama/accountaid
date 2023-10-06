@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-// import axios from "axios";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 // import { decodeJWT } from "../../../utils/jwtUtils";
 
@@ -20,29 +20,35 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log(formData);
+    // console.log(formData);
 
-    // try {
-    //   // Send a POST request using Axios
-    //   const response = await axios.post(`/api/auth/user/login`, formData);
+    try {
+      // Send a POST request using Axios
+      const response = await axios.post(`/api/auth/user/login`, formData);
 
-    //   if (response.status === 200) {
-    //     // Assuming the server responds with a JWT token upon successful login
-    //     const token = response.data.token;
+      if (response.status === 200) {
+        const department = response.data.user.department;
 
-    //     // Store the token in session storage
-    //     sessionStorage.setItem("authToken", token);
-
-    //     // Redirect to the "/home" route
-    //     // navigate("/home");
-    //   } else {
-    //     // Handle login error
-    //     console.error("Login failed");
-    //   }
-    // } catch (error) {
-    //   // navigate("/");
-    //   console.error("An error occurred", error);
-    // }
+        console.log(department);
+        // Assuming the server responds with a JWT token upon successful login
+        const token = response.data.token;
+        if (department === "Management") {
+          navigate("/home");
+        } else if (department === "Retail") {
+          navigate("/retail");
+        } else if (department === "Accounts") {
+          navigate("/accounts");
+        } else if (department === "Human Resource"){
+          navigate("/humanresource")
+        }
+      } else {
+        // Handle login error
+        console.error("Login failed");
+      }
+    } catch (error) {
+      // navigate("/");
+      console.error("An error occurred", error.message);
+    }
   };
 
   // useEffect(() => {
