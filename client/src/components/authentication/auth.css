@@ -1,4 +1,5 @@
-.registration-form {
+.registration-form,
+.login-form {
   width: 568px;
   margin: 3rem auto;
 }

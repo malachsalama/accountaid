@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import { decodeJWT } from "../../../utils/jwtUtils";
-
-// axios.defaults.baseURL = "http://localhost:8000";
+import { useLogin } from "../../hooks/useLogin";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,6 +8,7 @@ export default function Login() {
     user_id: "",
     password: "",
   });
+  const { login, error, isLoading } = useLogin();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,75 +18,68 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // console.log(formData);
-
+    // Call the login function to send the POST request
     try {
-      // Send a POST request using Axios
-      const response = await axios.post(`/api/auth/user/login`, formData);
+      const success = await login(formData);
+      if (success) {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+          const department = user?.user?.department;
 
-      if (response.status === 200) {
-        const department = response.data.user.department;
-
-        console.log(department);
-        // Assuming the server responds with a JWT token upon successful login
-        const token = response.data.token;
-        if (department === "Management") {
-          navigate("/home");
-        } else if (department === "Retail") {
-          navigate("/retail");
-        } else if (department === "Accounts") {
-          navigate("/accounts");
-        } else if (department === "Human Resource"){
-          navigate("/humanresource")
+          if (department === "Management") {
+            navigate("/admin");
+          } else if (department === "Retail") {
+            navigate("/retail");
+          } else if (department === "Accounts") {
+            navigate("/accounts");
+          } else if (department === "Human Resource") {
+            navigate("/humanresource");
+          }
+        } else {
+          console.error("The user object is not set in the localStorage.");
         }
-      } else {
-        // Handle login error
-        console.error("Login failed");
       }
     } catch (error) {
-      // navigate("/");
-      console.error("An error occurred", error.message);
+      console.error("Login failed.");
     }
   };
 
-  // useEffect(() => {
-  //   // Retrieve the token from session storage (if it exists)
-  //   const authToken = sessionStorage.getItem("authToken");
-
-  //   // If a token exists, you can check its contents (e.g., roles) using decodeJWT
-  //   if (authToken) {
-  //     const decodedToken = decodeJWT(authToken);
-  //     console.log("Decoded Token:", decodedToken);
-  //   }
-  // }, []);
-
   return (
-    <div>
+    <div className="login-form">
       <h1>Login</h1>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="user_id">User ID:</label>
+        <div className="form-group">
+          <label htmlFor="user_id" className="form-label">
+            User ID:
+          </label>
           <input
             type="text"
             id="user_id"
+            className="form-control"
             name="user_id"
             value={formData.user_id}
             onChange={handleChange}
             required
           />
         </div>
-        <div>
-          <label htmlFor="password">Password:</label>
+        <div className="form-group">
+          <label htmlFor="password" className="form-label">
+            Password:
+          </label>
           <input
             type="password"
             id="password"
+            className="form-control"
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" className="btn btn-primary" disabled={isLoading}>
+          Login
+        </button>
+        {error && <div>{error}</div>}
       </form>
     </div>
   );

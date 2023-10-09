@@ -16,7 +16,7 @@ function App({ token }) {
       <Routes>
         {/* <Route path="/" element={isSuperAdmin ? <Home /> : <Login />} /> */}
         <Route path="/" element={<Login />}></Route>
-        <Route path="/home" element={<ManagementHome />}></Route>
+        <Route path="/admin" element={<ManagementHome />}></Route>
         <Route path="/retail" element={<RetailHome />}></Route>
         <Route path="/accounts" element={<AccountsHome />}></Route>
         <Route path="/humanresource" element={<HumanResourceHome />}></Route>
