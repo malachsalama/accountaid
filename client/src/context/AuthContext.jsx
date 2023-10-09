@@ -1,9 +1,10 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
 import { createContext, useReducer } from "react";
 
 export const AuthContext = createContext();
 
-export const authReducer = (state, action) => {
+export function authReducer(state, action) {
   switch (action.type) {
     case "LOGIN":
       return { user: action.payload };
@@ -12,9 +13,9 @@ export const authReducer = (state, action) => {
     default:
       return state;
   }
-};
+}
 
-export const AuthContextProvider = function ({ children }) {
+export function AuthContextProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, { user: null });
 
   console.log("AuthContext state: ", state);
@@ -24,4 +25,4 @@ export const AuthContextProvider = function ({ children }) {
       {children}
     </AuthContext.Provider>
   );
-};
+}

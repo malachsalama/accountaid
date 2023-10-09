@@ -1,5 +1,6 @@
 const Department = require("../models/department");
 const RetailName = require("../models/retailname");
+const Designation = require("../models/designation");
 
 // Adding a department
 async function addDepartment(req, res) {
@@ -62,6 +63,39 @@ async function addRetailName(req, res) {
   }
 }
 
+// Add Designation
+async function addDesignation(req, res) {
+  try {
+    const { designation } = req.body;
+
+    // Check if the designation already exists
+    const existingDesignation = await Designation.findOne({ designation });
+
+    if (existingDesignation) {
+      return res.status(400).json({ error: "Designation already exists" });
+    }
+
+    const addDesignation = new Designation({
+      designation,
+    });
+
+    await addDesignation.save();
+    res.status(201).json({ message: "Designation added successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+async function getDesignations(req, res) {
+  try {
+    const designations = await Designation.find({}, "designation");
+    res.json(designations);
+  } catch (error) {
+    console.error("Error fetching designations:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 async function getRetailNames(req, res) {
   try {
     const retailNames = await RetailName.find({}, "retailname");
@@ -77,4 +111,6 @@ module.exports = {
   getAllDepartments,
   addRetailName,
   getRetailNames,
+  addDesignation,
+  getDesignations,
 };

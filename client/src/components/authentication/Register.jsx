@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import { useLogout } from "../../hooks/useLogout";
 import "./auth.css";
 
 export default function Registration() {
@@ -15,9 +16,11 @@ export default function Registration() {
     password: "",
   });
   const [departments, setDepartments] = useState([]);
+  const [designations, setDesignations] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const { dispatch } = useAuthContext();
+  const { logout } = useLogout();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,6 +61,10 @@ export default function Registration() {
     }
   };
 
+  const handleLogout = () => {
+    logout();
+  };
+
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
@@ -71,9 +78,23 @@ export default function Registration() {
     fetchDepartments();
   }, []);
 
+  useEffect(() => {
+    const fetchDesignations = async () => {
+      try {
+        const response = await axios.get("/api/auth/designations");
+        setDesignations(response.data);
+      } catch (error) {
+        console.error("An error occurred while fetching designations:", error);
+      }
+    };
+
+    fetchDesignations();
+  }, []);
+
   return (
     <div className="registration-form">
       <h1>User Registration</h1>
+      <button onClick={handleLogout}>Logout</button>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">Username:</label>
@@ -120,15 +141,21 @@ export default function Registration() {
 
         <div className="form-group">
           <label className="form-label">Designation:</label>
-          <input
-            type="text"
+          <select
             className="form-control"
             id="designation"
             name="designation"
             value={formData.designation}
             onChange={handleChange}
             required
-          />
+          >
+            <option value="">Select a designation</option>
+            {designations.map((desg) => (
+              <option key={desg._id} value={desg.designation}>
+                {desg.designation}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div className="form-group">
