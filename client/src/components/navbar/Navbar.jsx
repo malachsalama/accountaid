@@ -5,10 +5,10 @@ import "./navbar.css";
 
 export default function Navbar() {
   const { logout } = useLogout();
-  const { user } = useAuthContext;
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
-  console.log(user);
+  console.log(context);
 
   const handleLogin = () => {
     navigate("/");
