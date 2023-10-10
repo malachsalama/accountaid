@@ -6,13 +6,15 @@ import ManagementHome from "./pages/admin/ManagementHome";
 import RetailHome from "./pages/retail/RetailHome";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
+import Navbar from "./components/navbar/Navbar";
 
-function App({ token }) {
+function App() {
   // const decodedUser = decodeJWT(token);
   // const isSuperAdmin = decodedUser && decodedUser.role === "superadmin";
 
   return (
     <BrowserRouter>
+      <Navbar />
       <Routes>
         {/* <Route path="/" element={isSuperAdmin ? <Home /> : <Login />} /> */}
         <Route path="/" element={<Login />}></Route>
