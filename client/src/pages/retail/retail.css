@@ -1,0 +1,10 @@
+.form_input-field{
+    width: 50%;
+    
+    
+}
+.form_lpo{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

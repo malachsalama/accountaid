@@ -6,9 +6,7 @@ import "./navbar.css";
 export default function Navbar() {
   const { logout } = useLogout();
   const { user } = useAuthContext();
-  const navigate = useNavigate();
-
-  console.log(context);
+  const navigate = useNavigate();  
 
   const handleLogin = () => {
     navigate("/");

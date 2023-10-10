@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import { Button } from "react-bootstrap";
+import {useNavigate} from "react-router-dom";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8000";
 
 export default function RetailHome() {
   const [retailNames, setRetailNames] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchRetailNames = async () => {
@@ -19,10 +22,12 @@ export default function RetailHome() {
   }, []);
 
   return (
+    
     <div>
       {retailNames.map((retailname) => (
         <button key={retailname._id}>{retailname.retailname}</button>
       ))}
+      <Button variant="outline-dark" onClick={()=> navigate("createlpo")}>LPO</Button>
     </div>
   );
 }
