@@ -2,9 +2,9 @@ const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require("../middleware/user");
 
-const { createLpo } = require("../controllers/lpo");
+const { createLpo, fetchLpoData} = require("../controllers/lpo");
 
 router.post("/retail/createlpo", createLpo);
-// router.get("/designations", getDesignations);
+router.get("/retail/createlpo", fetchLpoData);
 
 module.exports = router;
