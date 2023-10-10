@@ -79,7 +79,7 @@ export default function Login() {
         <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Login
         </button>
-        {error && <div>{error}</div>}
+        {error && <div className="error">{error}</div>}
       </form>
     </div>
   );

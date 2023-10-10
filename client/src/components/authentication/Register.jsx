@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
-import { useLogout } from "../../hooks/useLogout";
 import "./auth.css";
 
 export default function Registration() {
@@ -20,7 +19,6 @@ export default function Registration() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
   const { dispatch } = useAuthContext();
-  const { logout } = useLogout();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,8 +27,6 @@ export default function Registration() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(formData);
 
     try {
       setIsLoading(true);
@@ -41,28 +37,20 @@ export default function Registration() {
       const data = response.data;
 
       if (response.status === 201) {
-        // Save the user to local storage
-        localStorage.setItem("user", JSON.stringify(data));
-
         // Update the Auth context
         dispatch({ type: "LOGIN", payload: data });
 
         setIsLoading(false);
         // You can also redirect the user to a success page or perform other actions here
       } else {
-        // Handle registration error
+        // Registration failed with an error status code
         setIsLoading(false);
-        setError(error);
-        console.error("Registration failed");
-        // You can display an error message to the user
       }
     } catch (error) {
-      console.error("An error occurred", error);
+      setIsLoading(false);
+      setError("A user with the same User ID already exists"); // Set the error message
+      console.error("An error occurred", error.message);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
   };
 
   useEffect(() => {
@@ -94,7 +82,6 @@ export default function Registration() {
   return (
     <div className="registration-form">
       <h1>User Registration</h1>
-      <button onClick={handleLogout}>Logout</button>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">Username:</label>
@@ -200,6 +187,7 @@ export default function Registration() {
         <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Register
         </button>
+        {error && <div className="error">{error}</div>}
       </form>
     </div>
   );

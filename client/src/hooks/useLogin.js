@@ -34,7 +34,7 @@ export const useLogin = () => {
       }
     } catch (error) {
       setIsLoading(false);
-      setError("An error occurred while logging in.");
+      setError("Oops! Your User ID or Password is Incorrect");
     }
   };
 
