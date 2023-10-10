@@ -1,5 +1,5 @@
 import { useLogout } from "../../hooks/useLogout";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import "./navbar.css";
 
@@ -7,16 +7,18 @@ export default function Navbar() {
   const { logout } = useLogout();
   const { user } = useAuthContext();
   const navigate = useNavigate();
-
-  console.log(context);
+  const location = useLocation();
 
   const handleLogin = () => {
     navigate("/");
   };
+
   const handleLogout = () => {
     logout();
     navigate("/");
   };
+
+  const isLoginPage = location.pathname === "/";
 
   return (
     <div className="header">
@@ -24,11 +26,11 @@ export default function Navbar() {
       <nav>
         {user && (
           <>
-            <span>Welcome, {user.username}</span>
-            <button onClick={handleLogout}>Logout</button>
+            {!isLoginPage && <span>Welcome, {user.user.username}</span>}
+            {!isLoginPage && <button onClick={handleLogout}>Logout</button>}
           </>
         )}
-        {!user && <button onClick={handleLogin}>Login</button>}
+        {!user && !isLoginPage && <button onClick={handleLogin}>Login</button>}
       </nav>
     </div>
   );
