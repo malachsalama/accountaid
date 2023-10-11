@@ -24,4 +24,15 @@ async function createLpo(req, res) {
   }
 }
 
-module.exports = { createLpo };
+const fetchLpoData = async (req,res) => {
+  try {
+    const lpoItems = await Lpo.find({});   
+
+    res.json(lpoItems);
+  } catch (error) {
+    console.error("Error fetching lpos:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+module.exports = { createLpo, fetchLpoData };

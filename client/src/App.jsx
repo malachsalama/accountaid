@@ -8,6 +8,7 @@ import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
 import CreateLpo from "./pages/retail/CreateLpo"
+import LpoDetails from "./pages/retail/LpoDetails"
 
 function App() {
   // const decodedUser = decodeJWT(token);
@@ -24,6 +25,7 @@ function App() {
         <Route path="/accounts" element={<AccountsHome />}></Route>
         <Route path="/humanresource" element={<HumanResourceHome />}></Route>
         <Route path="/retail/CreateLpo" element={<CreateLpo />}></Route>
+        <Route path="/lpodetails" element={<LpoDetails />}></Route>
       </Routes>
     </BrowserRouter>
   );
