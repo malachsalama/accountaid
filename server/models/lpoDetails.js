@@ -1,26 +1,33 @@
 const mongoose = require("mongoose");
 
-const lpoSchema = new mongoose.Schema({
-  user_id: {
-    type: String,
-    required: true,
+const lpoSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: String,
+      required: true,
+    },
+    unique_id: {
+      type: String,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    status: {
+      type: Number,
+      default: 1,
+    },
   },
-  unique_id: {
-    type: String,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-});
+  { validateBeforeSave: false }
+);
 
 const Lpo = mongoose.model("lpo_detail", lpoSchema);
 
