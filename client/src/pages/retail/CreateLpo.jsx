@@ -47,14 +47,13 @@ function CreateLpo() {
     event.preventDefault();
 
     try {
-      const response = await axios.post("/api/auth/retail/createlpo", post, {
+      await axios.post("/api/auth/retail/createlpo", post, {
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },
       });
       const lpoItems = await axios.get("/api/auth/retail/createlpo");
       setLpoItems(lpoItems.data);
-      console.log(response);
     } catch (error) {
       console.error("An error occurred:", error);
     }
