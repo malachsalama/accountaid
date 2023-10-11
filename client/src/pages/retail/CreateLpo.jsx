@@ -1,6 +1,6 @@
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from "axios";
 import "./retail.css";
@@ -8,6 +8,8 @@ import "./retail.css";
 function CreateLpo() {
   const { user } = useAuthContext();
   const navigate = useNavigate();
+  const [lpoItems1, setLpoItems] = useState([]);
+
   const [post, setPost] = useState({
     unique_id: "",
     description: "",
@@ -28,6 +30,19 @@ function CreateLpo() {
     });
   };
 
+  useEffect(() => {
+    const fetchLpoData = async () => {
+      try {
+        const lpoItems = await axios.get("/api/auth/retail/createlpo");
+
+        setLpoItems(lpoItems.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchLpoData();
+  }, []);
+
   const handleClick = async (event) => {
     event.preventDefault();
 
@@ -37,6 +52,8 @@ function CreateLpo() {
           Authorization: `Bearer ${jwtToken}`,
         },
       });
+      const lpoItems = await axios.get("/api/auth/retail/createlpo");
+      setLpoItems(lpoItems.data);
       console.log(response);
     } catch (error) {
       console.error("An error occurred:", error);
@@ -100,6 +117,35 @@ function CreateLpo() {
       >
         Back
       </Button>
+
+      <Button
+        variant="outline-dark"
+        style={{ width: "100%" }}
+        onClick={() => navigate("/lpodetails")}
+      >
+        Submit
+      </Button>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Unique ID</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {lpoItems1.map((item, index) => (
+            <tr key={index}>
+              <td>{item.unique_id}</td>
+              <td>{item.description}</td>
+              <td>{item.quantity}</td>
+              <td>{item.price}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
