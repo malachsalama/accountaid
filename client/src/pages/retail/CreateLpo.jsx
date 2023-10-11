@@ -1,10 +1,12 @@
 import { Button, Form } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from "axios";
 import "./retail.css";
 
 function CreateLpo() {
+  const { user } = useAuthContext();
   const navigate = useNavigate();
   const [post, setPost] = useState({
     unique_id: "",
@@ -12,6 +14,8 @@ function CreateLpo() {
     quantity: "",
     price: "",
   });
+
+  const jwtToken = user ? user.token : null;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -24,15 +28,15 @@ function CreateLpo() {
     });
   };
 
-  //   useEffect (()=>{
-  //     console.log(post);
-  //   }, [post]);
-
   const handleClick = async (event) => {
     event.preventDefault();
 
     try {
-      const response = await axios.post("/api/auth/retail/createlpo", post);
+      const response = await axios.post("/api/auth/retail/createlpo", post, {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
       console.log(response);
     } catch (error) {
       console.error("An error occurred:", error);

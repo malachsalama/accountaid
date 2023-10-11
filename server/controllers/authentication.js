@@ -1,6 +1,6 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
-const { createToken } = require("../middleware/user");
+const { createToken } = require("../middleware/userAuth");
 
 // Controller function to create a new user
 async function userSignUp(req, res) {
