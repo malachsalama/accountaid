@@ -43,7 +43,7 @@ function CreateLpo() {
     event.preventDefault();
 
     try {
-      const response = await axios.post("/api/auth/retail/createlpo", post);
+     await axios.post("/api/auth/retail/createlpo", post);
 
       const lpoItems = await axios.get("/api/auth/retail/createlpo");
 
