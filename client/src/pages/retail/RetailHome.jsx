@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "react-bootstrap";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8000";
 
@@ -11,7 +11,7 @@ export default function RetailHome() {
   useEffect(() => {
     const fetchRetailNames = async () => {
       try {
-        const response = await axios.get("/api/auth/retailnames");
+        const response = await axios.get("/api/auth/retail/retailnames");
         setRetailNames(response.data);
       } catch (error) {
         console.error("An error occurred while fetching retailnames:", error);
@@ -22,12 +22,13 @@ export default function RetailHome() {
   }, []);
 
   return (
-    
     <div>
       {retailNames.map((retailname) => (
         <button key={retailname._id}>{retailname.retailname}</button>
       ))}
-      <Button variant="outline-dark" onClick={()=> navigate("createlpo")}>LPO</Button>
+      <Button variant="outline-dark" onClick={() => navigate("createlpo")}>
+        LPO
+      </Button>
     </div>
   );
 }
