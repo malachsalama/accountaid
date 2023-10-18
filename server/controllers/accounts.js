@@ -70,8 +70,8 @@ async function getAccountNo(req, res) {
 
 async function getAllCreditors(req, res) {
   try {
-    const allCreditors = await Creditor.find({}, "company");
-    res.json(allCreditors);
+    const allCreditors = await Creditor.find({});
+    res.status(200).json(allCreditors);
   } catch (error) {
     console.error("Error fetching creditors:", error);
     res.status(500).json({ error: "Internal server error" });
