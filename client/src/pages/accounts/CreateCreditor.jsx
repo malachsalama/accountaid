@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import "../../components/authentication/auth.css";
 
-export default function createSupplier() {
+export default function CreateCreditor() {
+  const { user } = useAuthContext();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -12,7 +14,9 @@ export default function createSupplier() {
     kra_pin: "",
     email: "",
     phone_no: "",
+    acc_no: "",
   });
+  const jwtToken = user ? user.token : null;
 
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
@@ -25,29 +29,63 @@ export default function createSupplier() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const response = await axios.post("/api/auth/createsupplier", formData);
 
-    try {
-      // setIsLoading(true);
-      // setError(null);
-      
-      
-     
+    if (user) {
+      try {
+        // setIsLoading(true);
+        // setError(null);
+        const response = await axios.post(
+          "/api/auth/accounts/createcreditor",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${jwtToken}`,
+            },
+          }
+        );
 
-      if (response.status === 201) {
-        navigate("/supplierList");
+        if (response.status === 201) {
+          navigate("/creditorlist");
+        }
+      } catch (error) {
+        setIsLoading(false);
+        setError("Creditor not Inserted"); // Set the error message
+        console.error("Creditor not Inserted", error);
       }
-    } catch (error) {
-      setIsLoading(false);
-      setError("Supplier not Inserted"); // Set the error message
-      console.error("Supplier not Inserted", error.message);
     }
   };
 
+  useEffect(() => {
+    const fetchAccNo = async () => {
+      try {
+        const response = await axios.get("/api/auth/accounts/account_no");
+        let acc_no = response.data;
+        setFormData({ ...formData, acc_no });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAccNo();
+  }, [formData]);
+
   return (
     <div className="registration-form">
-      <h1>Register Supplier</h1>
+      <h1>Register Creditor</h1>
       <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label className="form-label">Acc_no:</label>
+          <input
+            type="text"
+            className="form-control"
+            id="acc_no"
+            name="acc_no"
+            value={formData.acc_no}
+            onChange={handleChange}
+            required
+            readOnly
+          />
+        </div>
         <div className="form-group">
           <label className="form-label">Name:</label>
           <input

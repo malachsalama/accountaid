@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
-import "./auth.css";
 
 export default function Registration() {
   const [formData, setFormData] = useState({

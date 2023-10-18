@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const supplierSchema = new mongoose.Schema({
-    name: {
+const creditorSchema = new mongoose.Schema({
+  name: {
     type: String,
   },
   company: {
@@ -18,8 +18,32 @@ const supplierSchema = new mongoose.Schema({
   phone_no: {
     type: String,
   },
+  acc_no: {
+    type: String,
+  },
 });
 
-const Supplier = mongoose.model("creditor", supplierSchema);
+const logsSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: String,
+    },
+    action: {
+      type: String,
+    },
+    unique_id: {
+      type: String,
+    },
+    doc_type: {
+      type: String,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-module.exports = Supplier ;
+const Creditor = mongoose.model("creditor", creditorSchema);
+const Logs = mongoose.model("log", logsSchema);
+
+module.exports = { Creditor, Logs };
