@@ -43,7 +43,7 @@ async function userSignUp(req, res) {
     await user.save();
 
     // Create a token for the user
-    const token = createToken(user.user_id, user.designation);
+    const token = createToken(user);
 
     // Respond with a success message or the created user object
     res.status(201).json({ message: "User created successfully", user, token });
@@ -72,7 +72,8 @@ async function userLogin(req, res) {
     }
 
     // Create a token for the user
-    const token = createToken(user.user_id, user.designation);
+    const userObject = user.toObject();
+    const token = createToken(userObject);
 
     // Send the token in the response
     res.status(200).json({ user, token });

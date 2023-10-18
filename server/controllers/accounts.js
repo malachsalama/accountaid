@@ -4,14 +4,15 @@ const { Creditor, Logs } = require("../models/accounts");
 async function createCreditor(req, res) {
   try {
     const { name, company, kra_pin, email, phone_no } = req.body;
+
     const acc_no = req.body.acc_no;
-    const { user_id } = req.user;
+    const { user_id, username } = req.user;
 
     // Check if the Creditor name already exists
     const existingcompany = await Creditor.findOne({ company });
 
-    const action = `User ${user_id} created an account for ${company}`;
-    const type = `New account`;
+    const action = `${username} created an account for ${company}`;
+    const doc_type = `New account`;
     const unique_id = acc_no;
 
     if (existingcompany) {
@@ -60,7 +61,6 @@ async function getAccountNo(req, res) {
       numericPart++;
       cred_no = "C" + numericPart.toString().padStart(4, "0");
     }
-    console.log(cred_no);
     res.status(200).json(cred_no);
   } catch (error) {
     console.error("Error getting account number:", error);
@@ -68,7 +68,18 @@ async function getAccountNo(req, res) {
   }
 }
 
+async function getAllCreditors(req, res) {
+  try {
+    const allCreditors = await Creditor.find({}, "company");
+    res.json(allCreditors);
+  } catch (error) {
+    console.error("Error fetching creditors:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   createCreditor,
   getAccountNo,
+  getAllCreditors,
 };

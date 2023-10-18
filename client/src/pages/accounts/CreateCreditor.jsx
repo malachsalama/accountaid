@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -67,7 +68,7 @@ export default function CreateCreditor() {
     };
 
     fetchAccNo();
-  }, [formData]);
+  }, []);
 
   return (
     <div className="registration-form">
