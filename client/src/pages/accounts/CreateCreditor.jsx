@@ -46,7 +46,7 @@ export default function CreateCreditor() {
         );
 
         if (response.status === 201) {
-          navigate("/creditorlist");
+          navigate("/accounts/creditorlist");
         }
       } catch (error) {
         setIsLoading(false);
