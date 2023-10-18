@@ -12,7 +12,7 @@ export const useLogin = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`/api/auth/user/login`, formData);
+      const response = await axios.post("/api/auth/user/login", formData);
 
       const data = response.data;
 

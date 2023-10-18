@@ -1,8 +1,8 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRE } = require("../config/config");
 
-const createToken = (user_id, designation) => {
-  return jwt.sign({ user_id, designation }, JWT_SECRET, {
+const createToken = (user) => {
+  return jwt.sign(user, JWT_SECRET, {
     expiresIn: JWT_EXPIRE,
   });
 };
