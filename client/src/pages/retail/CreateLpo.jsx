@@ -1,5 +1,5 @@
 import { Button, Form } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from "axios";
@@ -169,13 +169,7 @@ function CreateLpo() {
           </tbody>
         </table>
       </div>
-      <Button
-        variant="outline-dark"
-        style={{ width: "10%" }}
-        onClick={() => navigate("/lpodetails")}
-      >
-        Submit
-      </Button>
+      <Link to="/retail/lpodetails">Submit</Link>
     </div>
   );
 }

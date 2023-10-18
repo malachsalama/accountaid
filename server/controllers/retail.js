@@ -1,3 +1,4 @@
+const { Creditor } = require("../models/accounts");
 const Lpo = require("../models/lpoDetails");
 
 // Adding a product to  the list
@@ -47,4 +48,23 @@ const fetchLpoData = async (req, res) => {
   }
 };
 
-module.exports = { createLpo, fetchLpoData };
+const autocomplete = async (req, res) => {
+  try {
+    const query = req.query.q;
+
+    const regex = new RegExp(query, "i");
+
+    const results = await Creditor.find({ name: { $regex: regex } });
+
+    const suggestionList = results.map((item) => item);
+
+    res.json(suggestionList);
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching suggestions" });
+  }
+};
+
+module.exports = { createLpo, fetchLpoData, autocomplete };

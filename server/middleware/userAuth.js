@@ -18,7 +18,6 @@ const authenticateToken = (req, res, next) => {
   try {
     const decodedToken = jwt.verify(token, JWT_SECRET);
 
-    // You can access user_id from the token
     req.user = decodedToken;
 
     next();

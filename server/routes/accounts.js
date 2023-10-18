@@ -1,11 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { authenticateToken } = require("../middleware/user");
+const { authenticateToken } = require("../middleware/userAuth");
 
-const { createSupplier } = require("../controllers/accounts");
+const { createCreditor, getAccountNo } = require("../controllers/accounts");
 
-// router.use(authenticateToken);
-
-router.post("/createsupplier", createSupplier);
+router.post("/accounts/createcreditor", authenticateToken, createCreditor);
+router.get("/accounts/account_no", getAccountNo);
 
 module.exports = router;

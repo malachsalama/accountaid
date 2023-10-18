@@ -1,35 +1,68 @@
 /* eslint-disable react/prop-types */
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import { decodeJWT } from "../utils/jwtUtils";
+import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
 import ManagementHome from "./pages/admin/ManagementHome";
 import RetailHome from "./pages/retail/RetailHome";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
-import CreateLpo from "./pages/retail/CreateLpo"
-import LpoDetails from "./pages/retail/LpoDetails"
-import CreateSupplier from "./pages/accounts/CreateSupplier"
+import CreateLpo from "./pages/retail/CreateLpo";
+import LpoDetails from "./pages/retail/LpoDetails";
+import CreateCreditor from "./pages/accounts/CreateCreditor";
+import CreditorList from "./pages/accounts/CreditorList";
+import ProtectedRoute from "./components/authentication/ProtectedRoutes";
+import "./App.css";
 
 function App() {
-  // const decodedUser = decodeJWT(token);
-  // const isSuperAdmin = decodedUser && decodedUser.role === "superadmin";
-
   return (
-    <BrowserRouter>
-      <Navbar />
-      <Routes>
-        {/* <Route path="/" element={isSuperAdmin ? <Home /> : <Login />} /> */}
-        <Route path="/" element={<Login />}></Route>
-        <Route path="/admin" element={<ManagementHome />}></Route>
-        <Route path="/retail" element={<RetailHome />}></Route>
-        <Route path="/accounts" element={<AccountsHome />}></Route>
-        <Route path="/humanresource" element={<HumanResourceHome />}></Route>
-        <Route path="/retail/CreateLpo" element={<CreateLpo />}></Route>
-        <Route path="/lpodetails" element={<LpoDetails />}></Route>
-        <Route path="/createsupplier" element={<CreateSupplier />}></Route>
-      </Routes>
-    </BrowserRouter>
+    <div className="app">
+      <BrowserRouter>
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <ManagementHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/retail"
+            element={
+              <ProtectedRoute>
+                <RetailHome />
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="createlpo" element={<CreateLpo />} />
+            <Route path="LpoDetails" element={<LpoDetails />} />
+          </Route>
+          <Route
+            path="/accounts"
+            element={
+              <ProtectedRoute>
+                <AccountsHome />
+                <Outlet />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="createcreditor" element={<CreateCreditor />} />
+            <Route path="creditorlist" element={<CreditorList />} />
+          </Route>
+          <Route
+            path="/humanresource"
+            element={
+              <ProtectedRoute>
+                <HumanResourceHome />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </div>
   );
 }
 
