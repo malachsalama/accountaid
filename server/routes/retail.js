@@ -7,6 +7,7 @@ const {
   createLpo,
   fetchLpoData,
   autocomplete,
+  getLpoNo,
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
@@ -16,5 +17,6 @@ router.post("/retail/createlpo", authenticateToken, createLpo);
 router.get("/retail/createlpo", authenticateToken, fetchLpoData);
 
 router.get("/retail/autocomplete", autocomplete);
+router.get("/retail/lpo_no", getLpoNo);
 
 module.exports = router;

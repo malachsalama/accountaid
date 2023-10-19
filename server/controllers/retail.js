@@ -37,9 +37,9 @@ const fetchLpoData = async (req, res) => {
     const { user_id } = req.user;
 
     if (!user_id) {
-      return res.status(401).json({ error: "User not authenticated" });
+      return res.status(401).json({ error: "User not authenticated" });      
     }
-    const lpoItems = await Lpo.find({ user_id });
+    const lpoItems = await Lpo.find({ user_id, status: 1 });
 
     res.json(lpoItems);
   } catch (error) {
@@ -47,6 +47,28 @@ const fetchLpoData = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+//fetch the largest lpo number and increment it by 1
+async function getLpoNo(req, res) {
+  try {
+    const result = await Lpo.findOne().sort({ lpo_no: -1 }).exec();
+
+    let max_no = result ? result.lpo_no : 0;
+    let lpoNo;
+
+    if (max_no === 0) {
+      lpoNo = "LPO-0001";
+    } else {
+      let numericPart = parseInt(max_no.slice(3), 10);
+      numericPart++;
+      lpoNo = "LPO" + numericPart.toString().padStart(4, "0");
+    }
+    res.status(200).json(lpoNo);
+  } catch (error) {
+    console.error("Error getting account number:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 const autocomplete = async (req, res) => {
   try {
@@ -67,4 +89,4 @@ const autocomplete = async (req, res) => {
   }
 };
 
-module.exports = { createLpo, fetchLpoData, autocomplete };
+module.exports = { createLpo, fetchLpoData, autocomplete, getLpoNo};
