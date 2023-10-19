@@ -1,5 +1,5 @@
 const Department = require("../models/department");
-const RetailName = require("../models/retailname");
+const RetailName = require("../models/retail");
 const Designation = require("../models/designation");
 
 // Adding a department

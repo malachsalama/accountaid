@@ -1,5 +1,5 @@
 const { Creditor } = require("../models/accounts");
-const Lpo = require("../models/lpoDetails");
+const { Lpo, LpoDetails } = require("../models/retail");
 
 // Adding a product to  the list
 async function createLpo(req, res) {
@@ -39,7 +39,7 @@ const fetchLpoData = async (req, res) => {
     if (!user_id) {
       return res.status(401).json({ error: "User not authenticated" });      
     }
-    const lpoItems = await Lpo.find({ user_id, status: 1 });
+    const lpoItems = await LpoDetails.find({ user_id, status: 1 });
 
     res.json(lpoItems);
   } catch (error) {
@@ -88,5 +88,44 @@ const autocomplete = async (req, res) => {
       .json({ error: "An error occurred while fetching suggestions" });
   }
 };
+
+// Adding a product to  the list
+async function LpoDetails(req, res) {
+  try {
+    const { user_id } = req.user;
+    const { 
+      supplier, 
+      supplierName, 
+      kra_pin, 
+      usd_rate, 
+      lpo_no,
+      netTotal, 
+} = req.body;
+
+    const newLpo = new Lpo({
+      supplier, 
+      supplierName, 
+      kra_pin, 
+      usd_rate, 
+      lpo_no,
+      netTotal, 
+    });
+
+    // Validate the request data
+    const validationErrors = newLpo.validateSync();
+    if (validationErrors) {
+      // Return validation errors to the client
+      return res.status(400).json({ errors: validationErrors.errors });
+    }
+
+    // Save the department to the database
+    await newProduct.save();
+
+    res.status(201).json({ message: "Product added successfully" });
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 module.exports = { createLpo, fetchLpoData, autocomplete, getLpoNo};
