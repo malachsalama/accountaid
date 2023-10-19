@@ -39,7 +39,7 @@ const fetchLpoData = async (req, res) => {
     if (!user_id) {
       return res.status(401).json({ error: "User not authenticated" });
     }
-    const lpoItems = await Lpo.find({ user_id });
+    const lpoItems = await Lpo.find({ user_id, status: 1 });
 
     res.json(lpoItems);
   } catch (error) {

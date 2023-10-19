@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -99,6 +99,36 @@ export default function LpoDetails() {
       }
     }
   };
+
+  // Function to fetch LPO items with Authorization header
+  const fetchLpoItems = useCallback(async () => {
+    try {
+      const response = await axios.get("/api/auth/retail/createlpo", {
+        headers: {
+          Authorization: `Bearer ${jwtToken}`,
+        },
+      });
+      const lpoItems = response.data;
+
+      // Calculate total for each item and accumulate the overall total
+      let overallTotal = 0;
+      lpoItems.forEach((lpoItem) => {
+        const total = lpoItem.quantity * lpoItem.price;
+        overallTotal += total;
+      });
+
+      // Do something with the calculated totals (e.g., display them)
+      console.log("Overall Total: ", overallTotal);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [jwtToken]);
+
+  useEffect(() => {
+    if (user) {
+      fetchLpoItems();
+    }
+  }, [fetchLpoItems, user]);
 
   return (
     <div className="registration-form">
