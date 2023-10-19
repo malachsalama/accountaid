@@ -54,7 +54,7 @@ const autocomplete = async (req, res) => {
 
     const regex = new RegExp(query, "i");
 
-    const results = await Creditor.find({ name: { $regex: regex } });
+    const results = await Creditor.find({ company: { $regex: regex } });
 
     const suggestionList = results.map((item) => item);
 

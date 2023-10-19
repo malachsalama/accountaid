@@ -5,12 +5,11 @@ import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function LpoDetails() {
   const { user } = useAuthContext();
-  const [value, setValue] = useState("");
+  const [supplier, setSupplier] = useState("");
+  const [supplierName, setSupplierName] = useState("");
   const [kra_pin, setKraPin] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [post, setPost] = useState({
-    usd_rate: "",
-  });
+  const [usd_rate, setUsdRate] = useState("");
 
   const jwtToken = user ? user.token : null;
 
@@ -26,8 +25,8 @@ export default function LpoDetails() {
       const kra_pins = [];
 
       data.forEach((data) => {
-        if (data.name || data.kra_pin) {
-          names.push(data.name);
+        if (data.company || data.kra_pin) {
+          names.push(data.company);
           kra_pins.push(data.kra_pin);
         }
       });
@@ -39,12 +38,10 @@ export default function LpoDetails() {
   };
 
   const onInputChange = (event, { newValue }) => {
-    setValue(newValue);
+    setSupplier(newValue);
   };
 
   const onSuggestionSelected = async (event, { suggestionValue }) => {
-    setValue(suggestionValue);
-
     const response = await axios.get("/api/auth/retail/autocomplete", {
       params: { q: suggestionValue },
     });
@@ -52,31 +49,45 @@ export default function LpoDetails() {
     const data = response.data;
 
     setKraPin(data[0].kra_pin);
+    setSupplierName(data[0].name);
+    setSupplier(suggestionValue);
   };
 
   const renderSuggestion = (suggestion) => (
     <div className="suggestion-box">{suggestion}</div>
   );
 
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-
-    setPost((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-      };
-    });
+  const handleUsdRate = (event) => {
+    const usd_rate = event.target.value;
+    setUsdRate(usd_rate);
   };
 
-  const handleClick = async (event) => {
+  const handleKraPinChange = (event) => {
+    const kraPin = event.target.value;
+    setKraPin(kraPin);
+  };
+
+  const handleSupplier = (event) => {
+    const supplierName = event.target.value;
+    setSupplierName(supplierName);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (user) {
       try {
-        await axios.post("/api/auth/retail/createLpoFinal", post, {
+        // Include value and kra_pin in the request body
+        const data = {
+          supplier,
+          supplierName,
+          kra_pin,
+          usd_rate,
+        };
+
+        await axios.post("/api/auth/retail/createLpoFinal", data, {
           headers: {
-            Authorization: `Bearer ${jwtToken}, value, kra_pin`,
+            Authorization: `Bearer ${jwtToken}`,
           },
         });
       } catch (error) {
@@ -91,10 +102,10 @@ export default function LpoDetails() {
 
   return (
     <div className="registration-form">
-      <h1>Creditor Details</h1>
-      <form>
+      <h1>Supplier Details</h1>
+      <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label className="form-label">Creditor:</label>
+          <label className="form-label">Supplier:</label>
           <Autosuggest
             suggestions={suggestions}
             onSuggestionsFetchRequested={({ value }) => getSuggestions(value)}
@@ -103,7 +114,7 @@ export default function LpoDetails() {
             getSuggestionValue={(suggestion) => suggestion}
             renderSuggestion={renderSuggestion}
             inputProps={{
-              value,
+              value: supplier,
               onChange: onInputChange,
               type: "text",
               className: "form-control",
@@ -114,13 +125,26 @@ export default function LpoDetails() {
           />
         </div>
         <div className="form-group">
+          <label className="form-label">Name:</label>
+          <input
+            type="text"
+            className="form-control"
+            id="supplierName"
+            name="supplierName"
+            value={supplierName}
+            onChange={handleSupplier}
+            required
+          />
+        </div>
+        <div className="form-group">
           <label className="form-label">KRA PIN:</label>
           <input
             type="text"
             className="form-control"
             id="kra_pin"
             name="kra_pin"
-            defaultValue=""
+            value={kra_pin}
+            onChange={handleKraPinChange}
             required
           />
         </div>
@@ -132,13 +156,13 @@ export default function LpoDetails() {
             className="form-control"
             id="usd_rate"
             name="usd_rate"
-            value={post.usd_rate}
+            value={usd_rate}
             required
-            onChange={handleChange}
+            onChange={handleUsdRate}
           />
         </div>
 
-        <button type="submit" className="btn btn-primary" onClick={handleClick}>
+        <button type="submit" className="btn btn-primary">
           Create LPO
         </button>
       </form>

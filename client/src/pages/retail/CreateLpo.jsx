@@ -8,7 +8,7 @@ import "./retail.css";
 function CreateLpo() {
   const { user } = useAuthContext();
   const navigate = useNavigate();
-  const [lpoItems1, setLpoItems] = useState([]);
+  const [lpoItems, setLpoItems] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
 
   const [post, setPost] = useState({
@@ -158,7 +158,7 @@ function CreateLpo() {
             </tr>
           </thead>
           <tbody>
-            {lpoItems1.map((item, index) => (
+            {lpoItems.map((item, index) => (
               <tr key={index}>
                 <td>{item.unique_id}</td>
                 <td>{item.description}</td>
