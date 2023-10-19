@@ -100,6 +100,7 @@ export default function LpoDetails() {
     }
   };
 
+
   // Function to fetch LPO items with Authorization header
   const fetchLpoItems = useCallback(async () => {
     try {
@@ -129,6 +130,21 @@ export default function LpoDetails() {
       fetchLpoItems();
     }
   }, [fetchLpoItems, user]);
+
+  useEffect(() => {
+    const fetchAccNo = async () => {
+      try {
+        const response = await axios.get("/api/auth/retail/lpo_no");
+        let lpo_no = response.data;
+        // setFormData({ ...formData, acc_no });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAccNo();
+  }, []);
+
 
   return (
     <div className="registration-form">
