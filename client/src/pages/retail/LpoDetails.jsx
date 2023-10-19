@@ -100,6 +100,20 @@ export default function LpoDetails() {
     }
   };
 
+  useEffect(() => {
+    const fetchAccNo = async () => {
+      try {
+        const response = await axios.get("/api/auth/retail/lpo_no");
+        let lpo_no = response.data;
+        // setFormData({ ...formData, acc_no });
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchAccNo();
+  }, []);
+
   return (
     <div className="registration-form">
       <h1>Supplier Details</h1>
