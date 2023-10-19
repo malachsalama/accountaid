@@ -10,6 +10,8 @@ export default function LpoDetails() {
   const [kra_pin, setKraPin] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const [usd_rate, setUsdRate] = useState("");
+  const [lpo_no, setLpoNo] = useState("");
+  const [netTotal, setNetTotal] = useState(0);
 
   const jwtToken = user ? user.token : null;
 
@@ -72,35 +74,6 @@ export default function LpoDetails() {
     setSupplierName(supplierName);
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    if (user) {
-      try {
-        // Include value and kra_pin in the request body
-        const data = {
-          supplier,
-          supplierName,
-          kra_pin,
-          usd_rate,
-        };
-
-        await axios.post("/api/auth/retail/createLpoFinal", data, {
-          headers: {
-            Authorization: `Bearer ${jwtToken}`,
-          },
-        });
-      } catch (error) {
-        if (error.response && error.response.status === 400) {
-          // If a validation error response is received
-        } else {
-          console.error("An error occurred:", error);
-        }
-      }
-    }
-  };
-
-
   // Function to fetch LPO items with Authorization header
   const fetchLpoItems = useCallback(async () => {
     try {
@@ -112,14 +85,13 @@ export default function LpoDetails() {
       const lpoItems = response.data;
 
       // Calculate total for each item and accumulate the overall total
-      let overallTotal = 0;
+      let netTotal = 0;
       lpoItems.forEach((lpoItem) => {
         const total = lpoItem.quantity * lpoItem.price;
-        overallTotal += total;
+        netTotal += total;
       });
 
-      // Do something with the calculated totals (e.g., display them)
-      console.log("Overall Total: ", overallTotal);
+      setNetTotal(netTotal);
     } catch (error) {
       console.error(error);
     }
@@ -136,7 +108,7 @@ export default function LpoDetails() {
       try {
         const response = await axios.get("/api/auth/retail/lpo_no");
         let lpo_no = response.data;
-        // setFormData({ ...formData, acc_no });
+        setLpoNo(lpo_no);
       } catch (error) {
         console.error(error);
       }
@@ -145,6 +117,37 @@ export default function LpoDetails() {
     fetchAccNo();
   }, []);
 
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (user) {
+      try {
+        // send all the data in the request body
+        const data = {
+          supplier,
+          supplierName,
+          kra_pin,
+          usd_rate,
+          lpo_no,
+          netTotal,
+        };
+
+        console.log(data);
+
+        await axios.post("/api/auth/retail/lpodetails", data, {
+          headers: {
+            Authorization: `Bearer ${jwtToken}`,
+          },
+        });
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          // If a validation error response is received
+        } else {
+          console.error("An error occurred:", error);
+        }
+      }
+    }
+  };
 
   return (
     <div className="registration-form">
