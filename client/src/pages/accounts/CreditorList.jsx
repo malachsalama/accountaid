@@ -6,13 +6,13 @@ export default function CreditorList() {
   const [creditors, setCreditors] = useState([]);
 
   useEffect(() => {
-    async function fetchCreditor() {
+    async function fetchCreditors() {
       const response = await axios.get("/api/auth/accounts/creditors");
       console.log(response);
       setCreditors(response.data);
     }
 
-    fetchCreditor();
+    fetchCreditors();
   }, []);
 
   return (
