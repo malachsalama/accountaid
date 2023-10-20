@@ -12,6 +12,7 @@ export default function LpoDetails() {
   const [usd_rate, setUsdRate] = useState("");
   const [lpo_no, setLpoNo] = useState("");
   const [netTotal, setNetTotal] = useState(0);
+  const [acc_no, setAccNo] = useState("");
 
   const jwtToken = user ? user.token : null;
 
@@ -53,6 +54,7 @@ export default function LpoDetails() {
     setKraPin(data[0].kra_pin);
     setSupplierName(data[0].name);
     setSupplier(suggestionValue);
+    setAccNo(data[0].acc_no);
   };
 
   const renderSuggestion = (suggestion) => (
@@ -130,11 +132,10 @@ export default function LpoDetails() {
           usd_rate,
           lpo_no,
           netTotal,
+          acc_no,
         };
 
-        console.log(data);
-
-        await axios.post("/api/auth/retail/lpodetails", data, {
+        await axios.post("/api/auth/retail/generatelpo", data, {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
@@ -183,6 +184,18 @@ export default function LpoDetails() {
             value={supplierName}
             onChange={handleSupplier}
             required
+          />
+        </div>
+        <div className="form-group">
+          <label className="form-label">Account No:</label>
+          <input
+            type="text"
+            className="form-control"
+            id="acc_no"
+            name="acc_no"
+            value={acc_no}
+            required
+            readOnly
           />
         </div>
         <div className="form-group">
