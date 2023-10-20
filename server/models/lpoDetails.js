@@ -9,6 +9,9 @@ const lpoSchema = new mongoose.Schema(
     unique_id: {
       type: String,
     },
+    lpo_no: {
+      type: String,
+    },
     description: {
       type: String,
       required: true,
@@ -25,6 +28,7 @@ const lpoSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
+    
   },
   { validateBeforeSave: false }
 );
