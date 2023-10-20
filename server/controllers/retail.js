@@ -1,4 +1,4 @@
-const { Creditor } = require("../models/accounts");
+const { Creditor, Logs } = require("../models/accounts");
 const Lpo = require("../models/lpoDetails");
 const Supplier = require("../models/retail");
 
@@ -94,9 +94,13 @@ const autocomplete = async (req, res) => {
 
 async function generateLpo(req, res) {
   try {
-    const { user_id } = req.user;
+    const { user_id, username } = req.user;
     const { supplier, supplierName, kra_pin, usd_rate, lpo_no, netTotal } =
       req.body;
+
+    const action = `${username} created an LPO for ${supplier}`;
+    const unique_id = lpo_no;
+    const doc_type = "LPO";
 
     const newLpo = new Supplier({
       supplier,
@@ -114,6 +118,23 @@ async function generateLpo(req, res) {
       // Return validation errors to the client
       return res.status(400).json({ errors: validationErrors.errors });
     }
+
+    // Update lpo_items to status 2 for a specific user
+
+    const filter = { user_id: user_id, status: 1 };
+    const update = { $set: { status: 2, lpo_no: lpo_no } };
+
+    await Lpo.updateMany(filter, update);
+
+    // save log data for the creator of the lpo to the db
+    const logData = new Logs({
+      user_id,
+      action,
+      unique_id,
+      doc_type,
+    });
+
+    await logData.save();
 
     // Save the department to the database
     await newLpo.save();
