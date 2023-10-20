@@ -31,6 +31,7 @@ export default function RetailHome() {
       <Button variant="outline-dark" onClick={() => navigate("createlpo")}>
         LPO
       </Button>
+      <button onClick={() => navigate("lpolist")}>Lpo List</button>
     </div>
   );
 }
