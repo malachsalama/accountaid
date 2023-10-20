@@ -12,6 +12,7 @@ import CreateCreditor from "./pages/accounts/CreateCreditor";
 import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
 import "./App.css";
+import LpoList from "./pages/retail/LpoList";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           >
             <Route path="createlpo" element={<CreateLpo />} />
             <Route path="LpoDetails" element={<LpoDetails />} />
+            <Route path="lpolist" element={<LpoList />} />
           </Route>
           <Route
             path="/accounts"

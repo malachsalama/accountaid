@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -15,6 +16,7 @@ export default function LpoDetails() {
   const [acc_no, setAccNo] = useState("");
 
   const jwtToken = user ? user.token : null;
+  const navigate = useNavigate();
 
   const getSuggestions = async (inputValue) => {
     try {
@@ -148,6 +150,7 @@ export default function LpoDetails() {
         }
       }
     }
+    navigate("/retail/lpolist");
   };
 
   return (

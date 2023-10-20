@@ -146,10 +146,21 @@ async function generateLpo(req, res) {
   }
 }
 
+async function getAllLpos(req, res) {
+  try {
+    const allLpos = await Supplier.find({});
+    res.status(200).json(allLpos);
+  } catch (error) {
+    console.error("Error fetching lpos:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   createLpo,
   fetchLpoData,
   autocomplete,
   getLpoNo,
   generateLpo,
+  getAllLpos,
 };
