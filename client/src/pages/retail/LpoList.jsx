@@ -16,6 +16,22 @@ export default function LpoList() {
     fetchLpos();
   }, []);
 
+  const handlePdf = async (lpo_no) => {
+    try {
+      const response = await axios.get("/api/auth/pdflpo", {
+        params: { lpo_no },
+        responseType: "blob", // Request binary data
+      });
+
+      // Create a blob URL and open it in a new window
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      window.open(url, "_blank");
+    } catch (error) {
+      console.error("Error downloading PDF:", error);
+    }
+  };
+
   return (
     <>
       <h2>List of All Lpos</h2>
@@ -42,7 +58,7 @@ export default function LpoList() {
                 <td>{item.lpo_no}</td>
                 <td>{item.netTotal}</td>
                 <td>
-                  <button>View</button>
+                  <button onClick={() => handlePdf(item.lpo_no)}>View</button>
                   <button>Delete</button>
                   <button>Receive</button>
                 </td>

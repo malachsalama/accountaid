@@ -17,6 +17,9 @@ const lpoSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    lpo_no: {
+      type: String,
+    },
     price: {
       type: Number,
       required: true,
