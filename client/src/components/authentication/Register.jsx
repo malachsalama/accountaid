@@ -80,7 +80,7 @@ export default function Registration() {
 
   return (
     <div className="registration-form">
-      <h1>User Registration</h1>
+      <h1 className="form-title">User Registration</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label className="form-label">Username:</label>

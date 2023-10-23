@@ -26,9 +26,13 @@ export default function Navbar() {
       <nav>
         {user && (
           <>
-            {!isLoginPage && <span>Welcome, {user.user.username}</span>}
             {!isLoginPage && (
-              <button className="" onClick={handleLogout}>
+              <span className="welcome-text">
+                Welcome, {user.user.username}
+              </span>
+            )}
+            {!isLoginPage && (
+              <button className="btn-logout" onClick={handleLogout}>
                 Logout
               </button>
             )}

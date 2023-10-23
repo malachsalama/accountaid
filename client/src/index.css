@@ -1,8 +1,15 @@
 .registration-form,
 .login-form,
 .lpo-form {
-  width: 568px;
+  width: 100%;
   margin: 3rem auto;
+  max-width: 450px;
+  background-color: #eaeaea;
+  padding: 3rem 3rem;
+}
+
+.form-title {
+  margin-bottom: 1rem;
 }
 
 .form-group {
@@ -33,12 +40,16 @@
 
 .btn-primary {
   color: #fff;
+  cursor: pointer;
   background-color: #007bff;
-  border-color: #007bff;
+  border: none;
+  border-radius: 0.5rem;
   font-size: 1.2rem;
   padding: 0.7rem 3rem;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out;
+  outline: none;
+  width: 100%;
+  max-width: 12.5em;
+  text-decoration: none;
 }
 
 .btn-primary:hover {
@@ -55,7 +66,7 @@
 }
 
 .error {
-  padding: 10px;
+  padding: 8px;
   background: #ffefef;
   border: 1px solid #e7195a;
   color: #e7195a;

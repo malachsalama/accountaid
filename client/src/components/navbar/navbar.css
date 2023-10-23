@@ -3,3 +3,24 @@
   justify-content: space-between;
   align-items: center;
 }
+
+.btn-logout {
+  background: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  padding: 0.3rem 0.8rem;
+  color: #007bff;
+  border: 1px solid #007bff;
+  font-size: 1rem;
+  transition: ease-in 0.3s;
+}
+
+.btn-logout:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.welcome-text {
+  font-size: 1.2rem;
+}

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../hooks/useLogin";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import "./auth.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -8,11 +11,15 @@ export default function Login() {
     user_id: "",
     password: "",
   });
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const { login, error, isLoading } = useLogin();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+  };
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
   };
 
   const handleSubmit = async (e) => {
@@ -46,7 +53,7 @@ export default function Login() {
 
   return (
     <div className="login-form">
-      <h1>Login</h1>
+      <h1 className="form-title">Login</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="user_id" className="form-label">
@@ -66,15 +73,23 @@ export default function Login() {
           <label htmlFor="password" className="form-label">
             Password:
           </label>
-          <input
-            type="password"
-            id="password"
-            className="form-control"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+          <div className="password-input-container">
+            <input
+              type={passwordVisible ? "text" : "password"}
+              id="password"
+              className="form-control"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <span
+              className="password-toggle"
+              onClick={togglePasswordVisibility}
+            >
+              <FontAwesomeIcon icon={passwordVisible ? faEye : faEyeSlash} />
+            </span>
+          </div>
         </div>
         <button type="submit" className="btn btn-primary" disabled={isLoading}>
           Login
