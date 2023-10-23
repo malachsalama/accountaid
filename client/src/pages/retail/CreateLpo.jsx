@@ -1,5 +1,4 @@
-import { Button, Form } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from "axios";
@@ -7,7 +6,6 @@ import "./retail.css";
 
 function CreateLpo() {
   const { user } = useAuthContext();
-  const navigate = useNavigate();
   const [lpoItems, setLpoItems] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
 
@@ -77,75 +75,74 @@ function CreateLpo() {
   };
 
   return (
-    <div style={{ width: "90%", margin: "auto auto", textAlign: "center" }}>
-      <h1>Create LPO</h1>
-      <Form>
-        <Form.Group>
-          <div className="form_lpo">
-            <Form.Control
-              className="form_input-field"
+    <div>
+      <div className="lpo-form">
+        <h1 className="form-title">Create LPO</h1>
+        <form onSubmit={handleClick}>
+          <div className="form-group">
+            <label htmlFor="unique_id" className="form-label">
+              Unique ID:
+            </label>
+            <input
+              type="text"
+              className="form-control"
               name="unique_id"
               value={post.unique_id}
-              placeholder="Unique Number"
-              style={{ marginBottom: "1rem" }}
               onChange={handleChange}
             />
-
-            <Form.Control
-              className="form_input-field"
+          </div>
+          <div className="form-group">
+            <label htmlFor="description" className="form-label">
+              Description:
+            </label>
+            <input
+              type="text"
+              className="form-control"
               name="description"
               value={post.description}
-              placeholder="Description"
-              style={{ marginBottom: "1rem" }}
               onChange={handleChange}
             />
-            {validationErrors.description && (
-              <div className="error">
-                {validationErrors.description.message}
-              </div>
-            )}
           </div>
-          <div className="form_lpo">
-            <Form.Control
-              className="form_input-field"
+          {validationErrors.description && (
+            <div className="error">{validationErrors.description.message}</div>
+          )}
+
+          <div className="form-geoup">
+            <label htmlFor="quantity" className="form-label">
+              Quantity:
+            </label>
+            <input
+              type="number"
+              className="form-control"
               name="quantity"
               value={post.quantity}
-              placeholder="Quantity"
-              style={{ marginBottom: "1rem" }}
               onChange={handleChange}
             />
-            {validationErrors.quantity && (
-              <div className="error">{validationErrors.quantity.message}</div>
-            )}
-            <Form.Control
-              className="form_input-field"
+          </div>
+          {validationErrors.quantity && (
+            <div className="error">{validationErrors.quantity.message}</div>
+          )}
+          <div className="form-group">
+            <label htmlFor="price" className="form-label">
+              Price:
+            </label>
+            <input
+              type="number"
+              className="form-control"
               name="price"
               value={post.price}
-              placeholder="Price"
-              style={{ marginBottom: "1rem" }}
               onChange={handleChange}
             />
-            {validationErrors.price && (
-              <div className="error">{validationErrors.price.message}</div>
-            )}
           </div>
-        </Form.Group>
+          {validationErrors.price && (
+            <div className="error">{validationErrors.price.message}</div>
+          )}
 
-        <Button
-          variant="outline-success"
-          style={{ width: "10%", marginBottom: "1rem" }}
-          onClick={handleClick}
-        >
-          Create Post
-        </Button>
-      </Form>
-      <Button
-        variant="outline-dark"
-        style={{ width: "10%" }}
-        onClick={() => navigate(-1)}
-      >
-        Back
-      </Button>
+          <button type="submit" className="btn btn-primary">
+            Create Post
+          </button>
+        </form>
+      </div>
 
       <div className="table-container">
         <table className="lpo-table">

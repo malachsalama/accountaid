@@ -4,19 +4,22 @@ import axios from "axios";
 import Autosuggest from "react-autosuggest";
 import { useAuthContext } from "../../hooks/useAuthContext";
 
-export default function LpoDetails() {
+const LpoDetails = () => {
   const { user } = useAuthContext();
-  const [supplier, setSupplier] = useState("");
-  const [supplierName, setSupplierName] = useState("");
-  const [kra_pin, setKraPin] = useState("");
-  const [suggestions, setSuggestions] = useState([]);
-  const [usd_rate, setUsdRate] = useState("");
-  const [lpo_no, setLpoNo] = useState("");
-  const [netTotal, setNetTotal] = useState(0);
-  const [acc_no, setAccNo] = useState("");
-
-  const jwtToken = user ? user.token : null;
   const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    supplier: "",
+    supplierName: "",
+    kra_pin: "",
+    usd_rate: "",
+    lpo_no: "",
+    netTotal: 0,
+    acc_no: "",
+  });
+
+  const [suggestions, setSuggestions] = useState([]);
+  const jwtToken = user ? user.token : null;
 
   const getSuggestions = async (inputValue) => {
     try {
@@ -25,60 +28,39 @@ export default function LpoDetails() {
       });
 
       const data = response.data;
+      const filteredData = data.filter((item) => item.company && item.kra_pin);
 
-      const names = [];
-      const kra_pins = [];
-
-      data.forEach((data) => {
-        if (data.company || data.kra_pin) {
-          names.push(data.company);
-          kra_pins.push(data.kra_pin);
-        }
-      });
-
-      setSuggestions(names);
+      setSuggestions(filteredData.map((item) => item.company));
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   };
 
-  const onInputChange = (event, { newValue }) => {
-    setSupplier(newValue);
+  const onInputChange = (_, { newValue }) => {
+    setFormData((prevData) => ({ ...prevData, supplier: newValue }));
   };
 
-  const onSuggestionSelected = async (event, { suggestionValue }) => {
+  const onSuggestionSelected = async (_, { suggestionValue }) => {
     const response = await axios.get("/api/auth/retail/autocomplete", {
       params: { q: suggestionValue },
     });
 
-    const data = response.data;
+    const data = response.data[0];
 
-    setKraPin(data[0].kra_pin);
-    setSupplierName(data[0].name);
-    setSupplier(suggestionValue);
-    setAccNo(data[0].acc_no);
+    setFormData((prevData) => ({
+      ...prevData,
+      supplier: suggestionValue,
+      supplierName: data.name || "",
+      kra_pin: data.kra_pin || "",
+      acc_no: data.acc_no || "",
+    }));
   };
 
-  const renderSuggestion = (suggestion) => (
-    <div className="suggestion-box">{suggestion}</div>
-  );
-
-  const handleUsdRate = (event) => {
-    const usd_rate = event.target.value;
-    setUsdRate(usd_rate);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleKraPinChange = (event) => {
-    const kraPin = event.target.value;
-    setKraPin(kraPin);
-  };
-
-  const handleSupplier = (event) => {
-    const supplierName = event.target.value;
-    setSupplierName(supplierName);
-  };
-
-  // Function to fetch LPO items with Authorization header
   const fetchLpoItems = useCallback(async () => {
     try {
       const response = await axios.get("/api/auth/retail/createlpo", {
@@ -88,14 +70,12 @@ export default function LpoDetails() {
       });
       const lpoItems = response.data;
 
-      // Calculate total for each item and accumulate the overall total
-      let netTotal = 0;
-      lpoItems.forEach((lpoItem) => {
-        const total = lpoItem.quantity * lpoItem.price;
-        netTotal += total;
-      });
+      const netTotal = lpoItems.reduce(
+        (total, lpoItem) => total + lpoItem.quantity * lpoItem.price,
+        0
+      );
 
-      setNetTotal(netTotal);
+      setFormData((prevData) => ({ ...prevData, netTotal }));
     } catch (error) {
       console.error(error);
     }
@@ -111,8 +91,8 @@ export default function LpoDetails() {
     const fetchAccNo = async () => {
       try {
         const response = await axios.get("/api/auth/retail/lpo_no");
-        let lpo_no = response.data;
-        setLpoNo(lpo_no);
+        const lpo_no = response.data;
+        setFormData((prevData) => ({ ...prevData, lpo_no }));
       } catch (error) {
         console.error(error);
       }
@@ -126,22 +106,13 @@ export default function LpoDetails() {
 
     if (user) {
       try {
-        // send all the data in the request body
-        const data = {
-          supplier,
-          supplierName,
-          kra_pin,
-          usd_rate,
-          lpo_no,
-          netTotal,
-          acc_no,
-        };
-
-        await axios.post("/api/auth/retail/generatelpo", data, {
+        await axios.post("/api/auth/retail/generatelpo", formData, {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
         });
+
+        navigate("/retail/lpolist");
       } catch (error) {
         if (error.response && error.response.status === 400) {
           // If a validation error response is received
@@ -150,7 +121,6 @@ export default function LpoDetails() {
         }
       }
     }
-    navigate("/retail/lpolist");
   };
 
   return (
@@ -165,9 +135,11 @@ export default function LpoDetails() {
             onSuggestionsClearRequested={() => setSuggestions([])}
             onSuggestionSelected={onSuggestionSelected}
             getSuggestionValue={(suggestion) => suggestion}
-            renderSuggestion={renderSuggestion}
+            renderSuggestion={(suggestion) => (
+              <div className="suggestion-box">{suggestion}</div>
+            )}
             inputProps={{
-              value: supplier,
+              value: formData.supplier,
               onChange: onInputChange,
               type: "text",
               className: "form-control",
@@ -184,8 +156,8 @@ export default function LpoDetails() {
             className="form-control"
             id="supplierName"
             name="supplierName"
-            value={supplierName}
-            onChange={handleSupplier}
+            value={formData.supplierName || ""}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -196,7 +168,7 @@ export default function LpoDetails() {
             className="form-control"
             id="acc_no"
             name="acc_no"
-            value={acc_no}
+            value={formData.acc_no || ""}
             required
             readOnly
           />
@@ -208,8 +180,8 @@ export default function LpoDetails() {
             className="form-control"
             id="kra_pin"
             name="kra_pin"
-            value={kra_pin}
-            onChange={handleKraPinChange}
+            value={formData.kra_pin || ""}
+            onChange={handleInputChange}
             required
           />
         </div>
@@ -221,9 +193,9 @@ export default function LpoDetails() {
             className="form-control"
             id="usd_rate"
             name="usd_rate"
-            value={usd_rate}
+            value={formData.usd_rate || ""}
             required
-            onChange={handleUsdRate}
+            onChange={handleInputChange}
           />
         </div>
 
@@ -233,4 +205,6 @@ export default function LpoDetails() {
       </form>
     </div>
   );
-}
+};
+
+export default LpoDetails;
