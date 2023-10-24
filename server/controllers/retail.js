@@ -95,7 +95,7 @@ const autocomplete = async (req, res) => {
 async function generateLpo(req, res) {
   try {
     const { user_id, username } = req.user;
-    const { supplier, supplierName, kra_pin, usd_rate, lpo_no, netTotal } =
+    const { supplier, supplierName, kra_pin, usd_rate, lpo_no, netTotal, date_created } =
       req.body;
 
     const action = `${username} created an LPO for ${supplier}`;
@@ -109,6 +109,7 @@ async function generateLpo(req, res) {
       usd_rate,
       lpo_no,
       netTotal,
+      date_created,
       session: user_id,
     });
 

@@ -54,6 +54,11 @@ const supplierSchema = new mongoose.Schema({
   received_at: {
     type: String,
   },
+
+  date_created: {
+    type: Date,        
+    required: true,
+  }
 });
 
 const Supplier = mongoose.model("lpo", supplierSchema);

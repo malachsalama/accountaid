@@ -16,6 +16,7 @@ const LpoDetails = () => {
     lpo_no: "",
     netTotal: 0,
     acc_no: "",
+    date_created: "",
   });
 
   const [suggestions, setSuggestions] = useState([]);
@@ -194,6 +195,19 @@ const LpoDetails = () => {
             id="usd_rate"
             name="usd_rate"
             value={formData.usd_rate || ""}
+            required
+            onChange={handleInputChange}
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Date:</label>
+          <input
+            type="date" 
+            className="form-control"
+            id="date_created"
+            name="date_created"
+            value={formData.date_created || ""}
             required
             onChange={handleInputChange}
           />

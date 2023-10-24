@@ -40,6 +40,7 @@ function generatePDF(header, details) {
 
     height = 200;
     netTotal = 0.00;
+    net = 0.00;
     details.forEach((detail, index) => {      
 
       doc.fontSize(10).text(`${detail.unique_id}`, 22, height, { width: 100 });
@@ -51,13 +52,15 @@ function generatePDF(header, details) {
       
       total =parseFloat(detail.price * detail.quantity).toFixed(2);
 
-      netTotal += parseFloat(total);
+      net += parseFloat(total);
     });
     y = 674;
     yGrid = 672
+    
+    netTotal = (net * 1.00).toFixed(2);
 
-    vat = (netTotal * 0.16).toFixed(2);
-    grand_total = (parseFloat(vat) + parseFloat(netTotal)).toFixed(2);
+    vat = (net * 0.16).toFixed(2);
+    grand_total = (parseFloat(vat) + parseFloat(net)).toFixed(2);
 
     doc.rect(398, yGrid, 110, 15).stroke().text("NET", 400, y);
     doc.rect(508, yGrid, 85, 15).stroke().text(netTotal, 480, y, { width: 100, align: "right" });
