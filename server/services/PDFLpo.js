@@ -25,7 +25,10 @@ function generatePDF(header, details) {
     doc.fontSize(10).text(`LPO.No: ${header.lpo_no}`, 480, 80, { width: 200 });
 
     doc.fontSize(10).text(`Name: ${header.supplierName}`, 20, 100, { width: 200 });
-    doc.fontSize(10).text(`Date: 2023-01-01`, 480, 100, { width: 200 });
+
+    const date = header.date_created.toISOString().split('T')[0];
+
+    doc.fontSize(10).text(`Date: ${date}`, 480, 100, { width: 200 });
 
     doc.fontSize(10).text(`Rep.No: ${header.session}`, 480, 120, { width: 200 });
 

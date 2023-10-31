@@ -95,12 +95,33 @@ const autocomplete = async (req, res) => {
 async function generateLpo(req, res) {
   try {
     const { user_id, username } = req.user;
-    const { supplier, supplierName, kra_pin, usd_rate, lpo_no, netTotal, date_created } =
+    const { supplier, supplierName, kra_pin, usd_rate, lpo_no, date_created, vat } =
       req.body;
 
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
     const doc_type = "LPO";
+
+    let netTotal = 0;
+
+    if(vat == 'Inc'){
+      const lpoItems = await Lpo.find({ user_id, status: 1 });        
+
+      for (const lpoItem of lpoItems) {
+
+        newPrice = (lpoItem.price / 1.16); 
+          
+        netTotal = (netTotal  + newPrice);         
+
+        console.log(netTotal);
+        
+        await Lpo.updateOne({ _id: lpoItem._id }, { $set: { price: newPrice } });
+
+      };
+
+
+
+    }
 
     const newLpo = new Supplier({
       supplier,
