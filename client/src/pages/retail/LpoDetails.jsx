@@ -210,7 +210,7 @@ const LpoDetails = () => {
             required
             onChange={handleInputChange}
           >
-            <option value="">Select a department</option>
+            <option value="">Select</option>
             <option value="Inc">Inc</option>
             <option value="Exc">Exc</option>
             <option value="N/A">N/A</option>
