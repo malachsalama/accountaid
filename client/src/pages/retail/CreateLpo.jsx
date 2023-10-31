@@ -16,7 +16,7 @@ function CreateLpo() {
     price: "",
   });
 
-  const jwtToken = user ? user.token : null;
+  const accessToken = user ? user.accessToken : null;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -34,7 +34,7 @@ function CreateLpo() {
     try {
       const response = await axios.get("/api/auth/retail/createlpo", {
         headers: {
-          Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
 
@@ -42,7 +42,7 @@ function CreateLpo() {
     } catch (error) {
       console.error(error);
     }
-  }, [jwtToken]);
+  }, [accessToken]);
 
   useEffect(() => {
     if (user) {
@@ -57,7 +57,7 @@ function CreateLpo() {
       try {
         await axios.post("/api/auth/retail/createlpo", post, {
           headers: {
-            Authorization: `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 

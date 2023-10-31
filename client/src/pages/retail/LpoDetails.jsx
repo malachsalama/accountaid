@@ -21,7 +21,7 @@ const LpoDetails = () => {
   });
 
   const [suggestions, setSuggestions] = useState([]);
-  const jwtToken = user ? user.token : null;
+  const jwtToken = user ? user.accessToken : null;
 
   const getSuggestions = async (inputValue) => {
     try {
@@ -221,7 +221,7 @@ const LpoDetails = () => {
         <div className="form-group">
           <label className="form-label">Date:</label>
           <input
-            type="date" 
+            type="date"
             className="form-control"
             id="date_created"
             name="date_created"

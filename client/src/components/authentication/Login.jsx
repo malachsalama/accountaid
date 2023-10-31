@@ -31,7 +31,7 @@ export default function Login() {
       if (success) {
         const user = JSON.parse(localStorage.getItem("user"));
         if (user) {
-          const department = user?.user?.department;
+          const department = user?.department;
 
           if (department === "Management") {
             navigate("/admin");
