@@ -12,6 +12,7 @@ const authenticateToken = (req, res, next) => {
   const token = authHeader && authHeader.split(" ")[1];
 
   if (token == null) {
+    return res.redirect("/api/auth/user/login");
     return res.status(401).json({ error: "Authorization token required" });
   }
 
