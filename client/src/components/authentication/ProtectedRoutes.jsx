@@ -1,16 +1,18 @@
 /* eslint-disable react/prop-types */
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function ProtectedRoutes({ children }) {
   const navigate = useNavigate();
 
+  const { user } = useAuthContext();
+
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
     if (!user) {
       navigate("/");
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   return <>{children}</>;
 }

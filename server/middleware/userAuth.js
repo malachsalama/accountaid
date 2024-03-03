@@ -1,29 +1,37 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET, JWT_EXPIRE } = require("../config/config");
 
-const createToken = (user) => {
-  return jwt.sign(user, JWT_SECRET, {
-    expiresIn: JWT_EXPIRE,
-  });
+const createToken = async (user) => {
+  try {
+    const payload = {
+      user_id: user.user_id,
+    };
+    const accessToken = jwt.sign(payload, JWT_SECRET, {
+      expiresIn: JWT_EXPIRE,
+    });
+
+    return accessToken;
+  } catch (error) {
+    console.error(error);
+  }
 };
 
-const authenticateToken = (req, res, next) => {
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
 
-  if (token == null) {
-    return res.redirect("/api/auth/user/login");
+  if (!token) {
     return res.status(401).json({ error: "Authorization token required" });
   }
 
   try {
-    const decodedToken = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET);
 
-    req.user = decodedToken;
+    req.user = decoded;
 
     next();
   } catch (err) {
-    return res.status(401).json({ error: "Request is not authorized" });
+    return res.status(403).json({ error: "Invalid token" });
   }
 };
 

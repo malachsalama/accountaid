@@ -42,11 +42,10 @@ async function userSignUp(req, res) {
     // Save the user to the database
     await user.save();
 
-    // Create a token for the user
-    const token = createToken(user);
-
     // Respond with a success message or the created user object
-    res.status(201).json({ message: "User created successfully", user, token });
+    res.status(201).json({
+      message: "User created successfully!",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
@@ -72,11 +71,15 @@ async function userLogin(req, res) {
     }
 
     // Create a token for the user
-    const userObject = user.toObject();
-    const token = createToken(userObject);
+    const accessToken = await createToken(user);
 
     // Send the token in the response
-    res.status(200).json({ user, token });
+    res.status(200).json({
+      user_id: user.user_id,
+      accessToken,
+      username: user.username,
+      department: user.department,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });

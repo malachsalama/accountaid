@@ -22,9 +22,6 @@ export const useLogin = () => {
         setError(data.error);
         return false;
       } else {
-        // Save the user to local storage
-        localStorage.setItem("user", JSON.stringify(data));
-
         // Update the auth context
         dispatch({ type: "LOGIN", payload: data });
 
@@ -34,7 +31,7 @@ export const useLogin = () => {
       }
     } catch (error) {
       setIsLoading(false);
-      setError("Oops! Your User ID or Password is Incorrect");
+      setError("Your User ID or Password is Incorrect");
     }
   };
 

@@ -14,14 +14,14 @@ const LpoDetails = () => {
     supplierName: "",
     kra_pin: "",
     usd_rate: "",
-    lpo_no: "",    
+    lpo_no: "",
     acc_no: "",
     date_created: "",
     vat: "",
   });
 
   const [suggestions, setSuggestions] = useState([]);
-  const jwtToken = user ? user.token : null;
+  const jwtToken = user ? user.accessToken : null;
 
   const getSuggestions = async (inputValue) => {
     try {
@@ -29,7 +29,7 @@ const LpoDetails = () => {
         params: { q: inputValue },
       });
 
-      const data = response.data;      
+      const data = response.data;
       const filteredData = data.filter((item) => item.company && item.kra_pin);
 
       setSuggestions(filteredData.map((item) => item.company));
@@ -48,7 +48,6 @@ const LpoDetails = () => {
     });
 
     const data = response.data[0];
-    
 
     setFormData((prevData) => ({
       ...prevData,
@@ -64,18 +63,15 @@ const LpoDetails = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
-    
   };
 
   const fetchLpoItems = useCallback(async () => {
     try {
-      const response = await axios.get("/api/auth/retail/createlpo", {
+      await axios.get("/api/auth/retail/createlpo", {
         headers: {
           Authorization: `Bearer ${jwtToken}`,
         },
-      });           
-
-      
+      });
     } catch (error) {
       console.error(error);
     }
@@ -110,7 +106,7 @@ const LpoDetails = () => {
           headers: {
             Authorization: `Bearer ${jwtToken}`,
           },
-        });       
+        });
 
         navigate("/retail/lpolist");
       } catch (error) {
@@ -136,7 +132,7 @@ const LpoDetails = () => {
             onSuggestionSelected={onSuggestionSelected}
             getSuggestionValue={(suggestion) => suggestion}
             renderSuggestion={(suggestion) => (
-              <div className="suggestion-box-container">{suggestion}</div>              
+              <div className="suggestion-box-container">{suggestion}</div>
             )}
             inputProps={{
               value: formData.supplier,
@@ -149,7 +145,7 @@ const LpoDetails = () => {
             }}
           />
         </div>
-        
+
         <div className="form-group">
           <label className="form-label">Name:</label>
           <input
@@ -201,7 +197,7 @@ const LpoDetails = () => {
         </div>
 
         <div className="form-group">
-        <label className="form-label">VAT:</label>
+          <label className="form-label">VAT:</label>
           <select
             className="form-control"
             id="vat"
@@ -215,13 +211,12 @@ const LpoDetails = () => {
             <option value="Exc">Exc</option>
             <option value="N/A">N/A</option>
           </select>
-      </div>
-
+        </div>
 
         <div className="form-group">
           <label className="form-label">Date:</label>
           <input
-            type="date" 
+            type="date"
             className="form-control"
             id="date_created"
             name="date_created"
