@@ -1,35 +1,18 @@
 const jwt = require("jsonwebtoken");
-const {
-  JWT_SECRET,
-  JWT_REFRESH_SECRET,
-  JWT_EXPIRE,
-  JWT_REFRESH_EXPIRE,
-} = require("../config/config");
-const UserToken = require("../models/userToken");
+const { JWT_SECRET, JWT_EXPIRE } = require("../config/config");
 
 const createToken = async (user) => {
   try {
     const payload = {
       user_id: user.user_id,
-      username: user.username,
-      department: user.department,
     };
     const accessToken = jwt.sign(payload, JWT_SECRET, {
       expiresIn: JWT_EXPIRE,
     });
 
-    const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
-      expiresIn: JWT_REFRESH_EXPIRE,
-    });
-
-    await UserToken.findOneAndDelete({
-      user_id: user.user_id,
-    });
-
-    await new UserToken({ user_id: user.user_id, token: refreshToken }).save();
-    return Promise.resolve({ accessToken, refreshToken });
+    return accessToken;
   } catch (error) {
-    return Promise.reject(error);
+    console.error(error);
   }
 };
 
@@ -44,26 +27,9 @@ const authenticateToken = async (req, res, next) => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    req.user = decoded; // Set req.user to the decoded payload
+    req.user = decoded;
 
-    if (decoded.user_id) {
-      next();
-    } else {
-      // It's a refresh token, validate it against the database
-      const userToken = await UserToken.findOne({
-        user_id: decoded.user_id,
-        token,
-      });
-
-      if (!userToken) {
-        return res.status(403).json({ error: "Invalid refresh token" });
-      }
-
-      // If you need information from the userToken, you can access it as userToken
-      req.refreshToken = userToken;
-
-      next();
-    }
+    next();
   } catch (err) {
     return res.status(403).json({ error: "Invalid token" });
   }

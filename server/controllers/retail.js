@@ -6,6 +6,7 @@ const Supplier = require("../models/retail");
 async function createLpo(req, res) {
   try {
     const { user_id } = req.user;
+    console.log(user_id);
     const { unique_id, description, quantity, price } = req.body;
 
     const newProduct = new Lpo({
@@ -23,12 +24,12 @@ async function createLpo(req, res) {
       return res.status(400).json({ errors: validationErrors.errors });
     }
 
-    // Save the department to the database
+    // Save the lpo to the database
     await newProduct.save();
 
-    res.status(201).json({ message: "Product added successfully" });
+    res.status(201).json({ message: "Lpo added successfully" });
   } catch (error) {
-    console.error("Error adding product:", error);
+    console.error("Error adding Lpo:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -95,8 +96,15 @@ const autocomplete = async (req, res) => {
 async function generateLpo(req, res) {
   try {
     const { user_id, username } = req.user;
-    const { supplier, supplierName, kra_pin, usd_rate, lpo_no, date_created, vat } =
-      req.body;
+    const {
+      supplier,
+      supplierName,
+      kra_pin,
+      usd_rate,
+      lpo_no,
+      date_created,
+      vat,
+    } = req.body;
 
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
@@ -104,23 +112,19 @@ async function generateLpo(req, res) {
 
     let netTotal = 0;
 
-    if(vat == 'Inc'){
-      const lpoItems = await Lpo.find({ user_id, status: 1 });        
+    if (vat == "Inc") {
+      const lpoItems = await Lpo.find({ user_id, status: 1 });
 
       for (const lpoItem of lpoItems) {
+        newPrice = lpoItem.price / 1.16;
 
-        newPrice = (lpoItem.price / 1.16); 
-          
-        netTotal = (netTotal  + newPrice);         
+        netTotal = netTotal + newPrice;
 
-        console.log(netTotal);
-        
-        await Lpo.updateOne({ _id: lpoItem._id }, { $set: { price: newPrice } });
-
-      };
-
-
-
+        await Lpo.updateOne(
+          { _id: lpoItem._id },
+          { $set: { price: newPrice } }
+        );
+      }
     }
 
     const newLpo = new Supplier({
@@ -158,7 +162,7 @@ async function generateLpo(req, res) {
 
     await logData.save();
 
-    // Save the department to the database
+    // Save the new Lpo to the database
     await newLpo.save();
 
     res.status(201).json({ message: "Lpo generated successfully" });

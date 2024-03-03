@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
-import { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer } from "react";
 
 export const AuthContext = createContext();
 
@@ -15,16 +15,8 @@ export function authReducer(state, action) {
   }
 }
 
-export function AuthContextProvider({ children }) {
-  const [state, dispatch] = useReducer(authReducer, { user: null });
-
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
-    if (user) {
-      dispatch({ type: "LOGIN", payload: user });
-    }
-  }, []);
+export function AuthContextProvider({ children, user = null }) {
+  const [state, dispatch] = useReducer(authReducer, { user });
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>

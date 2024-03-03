@@ -71,14 +71,14 @@ async function userLogin(req, res) {
     }
 
     // Create a token for the user
-    const { accessToken, refreshToken } = await createToken(user);
+    const accessToken = await createToken(user);
+
     // Send the token in the response
     res.status(200).json({
       user_id: user.user_id,
+      accessToken,
       username: user.username,
       department: user.department,
-      accessToken,
-      message: "Logged in successfully!",
     });
   } catch (error) {
     console.error(error);

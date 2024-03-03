@@ -1,20 +1,30 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function LpoList() {
   const [lpos, setLpos] = useState([]);
+  const { user } = useAuthContext();
+
+  const accessToken = user ? user.accessToken : null;
 
   useEffect(() => {
     const fetchLpos = async () => {
-      try {
-        const response = await axios.get("/api/auth/retail/lpos");
-        setLpos(response.data);
-      } catch (error) {
-        console.error(error);
+      if (accessToken) {
+        try {
+          const response = await axios.get("/api/auth/retail/lpos", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          setLpos(response.data);
+        } catch (error) {
+          console.error(error);
+        }
       }
     };
     fetchLpos();
-  }, []);
+  }, [accessToken]);
 
   const handlePdf = async (lpo_no) => {
     try {

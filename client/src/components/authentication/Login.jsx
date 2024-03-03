@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../hooks/useLogin";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import "./auth.css";
@@ -13,6 +14,7 @@ export default function Login() {
   });
   const [passwordVisible, setPasswordVisible] = useState(false);
   const { login, error, isLoading } = useLogin();
+  const { user } = useAuthContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -29,21 +31,16 @@ export default function Login() {
     try {
       const success = await login(formData);
       if (success) {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (user) {
-          const department = user?.department;
+        const department = user?.department;
 
-          if (department === "Management") {
-            navigate("/admin");
-          } else if (department === "Retail") {
-            navigate("/retail");
-          } else if (department === "Accounts") {
-            navigate("/accounts");
-          } else if (department === "Human Resource") {
-            navigate("/humanresource");
-          }
-        } else {
-          console.error("The user object is not set in the localStorage.");
+        if (department === "Management") {
+          navigate("/admin");
+        } else if (department === "Retail") {
+          navigate("/retail");
+        } else if (department === "Accounts") {
+          navigate("/accounts");
+        } else if (department === "Human Resource") {
+          navigate("/humanresource");
         }
       }
     } catch (error) {
