@@ -1,13 +1,13 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
-import { useAuthContext } from "../../hooks/useAuthContext";
+import { useAuthToken } from "../../hooks/useAuthToken";
 import axios from "axios";
 import "./retail.css";
 
 function CreateLpo() {
-  const { user } = useAuthContext();
   const [lpoItems, setLpoItems] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
+  const accessToken = useAuthToken();
 
   const [post, setPost] = useState({
     unique_id: "",
@@ -15,8 +15,6 @@ function CreateLpo() {
     quantity: "",
     price: "",
   });
-
-  const accessToken = user ? user.accessToken : null;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -45,15 +43,15 @@ function CreateLpo() {
   }, [accessToken]);
 
   useEffect(() => {
-    if (user) {
+    if (accessToken) {
       fetchLpoItems();
     }
-  }, [fetchLpoItems, user]);
+  }, [fetchLpoItems, accessToken]);
 
   const handleClick = async (event) => {
     event.preventDefault();
 
-    if (user) {
+    if (accessToken) {
       try {
         await axios.post("/api/auth/retail/createlpo", post, {
           headers: {

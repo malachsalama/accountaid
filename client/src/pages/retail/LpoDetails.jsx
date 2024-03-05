@@ -2,11 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
-import { useAuthContext } from "../../hooks/useAuthContext";
+import { useAuthToken } from "../../hooks/useAuthToken";
 import "./retail.css";
 
 const LpoDetails = () => {
-  const { user } = useAuthContext();
+  const accessToken = useAuthToken();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -19,9 +19,7 @@ const LpoDetails = () => {
     date_created: "",
     vat: "",
   });
-
   const [suggestions, setSuggestions] = useState([]);
-  const jwtToken = user ? user.accessToken : null;
 
   const getSuggestions = async (inputValue) => {
     try {
@@ -69,19 +67,19 @@ const LpoDetails = () => {
     try {
       await axios.get("/api/auth/retail/createlpo", {
         headers: {
-          Authorization: `Bearer ${jwtToken}`,
+          Authorization: `Bearer ${accessToken}`,
         },
       });
     } catch (error) {
       console.error(error);
     }
-  }, [jwtToken]);
+  }, [accessToken]);
 
   useEffect(() => {
-    if (user) {
+    if (accessToken) {
       fetchLpoItems();
     }
-  }, [fetchLpoItems, user]);
+  }, [fetchLpoItems, accessToken]);
 
   useEffect(() => {
     const fetchAccNo = async () => {
@@ -100,11 +98,11 @@ const LpoDetails = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (user) {
+    if (accessToken) {
       try {
         await axios.post("/api/auth/retail/generatelpo", formData, {
           headers: {
-            Authorization: `Bearer ${jwtToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
         });
 

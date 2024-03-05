@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useAuthContext } from "../../hooks/useAuthContext";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 export default function LpoList() {
   const [lpos, setLpos] = useState([]);
-  const { user } = useAuthContext();
-
-  const accessToken = user ? user.accessToken : null;
+  const accessToken = useAuthToken();
 
   useEffect(() => {
     const fetchLpos = async () => {
