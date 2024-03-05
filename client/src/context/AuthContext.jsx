@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
-import { createContext, useReducer } from "react";
+import { createContext, useReducer, useEffect } from "react";
 
 export const AuthContext = createContext();
 
@@ -15,8 +15,16 @@ export function authReducer(state, action) {
   }
 }
 
-export function AuthContextProvider({ children, user = null }) {
-  const [state, dispatch] = useReducer(authReducer, { user });
+export function AuthContextProvider({ children }) {
+  // Retrieve user from local storage on initial load
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+
+  const [state, dispatch] = useReducer(authReducer, { user: storedUser });
+
+  // Effect to persist user data to local storage
+  useEffect(() => {
+    localStorage.setItem("user", JSON.stringify(state.user));
+  }, [state.user]);
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>

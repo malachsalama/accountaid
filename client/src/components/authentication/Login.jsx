@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../hooks/useLogin";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -29,24 +29,25 @@ export default function Login() {
 
     // Call the login function to send the POST request
     try {
-      const success = await login(formData);
-      if (success) {
-        const department = user?.department;
-
-        if (department === "Management") {
-          navigate("/admin");
-        } else if (department === "Retail") {
-          navigate("/retail");
-        } else if (department === "Accounts") {
-          navigate("/accounts");
-        } else if (department === "Human Resource") {
-          navigate("/humanresource");
-        }
-      }
+      await login(formData);
     } catch (error) {
       console.error("Login failed.");
     }
   };
+  useEffect(() => {
+    const department = user?.department;
+    if (department) {
+      if (department === "Management") {
+        navigate("/admin");
+      } else if (department === "Retail") {
+        navigate("/retail");
+      } else if (department === "Accounts") {
+        navigate("/accounts");
+      } else if (department === "Human Resource") {
+        navigate("/humanresource");
+      }
+    }
+  }, [user?.department, navigate]);
 
   return (
     <div className="login-form">

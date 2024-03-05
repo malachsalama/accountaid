@@ -16,7 +16,6 @@ export const useLogin = () => {
 
       const data = response.data;
 
-      // Check if the response indicates an error
       if (data.error) {
         setIsLoading(false);
         setError(data.error);
@@ -25,6 +24,8 @@ export const useLogin = () => {
         // Update the auth context
         dispatch({ type: "LOGIN", payload: data });
 
+        localStorage.setItem("user", JSON.stringify(data));
+
         // Update loading state
         setIsLoading(false);
         return true;
@@ -32,6 +33,9 @@ export const useLogin = () => {
     } catch (error) {
       setIsLoading(false);
       setError("Your User ID or Password is Incorrect");
+      console.error("Login Failed:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 

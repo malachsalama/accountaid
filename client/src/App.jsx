@@ -11,8 +11,8 @@ import LpoDetails from "./pages/retail/LpoDetails";
 import CreateCreditor from "./pages/accounts/CreateCreditor";
 import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
-import "./App.css";
 import LpoList from "./pages/retail/LpoList";
+import "./App.css";
 
 function App() {
   return (
