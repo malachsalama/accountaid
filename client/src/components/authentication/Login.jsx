@@ -45,6 +45,8 @@ export default function Login() {
         navigate("/accounts");
       } else if (department === "Human Resource") {
         navigate("/humanresource");
+      } else if (department === "SUPERADMIN") {
+        navigate("/superadmin");
       }
     }
   }, [user?.department, navigate]);

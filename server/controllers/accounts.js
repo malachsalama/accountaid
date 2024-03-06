@@ -37,7 +37,6 @@ async function createCreditor(req, res) {
 
     await logData.save();
 
-    // Save the department to the database
     await newCreditor.save();
 
     res.status(201).json({ message: "Creditor added successfully" });
