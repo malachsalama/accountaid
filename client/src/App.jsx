@@ -1,17 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
+import { CreateLpo, LpoDetails, LpoList, RetailHome } from "./pages/retail";
+import { RegCompany, SuperAdminHome } from "./pages/super_admin";
 import ManagementHome from "./pages/admin/ManagementHome";
-import RetailHome from "./pages/retail/RetailHome";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
-import CreateLpo from "./pages/retail/CreateLpo";
-import LpoDetails from "./pages/retail/LpoDetails";
 import CreateCreditor from "./pages/accounts/CreateCreditor";
 import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
-import LpoList from "./pages/retail/LpoList";
 import "./App.css";
 
 function App() {
@@ -20,6 +18,17 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Login />} />
+        <Route
+          path="/superadmin"
+          element={
+            <ProtectedRoute>
+              <SuperAdminHome />
+              <Outlet />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="reg-company" element={<RegCompany />} />
+        </Route>
         <Route
           path="/admin"
           element={
