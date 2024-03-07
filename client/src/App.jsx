@@ -2,7 +2,7 @@
 import { Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
 import { CreateLpo, LpoDetails, LpoList, RetailHome } from "./pages/retail";
-import { RegCompany, SuperAdminHome } from "./pages/super_admin";
+import { RegCompany, SuperAdminHome } from "./pages/accountaid";
 import ManagementHome from "./pages/admin/ManagementHome";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";

@@ -8,11 +8,13 @@ export default function RegCompany() {
   const [isError, setIsError] = useState(null);
 
   const [formData, setFormData] = useState({
+    user_name:"",
     company_name: "",
     company_no: "",
     kra_pin: "",
     email: "",
     phone_no: "",
+    password:"",
   });
 
   const handleChange = (event) => {
@@ -39,11 +41,13 @@ export default function RegCompany() {
 
         // Reset form data
         setFormData({
+          user_name: "",
           company_name: "",
           company_no: "",
           kra_pin: "",
           email: "",
           phone_no: "",
+          password:"",
         });
         setIsSuccess(true); // Set state for success message
       } catch (error) {
@@ -64,6 +68,18 @@ export default function RegCompany() {
       <div className="registration-form">
         <h3>Register New Company</h3>
         <form onSubmit={handleSubmit}>
+        <div className="form-group">
+            <label className="form-label">User Name:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="user_name"
+              name="user_name"
+              value={formData.user_name}
+              onChange={handleChange}
+              required
+            />
+          </div>
           <div className="form-group">
             <label className="form-label">Company Name:</label>
             <input
@@ -122,6 +138,18 @@ export default function RegCompany() {
               id="phone_no"
               name="phone_no"
               value={formData.phone_no}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="password"
+              name="password"
+              value={formData.password}
               onChange={handleChange}
               required
             />

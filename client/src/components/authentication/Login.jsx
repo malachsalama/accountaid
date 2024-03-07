@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLogin } from "../../hooks/useLogin";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -16,14 +16,18 @@ export default function Login() {
   const { login, error, isLoading } = useLogin();
   const { user } = useAuthContext();
 
+  // Function to handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+
+  // Function to toggle password visibility
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  // Function to handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -34,22 +38,33 @@ export default function Login() {
       console.error("Login failed.");
     }
   };
+
+  // If user data contains the department, navigate accordingly
   useEffect(() => {
-    const department = user?.department;
-    if (department) {
-      if (department === "Management") {
-        navigate("/admin");
-      } else if (department === "Retail") {
-        navigate("/retail");
-      } else if (department === "Accounts") {
-        navigate("/accounts");
-      } else if (department === "Human Resource") {
-        navigate("/humanresource");
-      } else if (department === "SUPERADMIN") {
-        navigate("/superadmin");
+    if (user && user.userData && user.userData.department) {
+      const { department } = user.userData;
+      switch (department) {
+        case "Management":
+          navigate("/admin");
+          break;
+        case "Retail":
+          navigate("/retail");
+          break;
+        case "Accounts":
+          navigate("/accounts");
+          break;
+        case "Human Resource":
+          navigate("/humanresource");
+          break;
+        case "SUPERADMIN":
+          navigate("/superadmin");
+          break;
+        default:
+          // Navigate to a default page if department doesn't match any case
+          navigate("/");
       }
     }
-  }, [user?.department, navigate]);
+  }, [user, navigate]);
 
   return (
     <div className="login-form">

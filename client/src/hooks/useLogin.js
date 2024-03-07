@@ -13,25 +13,47 @@ export const useLogin = () => {
 
     try {
       const response = await axios.post("/api/auth/user/login", formData);
-
+      
       const data = response.data;
 
       if (data.error) {
-        setIsLoading(false);
+        
         setError(data.error);
         return false;
       } else {
-        // Update the auth context
-        dispatch({ type: "LOGIN", payload: data });
+        
+        // Fetch more user info
+        const userDataResponse = await axios.get(
+          "/api/auth/accountaid/userpayload",
+          {
+            headers: {
+              Authorization: `Bearer ${data.accessToken}`,
+            },
+          }
+        );
 
-        localStorage.setItem("user", JSON.stringify(data));
+        
 
-        // Update loading state
-        setIsLoading(false);
-        return true;
+        if (userDataResponse.status >= 200 && userDataResponse.status < 300) {
+          const userData = userDataResponse.data;
+
+          // Update the auth context with user data
+          dispatch({
+            type: "LOGIN",
+            payload: { userData, accessToken: data.accessToken },
+          });
+
+          // Store the user in local storage
+          localStorage.setItem("user", JSON.stringify(data));
+
+          return true;
+        } else {
+          throw new Error(
+            `Failed to fetch user data with status ${userDataResponse.status}`
+          );
+        }
       }
     } catch (error) {
-      setIsLoading(false);
       setError("Your User ID or Password is Incorrect");
       console.error("Login Failed:", error);
     } finally {

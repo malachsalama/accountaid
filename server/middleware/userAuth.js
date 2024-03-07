@@ -4,7 +4,7 @@ const { JWT_SECRET, JWT_EXPIRE } = require("../config/config");
 const createToken = async (user) => {
   try {
     const payload = {
-      user_id: user.user_id,
+      user_id: user._id,
     };
     const accessToken = jwt.sign(payload, JWT_SECRET, {
       expiresIn: JWT_EXPIRE,
