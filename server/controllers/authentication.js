@@ -75,10 +75,9 @@ async function userLogin(req, res) {
 
     // Send the token in the response
     res.status(200).json({
-      user_id: user.user_id,
+      _id: user._id,
       accessToken,
-      username: user.username,
-      department: user.department,
+      
     });
   } catch (error) {
     console.error(error);

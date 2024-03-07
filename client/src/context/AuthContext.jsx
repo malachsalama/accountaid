@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
 import { createContext, useReducer, useEffect } from "react";
+import axios from "axios";
 
 export const AuthContext = createContext();
 
@@ -16,15 +17,40 @@ export function authReducer(state, action) {
 }
 
 export function AuthContextProvider({ children }) {
-  // Retrieve user from local storage on initial load
-  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const [state, dispatch] = useReducer(authReducer, { user: null });
 
-  const [state, dispatch] = useReducer(authReducer, { user: storedUser });
-
-  // Effect to persist user data to local storage
   useEffect(() => {
-    localStorage.setItem("user", JSON.stringify(state.user));
-  }, [state.user]);
+    const fetchUserData = async () => {
+      try {
+        const accessToken = state.user.accessToken;
+        if (!accessToken) {
+          throw new Error("Access token not found in user data");
+        }
+
+        const response = await axios.get("/api/auth/accountaid/userpayload", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+
+        if (response.status >= 200 && response.status < 300) {
+          const userData = response.data;
+          dispatch({ type: "LOGIN", payload: { userData, accessToken } });
+        } else {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user) {
+      dispatch({ type: "LOGIN", payload: user });
+      fetchUserData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AuthContext.Provider value={{ ...state, dispatch }}>
