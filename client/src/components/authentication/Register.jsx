@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 // import { Navigate } from "react-router-dom";
 import axios from "axios";
-import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function Registration() {
   const [formData, setFormData] = useState({
@@ -10,6 +9,7 @@ export default function Registration() {
     department: "",
     designation: "",
     department_no: "",
+    company_no: "",
     user_id: "",
     password: "",
   });
@@ -17,7 +17,6 @@ export default function Registration() {
   const [designations, setDesignations] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
-  const { dispatch } = useAuthContext();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,16 +32,7 @@ export default function Registration() {
       // Send a POST request using Axios
       const response = await axios.post(`/api/auth/user/signup`, formData);
 
-      const data = response.data;
-
       if (response.status === 201) {
-        // Update the Auth context
-        dispatch({ type: "LOGIN", payload: data });
-
-        setIsLoading(false);
-        // You can also redirect the user to a success page or perform other actions here
-      } else {
-        // Registration failed with an error status code
         setIsLoading(false);
       }
     } catch (error) {
@@ -51,6 +41,21 @@ export default function Registration() {
       console.error("An error occurred", error.message);
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && !error) {
+      setFormData({
+        username: "",
+        phone_no: "",
+        department: "",
+        designation: "",
+        department_no: "",
+        company_no: "",
+        user_id: "",
+        password: "",
+      });
+    }
+  }, [isLoading, error]);
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -152,6 +157,19 @@ export default function Registration() {
             id="department_no"
             name="department_no"
             value={formData.department_no}
+            onChange={handleChange}
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Company Number:</label>
+          <input
+            type="text"
+            className="form-control"
+            id="company_no"
+            name="company_no"
+            value={formData.company_no}
             onChange={handleChange}
             required
           />

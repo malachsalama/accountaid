@@ -8,13 +8,13 @@ export default function RegCompany() {
   const [isError, setIsError] = useState(null);
 
   const [formData, setFormData] = useState({
-    user_name:"",
+    user_name: "",
     company_name: "",
     company_no: "",
     kra_pin: "",
     email: "",
     phone_no: "",
-    password:"",
+    password: "",
   });
 
   const handleChange = (event) => {
@@ -33,7 +33,7 @@ export default function RegCompany() {
 
     if (accessToken) {
       try {
-        await axios.post("/api/auth/superadmin/reg-company", formData, {
+        await axios.post("/api/auth/accountaid/reg-company", formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -47,7 +47,7 @@ export default function RegCompany() {
           kra_pin: "",
           email: "",
           phone_no: "",
-          password:"",
+          password: "",
         });
         setIsSuccess(true); // Set state for success message
       } catch (error) {
@@ -68,7 +68,7 @@ export default function RegCompany() {
       <div className="registration-form">
         <h3>Register New Company</h3>
         <form onSubmit={handleSubmit}>
-        <div className="form-group">
+          <div className="form-group">
             <label className="form-label">User Name:</label>
             <input
               type="text"
@@ -145,7 +145,7 @@ export default function RegCompany() {
           <div className="form-group">
             <label className="form-label">Password:</label>
             <input
-              type="text"
+              type="password"
               className="form-control"
               id="password"
               name="password"

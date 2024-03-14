@@ -1,9 +1,17 @@
 const Company = require("../models/company");
 const bcrypt = require("bcrypt");
-const User = require('../models/user');
+const User = require("../models/user");
 
 async function RegCompany(req, res) {
-  const { user_name, company_name, company_no, kra_pin, email, phone_no, password } = req.body;
+  const {
+    user_name,
+    company_name,
+    company_no,
+    kra_pin,
+    email,
+    phone_no,
+    password,
+  } = req.body;
 
   try {
     const existingCompany = await Company.findOne({ company_no });
@@ -16,18 +24,18 @@ async function RegCompany(req, res) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newCompany = new Company({      
+    const newCompany = new Company({
       company_name,
       company_no,
       kra_pin,
       email,
-      phone_no,      
+      phone_no,
     });
 
     await newCompany.save();
 
     const newUser = new User({
-      username: user_name,      
+      username: user_name,
       company_no,
       phone_no,
       department: "Management",
@@ -58,17 +66,16 @@ async function getAllCompanies(req, res) {
 
 async function userPayload(req, res) {
   try {
-    
     // Extract user_id from the authenticated user
     const _id = req.user.user_id;
-    
+
     // Find the user by user_id
     const user = await User.findOne({ _id });
-    
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-    
+
     // Return only the necessary user information
     const userData = {
       user_id: user.user_id,
@@ -79,8 +86,8 @@ async function userPayload(req, res) {
     res.status(200).json(userData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 }
 
-module.exports = { RegCompany, getAllCompanies, userPayload }; 
+module.exports = { RegCompany, getAllCompanies, userPayload };

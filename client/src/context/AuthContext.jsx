@@ -22,7 +22,12 @@ export function AuthContextProvider({ children }) {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const accessToken = state.user.accessToken;
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (user) {
+          dispatch({ type: "LOGIN", payload: user });
+        }
+
+        const accessToken = user.accessToken;
         if (!accessToken) {
           throw new Error("Access token not found in user data");
         }
@@ -44,12 +49,7 @@ export function AuthContextProvider({ children }) {
       }
     };
 
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (user) {
-      dispatch({ type: "LOGIN", payload: user });
-      fetchUserData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchUserData();
   }, []);
 
   return (

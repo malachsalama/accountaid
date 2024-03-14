@@ -4,7 +4,7 @@ export default function SuperAdminHome() {
   const navigate = useNavigate();
   return (
     <>
-      <h2>Super Admin Dashboard</h2>
+      <h2>Account Aid Dashboard</h2>
       <button onClick={() => navigate("reg-company")}>Register Company</button>
     </>
   );

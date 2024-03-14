@@ -57,7 +57,7 @@ export default function Login() {
           navigate("/humanresource");
           break;
         case "SUPERADMIN":
-          navigate("/superadmin");
+          navigate("/accountaid");
           break;
         default:
           // Navigate to a default page if department doesn't match any case
