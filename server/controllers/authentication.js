@@ -12,6 +12,7 @@ async function userSignUp(req, res) {
       department,
       designation,
       department_no,
+      company_no,
       user_id,
       password,
     } = req.body;
@@ -35,6 +36,7 @@ async function userSignUp(req, res) {
       department,
       designation,
       department_no,
+      company_no,
       user_id,
       password: hashedPassword,
     });
@@ -77,7 +79,6 @@ async function userLogin(req, res) {
     res.status(200).json({
       _id: user._id,
       accessToken,
-      
     });
   } catch (error) {
     console.error(error);
