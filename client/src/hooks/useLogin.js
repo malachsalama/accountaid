@@ -13,15 +13,13 @@ export const useLogin = () => {
 
     try {
       const response = await axios.post("/api/auth/user/login", formData);
-      
+
       const data = response.data;
 
       if (data.error) {
-        
         setError(data.error);
         return false;
       } else {
-        
         // Fetch more user info
         const userDataResponse = await axios.get(
           "/api/auth/accountaid/userpayload",
@@ -31,8 +29,6 @@ export const useLogin = () => {
             },
           }
         );
-
-        
 
         if (userDataResponse.status >= 200 && userDataResponse.status < 300) {
           const userData = userDataResponse.data;

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-// import { Navigate } from "react-router-dom";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from "axios";
 
 export default function Registration() {
+  const { user } = useAuthContext();
   const [formData, setFormData] = useState({
     username: "",
     phone_no: "",
@@ -17,6 +18,16 @@ export default function Registration() {
   const [designations, setDesignations] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
+
+  // Update formData when user object changes
+  useEffect(() => {
+    if (user && user.userData) {
+      setFormData((prevState) => ({
+        ...prevState,
+        company_no: user.userData.company_no,
+      }));
+    }
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -38,7 +49,7 @@ export default function Registration() {
     } catch (error) {
       setIsLoading(false);
       setError("A user with the same User ID already exists"); // Set the error message
-      console.error("An error occurred", error.message);
+      console.error("An error occurred: ", error);
     }
   };
 
@@ -50,7 +61,6 @@ export default function Registration() {
         department: "",
         designation: "",
         department_no: "",
-        company_no: "",
         user_id: "",
         password: "",
       });
@@ -157,19 +167,6 @@ export default function Registration() {
             id="department_no"
             name="department_no"
             value={formData.department_no}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">Company Number:</label>
-          <input
-            type="text"
-            className="form-control"
-            id="company_no"
-            name="company_no"
-            value={formData.company_no}
             onChange={handleChange}
             required
           />
