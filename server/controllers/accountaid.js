@@ -81,6 +81,8 @@ async function userPayload(req, res) {
       user_id: user.user_id,
       username: user.username,
       department: user.department,
+      company_no: user.company_no,
+      department_no: user.department_no,
     };
 
     res.status(200).json(userData);

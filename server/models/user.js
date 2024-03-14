@@ -5,7 +5,6 @@ const userSchema = new mongoose.Schema({
   company_no: {
     type: String,
     required: true,
-    unique: true,
   },
   username: {
     type: String,
