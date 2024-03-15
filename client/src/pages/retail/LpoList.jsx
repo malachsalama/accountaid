@@ -49,6 +49,7 @@ export default function LpoList() {
             <tr>
               <th>Supplier</th>
               <th>supplierName</th>
+              <th>CompanyNo</th>
               <th>kra_pin</th>
               <th>usd_rate</th>
               <th>lpo_no</th>
@@ -61,6 +62,7 @@ export default function LpoList() {
               <tr key={index}>
                 <td>{item.supplier}</td>
                 <td>{item.supplierName}</td>
+                <td>{item.company_no}</td>
                 <td>{item.kra_pin}</td>
                 <td>{item.usd_rate}</td>
                 <td>{item.lpo_no}</td>

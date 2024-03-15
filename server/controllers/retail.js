@@ -6,11 +6,12 @@ const Supplier = require("../models/retail");
 async function createLpo(req, res) {
   try {
     const { user_id } = req.user;
-    const { unique_id, description, quantity, price } = req.body;
+    const { unique_id, company_no, description, quantity, price } = req.body;
 
     const newProduct = new Lpo({
       user_id,
       unique_id,
+      company_no,
       description,
       quantity,
       price,
@@ -98,6 +99,7 @@ async function generateLpo(req, res) {
     const {
       supplier,
       supplierName,
+      company_no,
       kra_pin,
       usd_rate,
       lpo_no,
@@ -129,6 +131,7 @@ async function generateLpo(req, res) {
     const newLpo = new Supplier({
       supplier,
       supplierName,
+      company_no,
       kra_pin,
       usd_rate,
       lpo_no,

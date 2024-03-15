@@ -3,16 +3,19 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import "./retail.css";
 
 const LpoDetails = () => {
   const accessToken = useAuthToken();
   const navigate = useNavigate();
+  const { user } = useAuthContext();
 
   const [formData, setFormData] = useState({
     supplier: "",
     supplierName: "",
     kra_pin: "",
+    company_no: "",
     usd_rate: "",
     lpo_no: "",
     acc_no: "",
@@ -60,7 +63,11 @@ const LpoDetails = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+      company_no: user.userData.company_no,
+    }));
   };
 
   const fetchLpoItems = useCallback(async () => {
