@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useEffect, useCallback } from "react";
+import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import axios from "axios";
 import "./retail.css";
@@ -7,10 +8,12 @@ import "./retail.css";
 function CreateLpo() {
   const [lpoItems, setLpoItems] = useState([]);
   const [validationErrors, setValidationErrors] = useState([]);
+  const { user } = useAuthContext();
   const accessToken = useAuthToken();
 
   const [post, setPost] = useState({
     unique_id: "",
+    company_no: "",
     description: "",
     quantity: "",
     price: "",
@@ -23,6 +26,7 @@ function CreateLpo() {
       return {
         ...prev,
         [name]: value,
+        company_no: user.userData.company_no,
       };
     });
   };
@@ -61,6 +65,15 @@ function CreateLpo() {
 
         setValidationErrors({});
         fetchLpoItems();
+
+        // Reset the post state to clear the form
+        setPost({
+          unique_id: "",
+          company_no: user.userData.company_no,
+          description: "",
+          quantity: "",
+          price: "",
+        });
       } catch (error) {
         if (error.response && error.response.status === 400) {
           // If a validation error response is received
@@ -147,6 +160,7 @@ function CreateLpo() {
           <thead>
             <tr>
               <th>Unique ID</th>
+              <th>Company Number</th>
               <th>Description</th>
               <th>Quantity</th>
               <th>Price</th>
@@ -156,6 +170,7 @@ function CreateLpo() {
             {lpoItems.map((item, index) => (
               <tr key={index}>
                 <td>{item.unique_id}</td>
+                <td>{item.company_no}</td>
                 <td>{item.description}</td>
                 <td>{item.quantity}</td>
                 <td>{item.price}</td>

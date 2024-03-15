@@ -9,6 +9,10 @@ const supplierSchema = new mongoose.Schema({
     type: String,
   },
 
+  company_no: {
+    type: String,
+  },
+
   kra_pin: {
     type: String,
   },
@@ -56,9 +60,9 @@ const supplierSchema = new mongoose.Schema({
   },
 
   date_created: {
-    type: Date,        
+    type: Date,
     required: true,
-  }
+  },
 });
 
 const Supplier = mongoose.model("lpo", supplierSchema);

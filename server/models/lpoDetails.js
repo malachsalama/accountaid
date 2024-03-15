@@ -9,6 +9,9 @@ const lpoSchema = new mongoose.Schema(
     unique_id: {
       type: String,
     },
+    company_no: {
+      type: String,
+    },
     lpo_no: {
       type: String,
     },
@@ -31,7 +34,6 @@ const lpoSchema = new mongoose.Schema(
       type: Number,
       default: 1,
     },
-    
   },
   { validateBeforeSave: false }
 );

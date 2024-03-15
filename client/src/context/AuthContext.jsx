@@ -26,28 +26,30 @@ export function AuthContextProvider({ children }) {
         const user = JSON.parse(localStorage.getItem("user"));
         if (user) {
           dispatch({ type: "LOGIN", payload: user });
-        }
+          const accessToken = user.accessToken;
+          if (!accessToken) {
+            throw new Error("Access token not found in user data");
+          }
 
-        const accessToken = user.accessToken;
-        if (!accessToken) {
-          throw new Error("Access token not found in user data");
-        }
+          const response = await axios.get("/api/auth/accountaid/userpayload", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
 
-        const response = await axios.get("/api/auth/accountaid/userpayload", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        });
-
-        if (response.status >= 200 && response.status < 300) {
-          const userData = response.data;
-          dispatch({ type: "LOGIN", payload: { userData, accessToken } });
-        } else {
-          throw new Error(`Request failed with status ${response.status}`);
+          if (response.status >= 200 && response.status < 300) {
+            const userData = response.data;
+            dispatch({ type: "LOGIN", payload: { userData, accessToken } });
+          } else {
+            throw new Error(`Request failed with status ${response.status}`);
+          }
         }
       } catch (error) {
+        if (error.response && error.response.status === 403) {
+          // Token expired or invalid, logout the user
+          dispatch({ type: "LOGOUT" });
+        }
         console.error("Failed to fetch user data:", error);
-        dispatch({ type: "LOGOUT" });
       }
     };
 
