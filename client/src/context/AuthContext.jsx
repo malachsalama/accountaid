@@ -10,6 +10,7 @@ export function authReducer(state, action) {
     case "LOGIN":
       return { user: action.payload };
     case "LOGOUT":
+      localStorage.removeItem("user");
       return { user: null };
     default:
       return state;
@@ -46,6 +47,7 @@ export function AuthContextProvider({ children }) {
         }
       } catch (error) {
         console.error("Failed to fetch user data:", error);
+        dispatch({ type: "LOGOUT" });
       }
     };
 
