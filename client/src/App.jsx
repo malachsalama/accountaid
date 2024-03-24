@@ -3,7 +3,7 @@ import { Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
 import { CreateLpo, LpoDetails, LpoList, RetailHome } from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
-import ManagementHome from "./pages/admin/ManagementHome";
+import { EditVariables, ManagementHome } from "./pages/admin";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
@@ -11,6 +11,7 @@ import CreateCreditor from "./pages/accounts/CreateCreditor";
 import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
 import "./App.css";
+import Registration from "./components/authentication/Register";
 
 function App() {
   return (
@@ -34,9 +35,14 @@ function App() {
           element={
             <ProtectedRoute>
               <ManagementHome />
+              <Outlet />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route path="user-registration" element={<Registration />} />
+          <Route path="edit-variables" element={<EditVariables />} />
+        </Route>
+
         <Route
           path="/retail"
           element={

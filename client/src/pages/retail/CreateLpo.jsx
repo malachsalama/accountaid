@@ -160,7 +160,6 @@ function CreateLpo() {
           <thead>
             <tr>
               <th>Unique ID</th>
-              <th>Company Number</th>
               <th>Description</th>
               <th>Quantity</th>
               <th>Price</th>
@@ -170,7 +169,6 @@ function CreateLpo() {
             {lpoItems.map((item, index) => (
               <tr key={index}>
                 <td>{item.unique_id}</td>
-                <td>{item.company_no}</td>
                 <td>{item.description}</td>
                 <td>{item.quantity}</td>
                 <td>{item.price}</td>

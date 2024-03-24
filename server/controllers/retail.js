@@ -113,18 +113,37 @@ async function generateLpo(req, res) {
 
     let netTotal = 0;
 
-    if (vat == "Inc") {
+    if (vat === "Inc") {
       const lpoItems = await Lpo.find({ user_id, status: 1 });
 
       for (const lpoItem of lpoItems) {
-        newPrice = lpoItem.price / 1.16;
+        newPrice = (lpoItem.price / 1.16) * lpoItem.quantity;
 
-        netTotal = netTotal + newPrice;
+        netTotal += newPrice;
+        netTotal = (netTotal * 1.16).toFixed(2);
 
         await Lpo.updateOne(
           { _id: lpoItem._id },
           { $set: { price: newPrice } }
         );
+      }
+    } else if (vat === "Exc") {
+      const lpoItems = await Lpo.find({ user_id, status: 1 });
+
+      for (const lpoItem of lpoItems) {
+        newPrice = lpoItem.price * lpoItem.quantity;
+
+        netTotal += newPrice;
+        netTotal = (netTotal * 1.16).toFixed(2);
+      }
+    } else if (vat === "N/A") {
+      const lpoItems = await Lpo.find({ user_id, status: 1 });
+
+      for (const lpoItem of lpoItems) {
+        newPrice = lpoItem.price * lpoItem.quantity;
+
+        netTotal += newPrice;
+        netTotal = netTotal.toFixed(2);
       }
     }
 
@@ -174,12 +193,14 @@ async function generateLpo(req, res) {
   }
 }
 
-async function getAllLpos(req, res) {
+async function getAllLposByCompany(req, res) {
+  const { company_no } = req.params;
+
   try {
-    const allLpos = await Supplier.find({});
-    res.status(200).json(allLpos);
+    const lpos = await Supplier.find({ company_no });
+    res.status(200).json(lpos);
   } catch (error) {
-    console.error("Error fetching lpos:", error);
+    console.error("Error fetching LPOs:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -190,5 +211,5 @@ module.exports = {
   autocomplete,
   getLpoNo,
   generateLpo,
-  getAllLpos,
+  getAllLposByCompany,
 };

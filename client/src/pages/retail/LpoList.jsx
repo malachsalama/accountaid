@@ -1,20 +1,26 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 export default function LpoList() {
   const [lpos, setLpos] = useState([]);
   const accessToken = useAuthToken();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const fetchLpos = async () => {
-      if (accessToken) {
+      if (accessToken && user) {
+        // Check if user is not null
         try {
-          const response = await axios.get("/api/auth/retail/lpos", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          });
+          const response = await axios.get(
+            `/api/auth/retail/lpos/${user.userData.company_no}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+            }
+          );
           setLpos(response.data);
         } catch (error) {
           console.error(error);
@@ -22,7 +28,7 @@ export default function LpoList() {
       }
     };
     fetchLpos();
-  }, [accessToken]);
+  }, [accessToken, user]);
 
   const handlePdf = async (lpo_no) => {
     try {
@@ -49,7 +55,6 @@ export default function LpoList() {
             <tr>
               <th>Supplier</th>
               <th>supplierName</th>
-              <th>CompanyNo</th>
               <th>kra_pin</th>
               <th>usd_rate</th>
               <th>lpo_no</th>
@@ -62,7 +67,6 @@ export default function LpoList() {
               <tr key={index}>
                 <td>{item.supplier}</td>
                 <td>{item.supplierName}</td>
-                <td>{item.company_no}</td>
                 <td>{item.kra_pin}</td>
                 <td>{item.usd_rate}</td>
                 <td>{item.lpo_no}</td>

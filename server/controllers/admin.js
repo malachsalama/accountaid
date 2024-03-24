@@ -1,6 +1,7 @@
 const Department = require("../models/department");
 const RetailName = require("../models/retailname");
 const Designation = require("../models/designation");
+const Variables = require("../models/variables");
 
 // Adding a department
 async function addDepartment(req, res) {
@@ -106,6 +107,29 @@ async function getRetailNames(req, res) {
   }
 }
 
+async function editVariables(req, res) {
+  const { company_no, vat } = req.body;
+
+  try {
+    const updatedCompany = await Variables.findOneAndUpdate(
+      { company_no },
+      { $set: { vat } },
+      { new: true }
+    );
+
+    if (!updatedCompany) {
+      const newVariables = new Variables({ company_no, vat });
+      await newVariables.save();
+      return res.status(201).json({ message: "New variables created" });
+    }
+
+    return res.status(200).json({ message: "Variables updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   addDepartment,
   getAllDepartments,
@@ -113,4 +137,5 @@ module.exports = {
   getRetailNames,
   addDesignation,
   getDesignations,
+  editVariables,
 };
