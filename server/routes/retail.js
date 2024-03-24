@@ -9,7 +9,7 @@ const {
   autocomplete,
   getLpoNo,
   generateLpo,
-  getAllLpos,
+  getAllLposByCompany,
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
@@ -18,7 +18,7 @@ router.get("/retail/retailnames", getRetailNames);
 router.post("/retail/createlpo", authenticateToken, createLpo);
 router.get("/retail/createlpo", authenticateToken, fetchLpoData);
 router.post("/retail/generatelpo", authenticateToken, generateLpo);
-router.get("/retail/lpos", authenticateToken, getAllLpos);
+router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
 
 router.get("/retail/autocomplete", autocomplete);
 router.get("/retail/lpo_no", getLpoNo);

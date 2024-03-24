@@ -31,7 +31,11 @@ export default function Registration() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+      company_no: user.userData.company_no,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -40,7 +44,7 @@ export default function Registration() {
     try {
       setIsLoading(true);
       setError(null);
-      // Send a POST request using Axios
+      console.log(formData);
       const response = await axios.post(`/api/auth/user/signup`, formData);
 
       if (response.status === 201) {
