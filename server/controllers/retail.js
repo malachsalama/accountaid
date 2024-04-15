@@ -205,6 +205,30 @@ async function getAllLposByCompany(req, res) {
   }
 }
 
+const fetchLpoDataForReceive = async (req, res) => {
+  try {
+    const lpo_no = req.query.lpo_no;
+    const company_no = req.query.userData;
+    const { user_id } = req.user;
+    
+
+    if (!user_id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+    if (!lpo_no) {
+      return res.status(401).json({ error: "Lpo not found" });
+    }
+    const lpoItems = await Lpo.find({ lpo_no , company_no});
+
+    console.log(lpoItems);
+
+    res.json(lpoItems);
+  } catch (error) {
+    console.error("Error fetching lpos:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 module.exports = {
   createLpo,
   fetchLpoData,
@@ -212,4 +236,5 @@ module.exports = {
   getLpoNo,
   generateLpo,
   getAllLposByCompany,
+  fetchLpoDataForReceive,
 };
