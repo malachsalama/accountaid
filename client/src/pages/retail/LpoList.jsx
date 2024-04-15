@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -7,6 +8,7 @@ export default function LpoList() {
   const [lpos, setLpos] = useState([]);
   const accessToken = useAuthToken();
   const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchLpos = async () => {
@@ -46,6 +48,26 @@ export default function LpoList() {
     }
   };
 
+  const handleReceive = async (lpo_no) => {
+    try {
+      const userData = user.userData.company_no;
+      const response = await axios.get(
+        "/api/auth/retail/fetchLpoDataForReceive",
+        {
+          params: { lpo_no, userData },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+
+      navigate("/retail/viewReceive");
+      console.log(response);
+    } catch (error) {
+      console.error("Error fetching data: ", error);
+    }
+  };
+
   return (
     <>
       <h2>List of All Lpos</h2>
@@ -74,7 +96,9 @@ export default function LpoList() {
                 <td>
                   <button onClick={() => handlePdf(item.lpo_no)}>View</button>
                   <button>Delete</button>
-                  <button>Receive</button>
+                  <button onClick={() => handleReceive(item.lpo_no)}>
+                    Receive
+                  </button>
                 </td>
               </tr>
             ))}
