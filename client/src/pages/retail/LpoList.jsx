@@ -61,8 +61,7 @@ export default function LpoList() {
         }
       );
 
-      navigate("/retail/viewReceive");
-      console.log(response);
+      navigate("/retail/viewReceive", { state: { lpoData: response.data } });
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
