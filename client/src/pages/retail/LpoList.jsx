@@ -59,9 +59,9 @@ export default function LpoList() {
             Authorization: `Bearer ${accessToken}`,
           },
         }
-      );
+      );      
 
-      navigate("/retail/viewReceive", { state: { lpoData: response.data } });
+      navigate("/retail/viewReceive", { state: { lpoData: response.data.lpoItems, lpo: response.data.lpo } });
     } catch (error) {
       console.error("Error fetching data: ", error);
     }

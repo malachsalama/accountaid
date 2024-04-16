@@ -63,6 +63,10 @@ const supplierSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  vat: {
+    type: String,
+    required: true,
+  },
 });
 
 const Supplier = mongoose.model("lpo", supplierSchema);
