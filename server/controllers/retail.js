@@ -1,6 +1,7 @@
 const { Creditor, Logs } = require("../models/accounts");
 const Lpo = require("../models/lpoDetails");
 const Supplier = require("../models/retail");
+const Variables = require("../models/variables");
 
 // Adding a product to  the list
 async function createLpo(req, res) {
@@ -157,6 +158,7 @@ async function generateLpo(req, res) {
       netTotal,
       date_created,
       session: user_id,
+      vat,
     });
 
     // Validate the request data
@@ -218,8 +220,17 @@ const fetchLpoDataForReceive = async (req, res) => {
       return res.status(401).json({ error: "Lpo not found" });
     }
     const lpoItems = await Lpo.find({ lpo_no, company_no });
+    const lpo = await Supplier.find({ lpo_no, company_no });
+    const variables = await Variables.find({ company_no });
 
-    res.json(lpoItems);
+    // Create an object containing both variables
+    const lpoData = {
+      lpoItems,
+      lpo,
+      variables
+    };
+
+    res.json(lpoData);
   } catch (error) {
     console.error("Error fetching lpos:", error);
     res.status(500).json({ error: "Internal server error" });
