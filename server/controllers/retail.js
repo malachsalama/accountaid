@@ -94,6 +94,18 @@ const autocomplete = async (req, res) => {
   }
 };
 
+//fetch variables as per company no
+async function fetchVariables(req, res) {
+  try {
+    const { company_no } = req.body;
+    const result = await Variables.findOne({ company_no });
+    return result;
+  } catch (error) {
+    console.error("Error fetching variables:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 async function generateLpo(req, res) {
   try {
     const { user_id, username } = req.user;
@@ -108,6 +120,11 @@ async function generateLpo(req, res) {
       vat,
     } = req.body;
 
+    // Fetch VAT variable from Variables collection
+    const result = await fetchVariables(req, res);
+    const vatVariable  = 1+(result.vat/100) ;
+    
+    console.log(vatVariable);
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
     const doc_type = "LPO";
@@ -118,10 +135,11 @@ async function generateLpo(req, res) {
       const lpoItems = await Lpo.find({ user_id, status: 1 });
 
       for (const lpoItem of lpoItems) {
-        newPrice = (lpoItem.price / 1.16) * lpoItem.quantity;
-
-        netTotal += newPrice;
-        netTotal = (netTotal * 1.16).toFixed(2);
+        newPrice = (lpoItem.price / vatVariable) * lpoItem.quantity;
+        
+        netTotal += lpoItem.price * lpoItem.quantity;        
+        
+        
 
         await Lpo.updateOne(
           { _id: lpoItem._id },
@@ -135,7 +153,7 @@ async function generateLpo(req, res) {
         newPrice = lpoItem.price * lpoItem.quantity;
 
         netTotal += newPrice;
-        netTotal = (netTotal * 1.16).toFixed(2);
+        netTotal = (netTotal * vatVariable);
       }
     } else if (vat === "N/A") {
       const lpoItems = await Lpo.find({ user_id, status: 1 });
@@ -144,9 +162,11 @@ async function generateLpo(req, res) {
         newPrice = lpoItem.price * lpoItem.quantity;
 
         netTotal += newPrice;
-        netTotal = netTotal.toFixed(2);
+        
       }
     }
+    netTotal = netTotal.toFixed(2);
+    console.log(netTotal)
 
     const newLpo = new Supplier({
       supplier,
@@ -171,7 +191,7 @@ async function generateLpo(req, res) {
     // Update lpo_items to status 2 for a specific user
 
     const filter = { user_id: user_id, status: 1 };
-    const update = { $set: { status: 2, lpo_no: lpo_no } };
+    const update = { $set: { status: 1, lpo_no: lpo_no } };
 
     await Lpo.updateMany(filter, update);
 
