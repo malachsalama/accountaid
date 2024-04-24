@@ -11,6 +11,7 @@ const {
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
+  fetchVariables
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
@@ -24,5 +25,6 @@ router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
 
 router.get("/retail/autocomplete", autocomplete);
 router.get("/retail/lpo_no", getLpoNo);
+router.get("/retail/fetchVariables", authenticateToken, fetchVariables);
 
 module.exports = router;

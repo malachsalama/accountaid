@@ -1,14 +1,44 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import axios from "axios";
+import { useAuthToken } from "../../hooks/useAuthToken";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 function ViewReceive() {
   const location = useLocation();
+  const accessToken = useAuthToken();
+  const { user } = useAuthContext();
   const lpoData = location.state && location.state.lpoData;
   const lpo = location.state && location.state.lpo;
   const [selectedLpos, setSelectedLpos] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0); // State for total price
 
-  const handleCheckboxChange = (lpo_id, price) => {
+  useEffect(() => {
+    console.log(user);
+    const fetchVariables = async () => {
+      if (accessToken && user) {
+        // Check if user is not null
+        try {
+          const subCompanyNo = user.userData.company_no;
+          console.log(subCompanyNo);
+          const response = await axios.get("/api/auth/retail/fetchVariables", {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              subCompanyNo: subCompanyNo,
+            },
+          });
+          console.log(response.data);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    };
+    fetchVariables();
+  }, [accessToken, user]);
+
+  const handleCheckboxChange = (lpo_id, price, quantity) => {
     // Toggle the selection status of the LPO
     setSelectedLpos((prevSelected) => {
       if (prevSelected.includes(lpo_id)) {
@@ -22,18 +52,19 @@ function ViewReceive() {
     setTotalPrice((prevTotalPrice) => {
       if (selectedLpos.includes(lpo_id)) {
         // If the LPO was already selected, subtract its price
-        return prevTotalPrice - price;
+        return prevTotalPrice - price * quantity;
       } else {
         // If the LPO is newly selected, add its price
-        return prevTotalPrice + price;
+        return prevTotalPrice + price * quantity;
       }
     });
   };
 
-console.log(lpo);
+  console.log(lpo);
+
   return (
     <div>
-      <h2>Received LPO Data</h2>      
+      <h2>Received LPO Data</h2>
       {lpoData && lpoData.length > 0 ? (
         <table>
           <thead>
@@ -52,7 +83,9 @@ console.log(lpo);
                 <td>
                   <input
                     type="checkbox"
-                    onChange={() => handleCheckboxChange(item._id, item.price)}
+                    onChange={() =>
+                      handleCheckboxChange(item._id, item.price, item.quantity)
+                    }
                     checked={selectedLpos.includes(item._id)}
                   />
                 </td>
@@ -68,10 +101,7 @@ console.log(lpo);
       ) : (
         <p>No data available</p>
       )}
-      
-
-
-      <p>Total Price: {totalPrice }</p> {/* Display total price */}
+      <p>Total Net Price: {totalPrice}</p> {/* Display total price */}
     </div>
   );
 }

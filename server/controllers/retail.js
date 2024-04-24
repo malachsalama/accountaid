@@ -97,9 +97,16 @@ const autocomplete = async (req, res) => {
 //fetch variables as per company no
 async function fetchVariables(req, res) {
   try {
-    const { company_no } = req.body;
+    let company_no;
+    if (!req.body.company_no) {      
+      company_no = req.query.subCompanyNo;      
+    } else {      
+      company_no = req.body.company_no; 
+    }
+
+    
     const result = await Variables.findOne({ company_no });
-    return result;
+    res.json(result);
   } catch (error) {
     console.error("Error fetching variables:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -122,8 +129,8 @@ async function generateLpo(req, res) {
 
     // Fetch VAT variable from Variables collection
     const result = await fetchVariables(req, res);
-    const vatVariable  = 1+(result.vat/100) ;
-    
+    const vatVariable = 1 + result.vat / 100;
+
     console.log(vatVariable);
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
@@ -136,10 +143,8 @@ async function generateLpo(req, res) {
 
       for (const lpoItem of lpoItems) {
         newPrice = (lpoItem.price / vatVariable) * lpoItem.quantity;
-        
-        netTotal += lpoItem.price * lpoItem.quantity;        
-        
-        
+
+        netTotal += lpoItem.price * lpoItem.quantity;
 
         await Lpo.updateOne(
           { _id: lpoItem._id },
@@ -153,7 +158,7 @@ async function generateLpo(req, res) {
         newPrice = lpoItem.price * lpoItem.quantity;
 
         netTotal += newPrice;
-        netTotal = (netTotal * vatVariable);
+        netTotal = netTotal * vatVariable;
       }
     } else if (vat === "N/A") {
       const lpoItems = await Lpo.find({ user_id, status: 1 });
@@ -162,11 +167,10 @@ async function generateLpo(req, res) {
         newPrice = lpoItem.price * lpoItem.quantity;
 
         netTotal += newPrice;
-        
       }
     }
     netTotal = netTotal.toFixed(2);
-    console.log(netTotal)
+    console.log(netTotal);
 
     const newLpo = new Supplier({
       supplier,
@@ -247,7 +251,7 @@ const fetchLpoDataForReceive = async (req, res) => {
     const lpoData = {
       lpoItems,
       lpo,
-      variables
+      variables,
     };
 
     res.json(lpoData);
@@ -265,4 +269,5 @@ module.exports = {
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
+  fetchVariables,
 };
