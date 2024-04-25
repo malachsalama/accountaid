@@ -108,17 +108,17 @@ async function getRetailNames(req, res) {
 }
 
 async function editVariables(req, res) {
-  const { company_no, vat } = req.body;
+  const { company_no, vat, markup_price } = req.body;
 
   try {
     const updatedCompany = await Variables.findOneAndUpdate(
       { company_no },
-      { $set: { vat } },
+      { $set: { vat, markup_price } },
       { new: true }
     );
 
     if (!updatedCompany) {
-      const newVariables = new Variables({ company_no, vat });
+      const newVariables = new Variables({ company_no, vat, markup_price });
       await newVariables.save();
       return res.status(201).json({ message: "New variables created" });
     }

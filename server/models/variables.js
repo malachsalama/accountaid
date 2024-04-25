@@ -7,6 +7,9 @@ const variablesSchema = new mongoose.Schema({
   vat: {
     type: Number,
   },
+  markup_price: {
+    type: Number,
+  },
 });
 
 const Variables = mongoose.model("variable", variablesSchema);

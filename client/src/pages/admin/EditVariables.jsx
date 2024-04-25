@@ -12,6 +12,7 @@ export default function EditVariables() {
   const [formData, setFormData] = useState({
     company_no: user.userData.company_no,
     vat: "",
+    markup_price: "",
   });
 
   const handleChange = (event) => {
@@ -31,7 +32,6 @@ export default function EditVariables() {
 
     if (accessToken) {
       try {
-        console.log(formData);
         await axios.post("/api/auth/edit-variables", formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -42,6 +42,7 @@ export default function EditVariables() {
         setFormData({
           company_no: "",
           vat: "",
+          markup_price: "",
         });
         setIsSuccess(true); // Set state for success message
       } catch (error) {
@@ -85,6 +86,18 @@ export default function EditVariables() {
               value={formData.vat}
               onChange={handleChange}
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Markup:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="markup_price"
+              name="markup_price"
+              value={formData.markup_price}
+              onChange={handleChange}
             />
           </div>
 
