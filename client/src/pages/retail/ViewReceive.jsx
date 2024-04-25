@@ -11,16 +11,17 @@ function ViewReceive() {
   const lpoData = location.state && location.state.lpoData;
   const lpo = location.state && location.state.lpo;
   const [selectedLpos, setSelectedLpos] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0); // State for total price
+  const [totalPrice, setTotalPrice] = useState(0); 
+  const [ variables, setVariables ] = useState([]);
+  const { vat } = lpo[0];
 
   useEffect(() => {
-    console.log(user);
+    
     const fetchVariables = async () => {
       if (accessToken && user) {
         // Check if user is not null
         try {
-          const subCompanyNo = user.userData.company_no;
-          console.log(subCompanyNo);
+          const subCompanyNo = user.userData.company_no;          
           const response = await axios.get("/api/auth/retail/fetchVariables", {
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -29,14 +30,16 @@ function ViewReceive() {
               subCompanyNo: subCompanyNo,
             },
           });
-          console.log(response.data);
+
+          setVariables(response.data)
+          
         } catch (error) {
           console.error(error);
         }
       }
     };
     fetchVariables();
-  }, [accessToken, user]);
+  }, [accessToken, user]);  
 
   const handleCheckboxChange = (lpo_id, price, quantity) => {
     // Toggle the selection status of the LPO
@@ -60,10 +63,12 @@ function ViewReceive() {
     });
   };
 
-  console.log(lpo);
+  
 
   return (
+    
     <div>
+      {console.log(variables)}
       <h2>Received LPO Data</h2>
       {lpoData && lpoData.length > 0 ? (
         <table>
@@ -101,7 +106,20 @@ function ViewReceive() {
       ) : (
         <p>No data available</p>
       )}
-      <p>Total Net Price: {totalPrice}</p> {/* Display total price */}
+      {vat == "N/A"? (
+        <div>
+          <p>Net   : {totalPrice}</p>
+          <p>Vat   : {0}</p> 
+          <p>Total : {totalPrice}</p> 
+        </div>
+      ):(
+        <div>
+          <p>Net   : {totalPrice}</p>
+          <p>Vat   : {totalPrice * ((variables.vat)/100)}</p> 
+          <p>Total : {totalPrice + (totalPrice * ((variables.vat)/100))}</p> 
+        </div> 
+      )}
+      
     </div>
   );
 }
