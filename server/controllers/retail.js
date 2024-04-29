@@ -98,13 +98,12 @@ const autocomplete = async (req, res) => {
 async function fetchVariables(req, res) {
   try {
     let company_no;
-    if (!req.body.company_no) {      
-      company_no = req.query.subCompanyNo;      
-    } else {      
-      company_no = req.body.company_no; 
+    if (!req.body.company_no) {
+      company_no = req.query.subCompanyNo;
+    } else {
+      company_no = req.body.company_no;
     }
 
-    
     const result = await Variables.findOne({ company_no });
     res.json(result);
   } catch (error) {
@@ -131,7 +130,6 @@ async function generateLpo(req, res) {
     const result = await fetchVariables(req, res);
     const vatVariable = 1 + result.vat / 100;
 
-    console.log(vatVariable);
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
     const doc_type = "LPO";
@@ -170,7 +168,6 @@ async function generateLpo(req, res) {
       }
     }
     netTotal = netTotal.toFixed(2);
-    console.log(netTotal);
 
     const newLpo = new Supplier({
       supplier,

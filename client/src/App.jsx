@@ -1,9 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
-import { CreateLpo, LpoDetails, LpoList, RetailHome, ViewReceive } from "./pages/retail";
+import {
+  CreateLpo,
+  LpoDetails,
+  LpoList,
+  RetailHome,
+  ViewReceive,
+} from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
-import { EditVariables, ManagementHome } from "./pages/admin";
+import { EditVariables, ManagementHome, RegDepartment } from "./pages/admin";
 import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
@@ -40,6 +46,7 @@ function App() {
           }
         >
           <Route path="user-registration" element={<Registration />} />
+          <Route path="department-registration" element={<RegDepartment />} />
           <Route path="edit-variables" element={<EditVariables />} />
         </Route>
 
@@ -55,8 +62,7 @@ function App() {
           <Route path="createlpo" element={<CreateLpo />} />
           <Route path="LpoDetails" element={<LpoDetails />} />
           <Route path="lpolist" element={<LpoList />} />
-          <Route path="viewReceive" element={<ViewReceive/>}/>
-          
+          <Route path="viewReceive" element={<ViewReceive />} />
         </Route>
         <Route
           path="/accounts"

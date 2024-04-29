@@ -8,9 +8,10 @@ export default function EditVariables() {
   const accessToken = useAuthToken();
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(null);
+  const company_no = user?.userData?.company_no;
 
   const [formData, setFormData] = useState({
-    company_no: user.userData.company_no,
+    company_no: company_no,
     vat: "",
     markup_price: "",
   });
@@ -22,7 +23,7 @@ export default function EditVariables() {
       return {
         ...prev,
         [name]: value,
-        company_no: user.userData.company_no,
+        company_no: company_no,
       };
     });
   };
@@ -70,7 +71,7 @@ export default function EditVariables() {
               className="form-control"
               id="company_no"
               name="company_no"
-              value={user.userData.company_no}
+              value={company_no}
               onChange={handleChange}
               readOnly
             />

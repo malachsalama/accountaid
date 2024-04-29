@@ -11,6 +11,7 @@ async function RegCompany(req, res) {
     email,
     phone_no,
     password,
+    departments, // Get the departments array from the request body
   } = req.body;
 
   try {
@@ -24,16 +25,20 @@ async function RegCompany(req, res) {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Create the company object with nested departments
     const newCompany = new Company({
       company_name,
       company_no,
       kra_pin,
       email,
       phone_no,
+      departments, // Assign the departments array directly
     });
 
+    // Save the new company to the database
     await newCompany.save();
 
+    // Create a new user associated with the company
     const newUser = new User({
       username: user_name,
       company_no,
@@ -45,8 +50,10 @@ async function RegCompany(req, res) {
       password: hashedPassword,
     });
 
+    // Save the new user to the database
     await newUser.save();
 
+    // Respond with success message
     res.status(201).json({ message: "Company added successfully" });
   } catch (error) {
     console.error("Error adding new company", error);
