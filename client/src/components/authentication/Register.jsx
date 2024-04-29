@@ -18,23 +18,25 @@ export default function Registration() {
   const [designations, setDesignations] = useState([]);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
+  const company_no = user?.userData?.company_no;
 
   // Update formData when user object changes
   useEffect(() => {
     if (user && user.userData) {
       setFormData((prevState) => ({
         ...prevState,
-        company_no: user.userData.company_no,
+        company_no: company_no,
       }));
     }
-  }, [user]);
+  }, [user, company_no]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
       [name]: value,
-      company_no: user.userData.company_no,
+      company_no: company_no,
     });
   };
 
@@ -44,7 +46,6 @@ export default function Registration() {
     try {
       setIsLoading(true);
       setError(null);
-      console.log(formData);
       const response = await axios.post(`/api/auth/user/signup`, formData);
 
       if (response.status === 201) {
@@ -52,7 +53,7 @@ export default function Registration() {
       }
     } catch (error) {
       setIsLoading(false);
-      setError("A user with the same User ID already exists"); // Set the error message
+      setError("A user with the same User ID already exists");
       console.error("An error occurred: ", error);
     }
   };
@@ -74,7 +75,9 @@ export default function Registration() {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await axios.get("/api/auth/departments");
+        const response = await axios.get(
+          `/api/auth/departments?company_no=${company_no}`
+        );
         setDepartments(response.data);
       } catch (error) {
         console.error("An error occurred while fetching departments:", error);
@@ -82,20 +85,27 @@ export default function Registration() {
     };
 
     fetchDepartments();
-  }, []);
+  });
 
   useEffect(() => {
-    const fetchDesignations = async () => {
-      try {
-        const response = await axios.get("/api/auth/designations");
-        setDesignations(response.data);
-      } catch (error) {
-        console.error("An error occurred while fetching designations:", error);
-      }
-    };
+    if (selectedDepartment) {
+      const fetchDesignations = async () => {
+        try {
+          const response = await axios.get(
+            `/api/auth/designations?company_no=${company_no}&department=${selectedDepartment}`
+          );
+          setDesignations(response.data);
+        } catch (error) {
+          console.error(
+            "An error occurred while fetching designations:",
+            error
+          );
+        }
+      };
 
-    fetchDesignations();
-  }, []);
+      fetchDesignations();
+    }
+  }, [selectedDepartment, company_no]);
 
   return (
     <div className="registration-form">
@@ -132,13 +142,18 @@ export default function Registration() {
             id="department"
             name="department"
             value={formData.department}
-            onChange={handleChange}
+            onChange={(e) => {
+              handleChange(e);
+              setSelectedDepartment(e.target.value); // Update selectedDepartment when department changes
+            }}
             required
           >
-            <option value="">Select a department</option>
+            <option key="" value="">
+              Select a department
+            </option>
             {departments.map((dept) => (
-              <option key={dept._id} value={dept.department}>
-                {dept.department}
+              <option key={dept} value={dept}>
+                {dept}
               </option>
             ))}
           </select>
@@ -154,10 +169,12 @@ export default function Registration() {
             onChange={handleChange}
             required
           >
-            <option value="">Select a designation</option>
-            {designations.map((desg) => (
-              <option key={desg._id} value={desg.designation}>
-                {desg.designation}
+            <option key="" value="">
+              Select a designation
+            </option>
+            {designations.map((desg, index) => (
+              <option key={index} value={desg}>
+                {desg}
               </option>
             ))}
           </select>

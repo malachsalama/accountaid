@@ -1,28 +1,35 @@
-const Department = require("../models/department");
+const Company = require("../models/company");
 const RetailName = require("../models/retailname");
-const Designation = require("../models/designation");
 const Variables = require("../models/variables");
 
 // Adding a department
 async function addDepartment(req, res) {
   try {
-    const { department, department_no, designation } = req.body;
+    const { department, department_no, designations } = req.body;
+    const { company_no } = req.query;
 
-    // Check if the department name already exists
-    const existingDepartment = await Department.findOne({ department });
+    // Check if the department name already exists for the given company
+    const existingDepartment = await Company.findOne({
+      company_no: company_no,
+      "departments.department": department,
+    });
 
     if (existingDepartment) {
       return res.status(400).json({ error: "Department already exists" });
     }
 
-    const newDepartment = new Department({
+    // Create a new department object
+    const newDepartment = {
       department,
       department_no,
-      designation,
-    });
+      designations,
+    };
 
-    // Save the department to the database
-    await newDepartment.save();
+    // Update the company document with the new department
+    await Company.updateOne(
+      { company_no: company_no },
+      { $push: { departments: newDepartment } }
+    );
 
     res.status(201).json({ message: "Department added successfully" });
   } catch (error) {
@@ -31,9 +38,20 @@ async function addDepartment(req, res) {
   }
 }
 
+// Fetch all departments for a specific company
 async function getAllDepartments(req, res) {
   try {
-    const departments = await Department.find({}, "department");
+    const { company_no } = req.query;
+
+    // Find the company by company_no
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+    const departments = company.departments.map(
+      (department) => department.department
+    );
     res.json(departments);
   } catch (error) {
     console.error("Error fetching departments:", error);
@@ -41,7 +59,38 @@ async function getAllDepartments(req, res) {
   }
 }
 
-// Add RetailName
+// Fetch all designations for a specific company and department
+async function getDesignations(req, res) {
+  try {
+    const { company_no, department } = req.query;
+
+    // Find the company by company_no
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Find the department within the company
+    const selectedDepartment = company.departments.find(
+      (dept) => dept.department === department
+    );
+
+    if (!selectedDepartment) {
+      return res.status(404).json({ error: "Department not found" });
+    }
+
+    // Extract designations from the selected department
+    const designations = selectedDepartment.designations || [];
+
+    res.json(designations);
+  } catch (error) {
+    console.error("Error fetching designations:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// Add retail name
 async function addRetailName(req, res) {
   try {
     const { retailname } = req.body;
@@ -64,39 +113,7 @@ async function addRetailName(req, res) {
   }
 }
 
-// Add Designation
-async function addDesignation(req, res) {
-  try {
-    const { designation } = req.body;
-
-    // Check if the designation already exists
-    const existingDesignation = await Designation.findOne({ designation });
-
-    if (existingDesignation) {
-      return res.status(400).json({ error: "Designation already exists" });
-    }
-
-    const addDesignation = new Designation({
-      designation,
-    });
-
-    await addDesignation.save();
-    res.status(201).json({ message: "Designation added successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Internal server error" });
-  }
-}
-
-async function getDesignations(req, res) {
-  try {
-    const designations = await Designation.find({}, "designation");
-    res.json(designations);
-  } catch (error) {
-    console.error("Error fetching designations:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-}
-
+// Fetch all retail names
 async function getRetailNames(req, res) {
   try {
     const retailNames = await RetailName.find({}, "retailname");
@@ -107,6 +124,7 @@ async function getRetailNames(req, res) {
   }
 }
 
+// Edit variables
 async function editVariables(req, res) {
   const { company_no, vat, markup_price } = req.body;
 
@@ -135,7 +153,6 @@ module.exports = {
   getAllDepartments,
   addRetailName,
   getRetailNames,
-  addDesignation,
   getDesignations,
   editVariables,
 };

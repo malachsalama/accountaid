@@ -8,7 +8,12 @@ export default function ManagementHome() {
       <button onClick={() => navigate("user-registration")}>
         Register User
       </button>
-      <button onClick={() => navigate("edit-variables")}>Variables</button>
+      <button onClick={() => navigate("department-registration")}>
+        Register Department
+      </button>
+      <button onClick={() => navigate("edit-variables")}>
+        Company Variables
+      </button>
     </div>
   );
 }
