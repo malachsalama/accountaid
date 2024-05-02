@@ -25,6 +25,9 @@ const creditorSchema = new mongoose.Schema({
 
 const logsSchema = new mongoose.Schema(
   {
+    company_no: {
+      type: String,
+    },
     user_id: {
       type: String,
     },

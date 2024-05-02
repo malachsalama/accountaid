@@ -10,6 +10,9 @@ export default function AccountsHome() {
       <Button variant="outline-dark" onClick={() => navigate("createcreditor")}>
         Create Supplier
       </Button>
+      <Button variant="outline-dark" onClick={() => navigate("tbaccounts")}>
+        Tb Accounts
+      </Button>
     </div>
   );
 }

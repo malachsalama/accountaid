@@ -14,6 +14,7 @@ import AccountsHome from "./pages/accounts/AccountsHome";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
 import CreateCreditor from "./pages/accounts/CreateCreditor";
+import TbAccounts from "./pages/accounts/TbAccounts";
 import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
 import "./App.css";
@@ -75,6 +76,7 @@ function App() {
         >
           <Route path="createcreditor" element={<CreateCreditor />} />
           <Route path="creditorlist" element={<CreditorList />} />
+          <Route path="tbaccounts" element={<TbAccounts />} />
         </Route>
         <Route
           path="/humanresource"

@@ -18,6 +18,24 @@ const departmentSchema = new mongoose.Schema(
   { _id: false } // Exclude _id field
 );
 
+const tbAccountsSchema = new mongoose.Schema(
+  {
+    account_name: {
+      type: String,
+      required: true,
+    },
+    account_number: {
+      type: String,
+      required: true,
+    },
+    acc_no: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false } // Exclude _id field
+);
+
 const companySchema = new mongoose.Schema({
   company_name: {
     type: String,
@@ -40,6 +58,7 @@ const companySchema = new mongoose.Schema({
     required: true,
   },
   departments: [departmentSchema], // Reference departmentSchema
+  tbaccounts: [tbAccountsSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);
