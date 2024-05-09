@@ -15,8 +15,6 @@ function ViewReceive() {
   const [variables, setVariables] = useState([]);
   const { vat } = lpo[0];
 
-  console.log(lpo);
-
   useEffect(() => {
     const fetchVariables = async () => {
       if (accessToken && user) {

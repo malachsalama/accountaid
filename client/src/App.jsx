@@ -1,21 +1,17 @@
 /* eslint-disable react/prop-types */
 import { Route, Routes, Outlet } from "react-router-dom";
 import Login from "./components/authentication/Login";
-import {
-  CreateLpo,
-  LpoDetails,
-  LpoList,
-  RetailHome,
-  ViewReceive,
-} from "./pages/retail";
+import { Lpo, LpoList, RetailHome, ViewReceive } from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
 import { EditVariables, ManagementHome, RegDepartment } from "./pages/admin";
-import AccountsHome from "./pages/accounts/AccountsHome";
+import {
+  AccountsHome,
+  CreateCreditor,
+  CreditorList,
+  TbAccounts,
+} from "./pages/accounts";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
-import CreateCreditor from "./pages/accounts/CreateCreditor";
-import TbAccounts from "./pages/accounts/TbAccounts";
-import CreditorList from "./pages/accounts/CreditorList";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
 import "./App.css";
 import Registration from "./components/authentication/Register";
@@ -60,8 +56,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route path="createlpo" element={<CreateLpo />} />
-          <Route path="LpoDetails" element={<LpoDetails />} />
+          <Route path="lpo" element={<Lpo />} />
           <Route path="lpolist" element={<LpoList />} />
           <Route path="viewReceive" element={<ViewReceive />} />
         </Route>

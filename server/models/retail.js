@@ -1,5 +1,36 @@
 const mongoose = require("mongoose");
 
+const productSchema = new mongoose.Schema({
+  user_id: {
+    type: String,
+    required: true,
+  },
+  unique_id: {
+    type: String,
+  },
+  company_no: {
+    type: String,
+  },
+  lpo_no: {
+    type: String,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  lpo_no: {
+    type: String,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+});
+
 const supplierSchema = new mongoose.Schema({
   supplier: {
     type: String,
@@ -28,7 +59,7 @@ const supplierSchema = new mongoose.Schema({
 
   netTotal: {
     type: String,
-    required: true,
+    required: false,
   },
 
   acc_no: {
@@ -67,6 +98,15 @@ const supplierSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  vatVariable: {
+    type: Number,
+    required: true,
+  },
+  status: {
+    type: Number,
+    required: true,
+  },
+  products: [productSchema],
 });
 
 const Supplier = mongoose.model("lpo", supplierSchema);
