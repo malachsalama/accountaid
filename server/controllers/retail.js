@@ -106,7 +106,8 @@ async function generateLpo(req, res) {
   try {
     const latestLpoNo = await getLpoNo(req, res);
     const lpo_no = latestLpoNo;
-    const { user_id, username } = req.user;
+    const { user_id } = req.user;
+    const { username } = req.query.userData;
     const {
       supplier,
       supplierName,
@@ -141,8 +142,6 @@ async function generateLpo(req, res) {
 
     // Validate the request data
     const validationErrors = newLpo.validateSync();
-
-    console.log(validationErrors);
     if (validationErrors) {
       // Return validation errors to the client
       return res.status(400).json({ errors: validationErrors.errors });
@@ -212,7 +211,6 @@ async function postLpoDetails(req, res) {
 
 //close lpo from adding more parts by updating the status to 2
 async function closeLpo(req, res) {
-  console.log(req.user);
   const { lpoUnNo, company_no } = req.body;
   const lpo_no = lpoUnNo;
   let netTotal = 0;

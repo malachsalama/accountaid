@@ -1,35 +1,38 @@
 const mongoose = require("mongoose");
 
-const productSchema = new mongoose.Schema({
-  user_id: {
-    type: String,
-    required: true,
+const productSchema = new mongoose.Schema(
+  {
+    user_id: {
+      type: String,
+      required: true,
+    },
+    unique_id: {
+      type: String,
+    },
+    company_no: {
+      type: String,
+    },
+    lpo_no: {
+      type: String,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    quantity: {
+      type: Number,
+      required: true,
+    },
+    lpo_no: {
+      type: String,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
   },
-  unique_id: {
-    type: String,
-  },
-  company_no: {
-    type: String,
-  },
-  lpo_no: {
-    type: String,
-  },
-  description: {
-    type: String,
-    required: true,
-  },
-  quantity: {
-    type: Number,
-    required: true,
-  },
-  lpo_no: {
-    type: String,
-  },
-  price: {
-    type: Number,
-    required: true,
-  },
-});
+  { _id: false } // Exclude MongoDB _id field
+);
 
 const supplierSchema = new mongoose.Schema({
   supplier: {
@@ -58,7 +61,7 @@ const supplierSchema = new mongoose.Schema({
   },
 
   netTotal: {
-    type: String,
+    type: Number,
     required: false,
   },
 

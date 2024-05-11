@@ -75,7 +75,7 @@ function generatePDF(header, details) {
       doc.fontSize(10).text(`${detail.unique_id}`, 22, height, { width: 100 });
       doc
         .fontSize(10)
-        .text(`${detail.description}:`, 133, height, { width: 200 });
+        .text(`${detail.description}`, 133, height, { width: 200 });
       doc.fontSize(10).text(`${detail.quantity}`, 303, height, { width: 100 });
       doc.fontSize(10).text(`${detail.price}`, 403, height, { width: 100 });
       doc
