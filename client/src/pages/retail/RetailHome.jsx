@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 axios.defaults.baseURL = "http://localhost:8000";
@@ -28,10 +27,8 @@ export default function RetailHome() {
           {retailname.retailname}
         </Link>
       ))}
-      <Button variant="outline-dark" onClick={() => navigate("createlpo")}>
-        LPO
-      </Button>
       <button onClick={() => navigate("lpolist")}>Lpo List</button>
+      <button onClick={() => navigate("lpo")}>Lpo</button>
     </div>
   );
 }

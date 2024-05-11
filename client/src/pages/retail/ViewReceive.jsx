@@ -8,14 +8,11 @@ function ViewReceive() {
   const location = useLocation();
   const accessToken = useAuthToken();
   const { user } = useAuthContext();
-  const lpoData = location.state && location.state.lpoData;
   const lpo = location.state && location.state.lpo;
   const [selectedLpos, setSelectedLpos] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [variables, setVariables] = useState([]);
   const { vat } = lpo[0];
-
-  console.log(lpo);
 
   useEffect(() => {
     const fetchVariables = async () => {
@@ -66,7 +63,7 @@ function ViewReceive() {
   return (
     <div>
       <h2>Received LPO Data</h2>
-      {lpoData && lpoData.length > 0 ? (
+      {lpo[0].products && lpo[0].products.length > 0 ? (
         <table>
           <thead>
             <tr>
@@ -79,7 +76,7 @@ function ViewReceive() {
             </tr>
           </thead>
           <tbody>
-            {lpoData.map((item, index) => (
+            {lpo[0].products.map((item, index) => (
               <tr key={index}>
                 <td>
                   <input

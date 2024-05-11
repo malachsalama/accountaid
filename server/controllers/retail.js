@@ -3,50 +3,20 @@ const Lpo = require("../models/lpoDetails");
 const Supplier = require("../models/retail");
 const Variables = require("../models/variables");
 
-// Adding a product to  the list
-async function createLpo(req, res) {
-  try {
-    const { user_id } = req.user;
-    const { unique_id, company_no, description, quantity, price } = req.body;
-
-    const newProduct = new Lpo({
-      user_id,
-      unique_id,
-      company_no,
-      description,
-      quantity,
-      price,
-    });
-
-    // Validate the request data
-    const validationErrors = newProduct.validateSync();
-    if (validationErrors) {
-      // Return validation errors to the client
-      return res.status(400).json({ errors: validationErrors.errors });
-    }
-
-    // Save the lpo to the database
-    await newProduct.save();
-
-    res.status(201).json({ message: "Lpo added successfully" });
-  } catch (error) {
-    console.error("Error adding Lpo:", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-}
-
 const fetchLpoData = async (req, res) => {
   try {
     const { user_id } = req.user;
+    const latestLpoNo = await getLatestLpoNo(req, res);
+    const lpo_no = latestLpoNo;
 
     if (!user_id) {
       return res.status(401).json({ error: "User not authenticated" });
     }
-    const lpoItems = await Lpo.find({ user_id, status: 1 });
+    const lpoItems = await Supplier.findOne({ lpo_no, status: 1 });
 
     res.json(lpoItems);
   } catch (error) {
-    console.error("Error fetching lpos:", error);
+    console.error("Error fetching lpo:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
@@ -68,7 +38,24 @@ async function getLpoNo(req, res) {
       lpoNo = "LPO-" + numericPart.toString().padStart(4, "0");
     }
 
-    res.status(200).json(lpoNo);
+    // res.status(200).json(lpoNo);
+    return lpoNo;
+  } catch (error) {
+    console.error("Error getting account number:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+//fetch the largest lpo number
+async function getLatestLpoNo(req, res) {
+  try {
+    const result = await Supplier.findOne().sort({ lpo_no: -1 }).exec();
+
+    let max_no = result ? result.lpo_no : 0;
+    const lpoNo = max_no;
+
+    // res.status(200).json(lpoNo);
+    return lpoNo;
   } catch (error) {
     console.error("Error getting account number:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -100,12 +87,15 @@ async function fetchVariables(req, res) {
     let company_no;
     if (!req.body.company_no) {
       company_no = req.query.subCompanyNo;
+
+      const result = await Variables.findOne({ company_no });
+      res.json(result);
     } else {
       company_no = req.body.company_no;
-    }
 
-    const result = await Variables.findOne({ company_no });
-    res.json(result);
+      const result = await Variables.findOne({ company_no });
+      return result;
+    }
   } catch (error) {
     console.error("Error fetching variables:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -114,6 +104,8 @@ async function fetchVariables(req, res) {
 
 async function generateLpo(req, res) {
   try {
+    const latestLpoNo = await getLpoNo(req, res);
+    const lpo_no = latestLpoNo;
     const { user_id, username } = req.user;
     const {
       supplier,
@@ -121,7 +113,6 @@ async function generateLpo(req, res) {
       company_no,
       kra_pin,
       usd_rate,
-      lpo_no,
       date_created,
       vat,
     } = req.body;
@@ -134,41 +125,6 @@ async function generateLpo(req, res) {
     const unique_id = lpo_no;
     const doc_type = "LPO";
 
-    let netTotal = 0;
-
-    if (vat === "Inc") {
-      const lpoItems = await Lpo.find({ user_id, status: 1 });
-
-      for (const lpoItem of lpoItems) {
-        newPrice = (lpoItem.price / vatVariable) * lpoItem.quantity;
-
-        netTotal += lpoItem.price * lpoItem.quantity;
-
-        await Lpo.updateOne(
-          { _id: lpoItem._id },
-          { $set: { price: newPrice } }
-        );
-      }
-    } else if (vat === "Exc") {
-      const lpoItems = await Lpo.find({ user_id, status: 1 });
-
-      for (const lpoItem of lpoItems) {
-        newPrice = lpoItem.price * lpoItem.quantity;
-
-        netTotal += newPrice;
-        netTotal = netTotal * vatVariable;
-      }
-    } else if (vat === "N/A") {
-      const lpoItems = await Lpo.find({ user_id, status: 1 });
-
-      for (const lpoItem of lpoItems) {
-        newPrice = lpoItem.price * lpoItem.quantity;
-
-        netTotal += newPrice;
-      }
-    }
-    netTotal = netTotal.toFixed(2);
-
     const newLpo = new Supplier({
       supplier,
       supplierName,
@@ -176,28 +132,24 @@ async function generateLpo(req, res) {
       kra_pin,
       usd_rate,
       lpo_no,
-      netTotal,
       date_created,
       session: user_id,
       vat,
+      vatVariable,
+      status: 1,
     });
 
     // Validate the request data
     const validationErrors = newLpo.validateSync();
+
+    console.log(validationErrors);
     if (validationErrors) {
       // Return validation errors to the client
       return res.status(400).json({ errors: validationErrors.errors });
     }
-
-    // Update lpo_items to status 2 for a specific user
-
-    const filter = { user_id: user_id, status: 1 };
-    const update = { $set: { status: 1, lpo_no: lpo_no } };
-
-    await Lpo.updateMany(filter, update);
-
     // save log data for the creator of the lpo to the db
     const logData = new Logs({
+      company_no,
       user_id,
       action,
       unique_id,
@@ -216,11 +168,94 @@ async function generateLpo(req, res) {
   }
 }
 
+// Adding details to the lpo created
+async function postLpoDetails(req, res) {
+  try {
+    const { user_id } = req.user;
+    const { unique_id, company_no, description, quantity, price } = req.body;
+    const { lpoUnNo } = req.query;
+    const lpo_no = lpoUnNo;
+
+    // Check if the department name already exists for the given company
+    const existingLpo = await Supplier.findOne({
+      company_no: company_no,
+      lpo_no: lpo_no,
+      status: 1,
+    });
+
+    if (!existingLpo) {
+      return res.status(400).json({ error: "LPO not found" });
+    }
+
+    // Create a product object
+    const newProduct = {
+      user_id,
+      unique_id,
+      company_no,
+      description,
+      quantity,
+      price,
+    };
+
+    // Update the company document with the new department
+    await Supplier.updateOne(
+      { company_no: company_no, lpo_no: lpo_no, status: 1 },
+      { $push: { products: newProduct } }
+    );
+
+    res.status(201).json({ message: "product added successfully" });
+  } catch (error) {
+    console.error("Error adding Product:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+//close lpo from adding more parts by updating the status to 2
+async function closeLpo(req, res) {
+  console.log(req.user);
+  const { lpoUnNo, company_no } = req.body;
+  const lpo_no = lpoUnNo;
+  let netTotal = 0;
+
+  try {
+    // Check if the department name already exists for the given company
+    const existingLpo = await Supplier.findOne({
+      company_no: company_no,
+      lpo_no: lpo_no,
+      status: 1,
+    });
+
+    if (!existingLpo) {
+      return res.status(400).json({ error: "Problem with Lpo" });
+    }
+
+    const extractedProducts = existingLpo.products;
+
+    extractedProducts.forEach((product) => {
+      netTotal += product.quantity * product.price;
+    });
+
+    netTotal = netTotal.toFixed(2);
+
+    // Update the netTotal and status
+    await Supplier.updateMany(
+      { company_no: company_no, lpo_no: lpo_no },
+      {
+        $set: {
+          netTotal: netTotal,
+          status: 2,
+        },
+      }
+    );
+    res.json("Lpo closed");
+  } catch (error) {}
+}
+
 async function getAllLposByCompany(req, res) {
   const { company_no } = req.params;
 
   try {
-    const lpos = await Supplier.find({ company_no });
+    const lpos = await Supplier.find({ company_no, status: 2 });
     res.status(200).json(lpos);
   } catch (error) {
     console.error("Error fetching LPOs:", error);
@@ -240,13 +275,11 @@ const fetchLpoDataForReceive = async (req, res) => {
     if (!lpo_no) {
       return res.status(401).json({ error: "Lpo not found" });
     }
-    const lpoItems = await Lpo.find({ lpo_no, company_no });
     const lpo = await Supplier.find({ lpo_no, company_no });
     const variables = await Variables.find({ company_no });
 
     // Create an object containing both variables
     const lpoData = {
-      lpoItems,
       lpo,
       variables,
     };
@@ -259,12 +292,14 @@ const fetchLpoDataForReceive = async (req, res) => {
 };
 
 module.exports = {
-  createLpo,
   fetchLpoData,
   autocomplete,
   getLpoNo,
+  getLatestLpoNo,
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
   fetchVariables,
+  postLpoDetails,
+  closeLpo,
 };
