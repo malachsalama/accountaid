@@ -1,4 +1,3 @@
-import React from "react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -11,10 +10,6 @@ function Lpo() {
   const accessToken = useAuthToken();
   const navigate = useNavigate();
   const { user } = useAuthContext();
-  console.log(user);
-
-  const [lpoItems, setLpoItems] = useState([]);
-  const [validationErrors, setValidationErrors] = useState([]);
 
   // populating the posts for the lpo details for the LPO
   const [post, setPost] = useState({
@@ -107,10 +102,10 @@ function Lpo() {
     }
   };
 
-  //useeffect to fetch the latest LPO whenever the component mounts
+  //useEffect to fetch the latest LPO whenever the component mounts
   useEffect(() => {
     fetchLPODetails();
-  }, []);
+  });
 
   // takes all formData from supplier form and sends it to the backend for storage.
   const handleSubmit = async (event) => {
@@ -122,13 +117,16 @@ function Lpo() {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
+          params: {
+            userData: user.userData,
+          },
         });
 
-        setPost({
-          company_no: user.userData.company_no,
+        setFormData({
           supplier: "",
           supplierName: "",
           kra_pin: "",
+          company_no: "",
           usd_rate: "",
           acc_no: "",
           date_created: "",
@@ -176,7 +174,6 @@ function Lpo() {
           },
         });
 
-        setValidationErrors({});
         fetchLPODetails();
 
         // Reset the post state to clear the form
@@ -188,17 +185,12 @@ function Lpo() {
           price: "",
         });
       } catch (error) {
-        if (error.response && error.response.status === 400) {
-          // If a validation error response is received
-          setValidationErrors(error.response.data.errors);
-        } else {
-          console.error("An error occurred:", error);
-        }
+        console.error("An error occurred:", error);
       }
     }
   };
 
-  const handleClose = async (e) => {
+  const handleClose = async () => {
     try {
       await axios.post(
         "/api/auth/retail/closelpo",
