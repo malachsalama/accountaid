@@ -255,7 +255,7 @@ async function getAllLposByCompany(req, res) {
   const { company_no } = req.params;
 
   try {
-    const lpos = await Supplier.find({ company_no });
+    const lpos = await Supplier.find({ company_no, status: 2 });
     res.status(200).json(lpos);
   } catch (error) {
     console.error("Error fetching LPOs:", error);
@@ -275,13 +275,11 @@ const fetchLpoDataForReceive = async (req, res) => {
     if (!lpo_no) {
       return res.status(401).json({ error: "Lpo not found" });
     }
-    const lpoItems = await Lpo.find({ lpo_no, company_no });
     const lpo = await Supplier.find({ lpo_no, company_no });
     const variables = await Variables.find({ company_no });
 
     // Create an object containing both variables
     const lpoData = {
-      lpoItems,
       lpo,
       variables,
     };
