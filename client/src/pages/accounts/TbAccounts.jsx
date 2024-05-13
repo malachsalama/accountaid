@@ -5,13 +5,13 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 export default function TbAccounts() {
   const { user } = useAuthContext();
   const accessToken = useAuthToken();
+
   // State to store form data
   const [formData, setFormData] = useState({
     account_name: "",
     account_number: "",
     acc_no: "",
   });
-  const company_no = user?.userData?.company_no;
 
   // State to store accounts created
   const [accounts, setAccounts] = useState([]);
@@ -29,7 +29,7 @@ export default function TbAccounts() {
     fetchAccounts();
   });
 
-  // Function to fetch accounts data from the database
+  // Fetch accounts data from the database
   const fetchAccounts = async () => {
     try {
       const response = await axios.get("/api/auth/accounts/tbaccounts", {
@@ -37,7 +37,7 @@ export default function TbAccounts() {
           Authorization: `Bearer ${accessToken}`,
         },
         params: {
-          company_no: company_no,
+          userData: user.userData,
         },
       });
       setAccounts(response.data);
@@ -52,20 +52,14 @@ export default function TbAccounts() {
 
     if (accessToken && user) {
       try {
-        // setIsLoading(true);
-        // setError(null);
-        const response = await axios.post(
-          "/api/auth/accounts/tbaccounts",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              company_no: company_no,
-            },
-          }
-        );
+        await axios.post("/api/auth/accounts/tbaccounts", formData, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            userData: user.userData,
+          },
+        });
 
         // Fetch updated accounts data after submission
         fetchAccounts();
@@ -76,10 +70,6 @@ export default function TbAccounts() {
           account_number: "",
           acc_no: "",
         });
-
-        if (response.status === 201) {
-          console.log(response);
-        }
       } catch (error) {
         console.error("TB Account not Inserted", error);
       }

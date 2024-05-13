@@ -4,12 +4,7 @@ import Login from "./components/authentication/Login";
 import { Lpo, LpoList, RetailHome, ViewReceive } from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
 import { EditVariables, ManagementHome, RegDepartment } from "./pages/admin";
-import {
-  AccountsHome,
-  CreateCreditor,
-  CreditorList,
-  TbAccounts,
-} from "./pages/accounts";
+import { AccountsHome, CreateCreditor, TbAccounts } from "./pages/accounts";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import Navbar from "./components/navbar/Navbar";
 import ProtectedRoute from "./components/authentication/ProtectedRoutes";
@@ -70,7 +65,6 @@ function App() {
           }
         >
           <Route path="createcreditor" element={<CreateCreditor />} />
-          <Route path="creditorlist" element={<CreditorList />} />
           <Route path="tbaccounts" element={<TbAccounts />} />
         </Route>
         <Route

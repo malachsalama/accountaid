@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 
-// Define the User Schema
 const userSchema = new mongoose.Schema({
   company_no: {
     type: String,
@@ -24,7 +23,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
   department_no: {
-    type: Number,
+    type: String,
     required: true,
   },
   user_id: {
@@ -38,7 +37,6 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-// Create the User model
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
