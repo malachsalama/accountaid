@@ -1,4 +1,5 @@
 const { Creditor, Logs } = require("../models/accounts");
+const Company = require("../models/company");
 const Lpo = require("../models/lpoDetails");
 const Supplier = require("../models/retail");
 const Variables = require("../models/variables");
@@ -94,6 +95,8 @@ async function fetchVariables(req, res) {
       company_no = req.body.company_no;
 
       const result = await Variables.findOne({ company_no });
+
+      console.log(req.body.company_no);
       return result;
     }
   } catch (error) {
@@ -211,9 +214,14 @@ async function postLpoDetails(req, res) {
 
 //close lpo from adding more parts by updating the status to 2
 async function closeLpo(req, res) {
-  const { lpoUnNo, company_no } = req.body;
+  const { lpoUnNo, userData } = req.body;
+  const company_no = userData.company_no;
+  const username = userData.username;
   const lpo_no = lpoUnNo;
   let netTotal = 0;
+  const heading = "LPO Approval";
+  const body = `${username} Created LPO number ${lpo_no} as shown below. Check details below.`;
+  const type = "lpo";
 
   try {
     // Check if the department name already exists for the given company
@@ -245,8 +253,27 @@ async function closeLpo(req, res) {
         },
       }
     );
+
+    // Create a product object
+    const newNotification = {
+      username,
+      company_no,
+      heading,
+      body,
+      type,
+      unique_id: lpo_no,
+      status: 1,
+    };
+
+    await Company.updateOne(
+      { company_no: company_no },
+      { $push: { notifications: newNotification } }
+    );
+
     res.json("Lpo closed");
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 async function getAllLposByCompany(req, res) {

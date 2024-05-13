@@ -148,6 +148,23 @@ async function editVariables(req, res) {
   }
 }
 
+async function fetchNotifications(req, res) {
+  const company_no = userData.company_no;
+  console.log("Am here");
+
+  try {
+    // fetch  all notifications based on company number
+    const notifications = await Company.find({
+      company_no: company_no,
+    });
+    console.log("notifications");
+    console.log(notifications);
+    res.json(notifications);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 module.exports = {
   addDepartment,
   getAllDepartments,
@@ -155,4 +172,5 @@ module.exports = {
   getRetailNames,
   getDesignations,
   editVariables,
+  fetchNotifications,
 };

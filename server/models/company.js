@@ -36,6 +36,30 @@ const tbAccountsSchema = new mongoose.Schema(
   { _id: false } // Exclude _id field
 );
 
+const notificationSchema = new mongoose.Schema({
+  username: {
+    type: String,
+  },
+  company_no: {
+    type: String,
+  },
+  heading: {
+    type: String,
+  },
+  body: {
+    type: String,
+  },
+  type: {
+    type: String,
+  },
+  unique_id: {
+    type: String,
+  },
+  status: {
+    type: String,
+  },
+});
+
 const companySchema = new mongoose.Schema({
   company_name: {
     type: String,
@@ -59,6 +83,7 @@ const companySchema = new mongoose.Schema({
   },
   departments: [departmentSchema], // Reference departmentSchema
   tbaccounts: [tbAccountsSchema],
+  notifications: [notificationSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);
