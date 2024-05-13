@@ -10,7 +10,6 @@ const {
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
-  fetchVariables,
   postLpoDetails,
   closeLpo,
 } = require("../controllers/retail");
@@ -31,6 +30,5 @@ router.post("/retail/closelpo", authenticateToken, closeLpo);
 
 router.get("/retail/autocomplete", autocomplete);
 router.get("/retail/lpo_no", getLpoNo);
-router.get("/retail/fetchVariables", authenticateToken, fetchVariables);
 
 module.exports = router;

@@ -11,11 +11,11 @@ const departmentSchema = new mongoose.Schema(
       required: true,
     },
     designations: {
-      type: [String], // Array of strings to store multiple designations
+      type: [String],
       required: true,
     },
   },
-  { _id: false } // Exclude _id field
+  { _id: false }
 );
 
 const tbAccountsSchema = new mongoose.Schema(
@@ -33,7 +33,48 @@ const tbAccountsSchema = new mongoose.Schema(
       required: true,
     },
   },
-  { _id: false } // Exclude _id field
+  { _id: false }
+);
+
+const creditorSchema = new mongoose.Schema(
+  {
+    acc_no: {
+      type: String,
+    },
+    name: {
+      type: String,
+    },
+    company: {
+      type: String,
+      required: true,
+    },
+    kra_pin: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+    },
+    phone_no: {
+      type: String,
+    },
+  },
+  { _id: false }
+);
+
+const variablesSchema = new mongoose.Schema(
+  {
+    company_no: {
+      type: String,
+    },
+    vat: {
+      type: Number,
+    },
+    markup_price: {
+      type: Number,
+    },
+  },
+  { _id: false }
 );
 
 const companySchema = new mongoose.Schema({
@@ -57,8 +98,10 @@ const companySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  departments: [departmentSchema], // Reference departmentSchema
+  departments: [departmentSchema],
   tbaccounts: [tbAccountsSchema],
+  creditors: [creditorSchema],
+  variables: [variablesSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);

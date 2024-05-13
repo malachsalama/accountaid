@@ -1,5 +1,5 @@
-const Company = require("../models/company");
 const bcrypt = require("bcrypt");
+const Company = require("../models/company");
 const User = require("../models/user");
 
 async function RegCompany(req, res) {

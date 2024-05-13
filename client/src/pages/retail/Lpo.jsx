@@ -40,13 +40,16 @@ function Lpo() {
   const getSuggestions = async (inputValue) => {
     try {
       const response = await axios.get("/api/auth/retail/autocomplete", {
-        params: { q: inputValue },
+        params: { q: inputValue, userData: user.userData },
       });
 
-      const data = response.data;
-      const filteredData = data.filter((item) => item.company && item.kra_pin);
+      const suggestedSuppliers = response.data;
 
-      setSuggestions(filteredData.map((item) => item.company));
+      const supplierNames = suggestedSuppliers.map(
+        (supplier) => supplier.company
+      );
+
+      setSuggestions(supplierNames);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
@@ -57,10 +60,10 @@ function Lpo() {
     setFormData((prevData) => ({ ...prevData, supplier: newValue }));
   };
 
-  //handles whatever was selected from the dropdown and sets it to the formData for supplier details
+  //Handle whatever was selected from the dropdown and sets it to the formData for supplier details
   const onSuggestionSelected = async (_, { suggestionValue }) => {
     const response = await axios.get("/api/auth/retail/autocomplete", {
-      params: { q: suggestionValue },
+      params: { q: suggestionValue, userData: user.userData },
     });
 
     const data = response.data[0];
@@ -93,21 +96,17 @@ function Lpo() {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
-      const lpoData = lpo.data;
-      setLpo(lpoData);
-      //   setLpo((prevData) => ({ ...prevData, lpoData }));
+      setLpo(lpo.data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  //useEffect to fetch the latest LPO whenever the component mounts
+  //Fetch the latest LPO
   useEffect(() => {
     fetchLPODetails();
   });
 
-  // takes all formData from supplier form and sends it to the backend for storage.
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -325,8 +324,6 @@ function Lpo() {
               Create LPO
             </button>
           </form>
-
-          {/* ///////////////////////////////////////////insert LPO details Form////////////////////////////////////////////////////////////////////////// */}
 
           <div className="lpo-form">
             <h1 className="form-title">Create LPO</h1>

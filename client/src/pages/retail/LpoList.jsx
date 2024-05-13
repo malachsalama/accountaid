@@ -13,7 +13,6 @@ export default function LpoList() {
   useEffect(() => {
     const fetchLpos = async () => {
       if (accessToken && user) {
-        // Check if user is not null
         try {
           const response = await axios.get(
             `/api/auth/retail/lpos/${user.userData.company_no}`,
@@ -50,18 +49,18 @@ export default function LpoList() {
 
   const handleReceive = async (lpo_no) => {
     try {
-      const userData = user.userData.company_no;
+      const company_no = user.userData.company_no;
       const response = await axios.get(
         "/api/auth/retail/fetchLpoDataForReceive",
         {
-          params: { lpo_no, userData },
+          params: { lpo_no, company_no },
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
 
-      navigate("/retail/viewReceive", { state: { lpo: response.data.lpo } });
+      navigate("/retail/viewReceive", { state: { lpo: response.data } });
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
