@@ -30,7 +30,7 @@ export default function Navbar() {
           <>
             <button
               className="notification-button"
-              onClick={() => handlePdf(item.lpo_no)}
+              onClick={() => console.log("Clicked!")}
             >
               <FaBell className="notification-icon" size={24} />
               {unreadMessages > 0 && (
