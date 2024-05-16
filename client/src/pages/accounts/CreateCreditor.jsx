@@ -22,29 +22,25 @@ export default function CreateCreditor() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(null);
 
-  // uses usestate to store data keyed into the form fields by the user
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  useEffect(() => {
-    const fetchAccNo = async () => {
-      try {
-        const response = await axios.get("/api/auth/accounts/account_no", {
-          params: {
-            userData: user.userData,
-          },
-        });
-        let acc_no = response.data;
-        setFormData({ ...formData, acc_no });
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    fetchAccNo();
-  }, []);
+  // Fetch account number for the latest creditor in the DB
+  async function fetchAccountNo() {
+    try {
+      const response = await axios.get("/api/auth/accounts/account_no", {
+        params: {
+          userData: user.userData,
+        },
+      });
+      const acc_no = response.data;
+      setFormData((prevData) => ({ ...prevData, acc_no }));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   async function fetchCreditors() {
     const response = await axios.get("/api/auth/accounts/creditors", {
@@ -55,7 +51,8 @@ export default function CreateCreditor() {
 
   useEffect(() => {
     fetchCreditors();
-  });
+    fetchAccountNo();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -64,6 +61,7 @@ export default function CreateCreditor() {
       try {
         setIsLoading(true);
         setError(null);
+
         await axios.post("/api/auth/accounts/createcreditor", formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -73,20 +71,43 @@ export default function CreateCreditor() {
           },
         });
 
+        fetchAccountNo();
         fetchCreditors();
 
+        // Clear the form fields except for the account number
         setFormData({
           name: "",
           company: "",
           kra_pin: "",
           email: "",
           phone_no: "",
+          acc_no: formData.acc_no,
         });
       } catch (error) {
         setIsLoading(false);
         setError("Creditor not Inserted");
         console.error("Creditor not Inserted", error);
       }
+    }
+  };
+
+  const handleDeleteCreditor = async (creditorId) => {
+    try {
+      const confirmation = window.confirm(
+        "Are you sure you want to delete this creditor?"
+      );
+
+      if (confirmation) {
+        await axios.delete(`/api/auth/accounts/creditors/${creditorId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          params: { userData: user.userData },
+        });
+
+        fetchAccountNo();
+        fetchCreditors();
+      }
+    } catch (error) {
+      console.error("Error deleting creditor", error);
     }
   };
 
@@ -205,6 +226,14 @@ export default function CreateCreditor() {
                   <td>{creditor.email}</td>
                   <td>{creditor.phone_no}</td>
                   <td>{creditor.acc_no}</td>
+                  <td>
+                    <button
+                      onClick={() => handleDeleteCreditor(creditor._id)}
+                      className="btn btn-danger"
+                    >
+                      Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

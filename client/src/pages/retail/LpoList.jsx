@@ -66,6 +66,24 @@ export default function LpoList() {
     }
   };
 
+  const handleDeleteLpo = async (lpoId) => {
+    try {
+      const confirmation = window.confirm(
+        "Are you sure you want to delete this LPO?"
+      );
+
+      if (confirmation) {
+        await axios.delete(`/api/auth/retail/lpos/${lpoId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        // Update UI after successful deletion
+        setLpos(lpos.filter((lpo) => lpo._id !== lpoId));
+      }
+    } catch (error) {
+      console.error("Error deleting LPO:", error);
+    }
+  };
+
   return (
     <>
       <h2>List of All Lpos</h2>
@@ -83,18 +101,23 @@ export default function LpoList() {
             </tr>
           </thead>
           <tbody>
-            {lpos.map((item, index) => (
+            {lpos.map((lpo, index) => (
               <tr key={index}>
-                <td>{item.supplier}</td>
-                <td>{item.supplierName}</td>
-                <td>{item.kra_pin}</td>
-                <td>{item.usd_rate}</td>
-                <td>{item.lpo_no}</td>
-                <td>{item.netTotal}</td>
+                <td>{lpo.supplier}</td>
+                <td>{lpo.supplierName}</td>
+                <td>{lpo.kra_pin}</td>
+                <td>{lpo.usd_rate}</td>
+                <td>{lpo.lpo_no}</td>
+                <td>{lpo.netTotal}</td>
                 <td>
-                  <button onClick={() => handlePdf(item.lpo_no)}>View</button>
-                  <button>Delete</button>
-                  <button onClick={() => handleReceive(item.lpo_no)}>
+                  <button onClick={() => handlePdf(lpo.lpo_no)}>View</button>
+                  <button
+                    onClick={() => handleDeleteLpo(lpo._id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
+                  <button onClick={() => handleReceive(lpo.lpo_no)}>
                     Receive
                   </button>
                 </td>

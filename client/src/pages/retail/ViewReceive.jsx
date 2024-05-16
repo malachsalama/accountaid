@@ -78,8 +78,8 @@ function ViewReceive() {
           </>
         ) : (
           <>
-            <p>Vat : {totalPrice * (vatVariable / 100)}</p>
-            <p>Total : {totalPrice + totalPrice * (vatVariable / 100)}</p>
+            <p>Vat : {totalPrice * (vatVariable - 1).toFixed(2)}</p>
+            <p>Total : {totalPrice + totalPrice * (vatVariable - 1)}</p>
           </>
         )}
       </div>

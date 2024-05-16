@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
@@ -20,7 +20,6 @@ function Lpo() {
     price: "",
   });
 
-  // populating the formData for the supplier details for the LPO
   const [formData, setFormData] = useState({
     supplier: "",
     supplierName: "",
@@ -89,7 +88,7 @@ function Lpo() {
     }));
   };
 
-  const fetchLPODetails = async () => {
+  const fetchLPODetails = useCallback(async () => {
     try {
       const lpo = await axios.get("/api/auth/retail/generatelpo", {
         headers: {
@@ -100,12 +99,12 @@ function Lpo() {
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [accessToken]);
 
   //Fetch the latest LPO
   useEffect(() => {
     fetchLPODetails();
-  });
+  }, [fetchLPODetails]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -142,8 +141,6 @@ function Lpo() {
       }
     }
   };
-
-  ///////////////////////////////////////// functions and workflow for lpo details posting///////////////////////////////
 
   //capture data keyed in on to the input fields on the LPO details form and sets it to the "post" use state.
   const handleChange = (event) => {
