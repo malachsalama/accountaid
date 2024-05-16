@@ -12,6 +12,7 @@ const {
   fetchLpoDataForReceive,
   postLpoDetails,
   closeLpo,
+  deleteLpo,
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
@@ -26,6 +27,7 @@ router.get(
 router.post("/retail/generatelpo", authenticateToken, generateLpo);
 router.post("/retail/postlpodetails", authenticateToken, postLpoDetails);
 router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
+router.delete("/retail/lpos/:lpoId", authenticateToken, deleteLpo);
 router.post("/retail/closelpo", authenticateToken, closeLpo);
 
 router.get("/retail/autocomplete", autocomplete);

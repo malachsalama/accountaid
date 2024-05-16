@@ -177,10 +177,66 @@ async function fetchTbAccounts(req, res) {
   }
 }
 
+/// Delete a creditor from the system
+async function deleteCreditor(req, res) {
+  try {
+    const { creditorId } = req.params;
+    const { company_no } = req.query.userData;
+
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Remove the creditor from the creditors array
+    company.creditors = company.creditors.filter(
+      (creditor) => creditor._id.toString() !== creditorId
+    );
+
+    // Save the updated company document
+    await company.save();
+
+    res.status(200).json({ message: "Creditor deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting creditor:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+/// Delete a TBAccount from the system
+async function deleteTbAccount(req, res) {
+  try {
+    const { tbaccountId } = req.params;
+    const { company_no } = req.query.userData;
+
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Remove the TBAccount from the tbaccounts array
+    company.tbaccounts = company.tbaccounts.filter(
+      (tbaccount) => tbaccount._id.toString() !== tbaccountId
+    );
+
+    // Save the updated company document
+    await company.save();
+
+    res.status(200).json({ message: "TBAccount deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting TBAccount:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   createCreditor,
   getAccountNo,
   getAllCreditors,
   tbAccounts,
   fetchTbAccounts,
+  deleteCreditor,
+  deleteTbAccount,
 };

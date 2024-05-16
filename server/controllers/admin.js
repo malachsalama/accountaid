@@ -137,10 +137,8 @@ async function editVariables(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    existingCompany.variables = {
-      vat,
-      markup_price,
-    };
+    // Update the variables array with the new values
+    existingCompany.variables.push({ vat, markup_price });
 
     await existingCompany.save();
 
