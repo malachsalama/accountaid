@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
+
 export default function TbAccounts() {
   const { user } = useAuthContext();
   const accessToken = useAuthToken();
@@ -36,7 +37,7 @@ export default function TbAccounts() {
     } catch (error) {
       console.error("Error fetching accounts:", error);
     }
-  }, [accessToken, user.userData]);
+  }, [accessToken, user]);
 
   useEffect(() => {
     fetchAccounts();
