@@ -3,16 +3,19 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../hooks/useAuthContext";
 
-export default function ProtectedRoutes({ children }) {
+export default function ProtectedRoute({ children }) {
+  const { user, isLoading } = useAuthContext();
   const navigate = useNavigate();
 
-  const { user } = useAuthContext();
-
   useEffect(() => {
-    if (!user) {
+    if (!isLoading && !user) {
       navigate("/");
     }
-  }, [navigate, user]);
+  }, [isLoading, user, navigate]);
 
-  return <>{children}</>;
+  if (isLoading) {
+    return <div>Loading, please wait...</div>;
+  }
+
+  return user ? <>{children}</> : null;
 }

@@ -85,7 +85,7 @@ export default function Registration() {
     };
 
     fetchDepartments();
-  });
+  }, [company_no]);
 
   useEffect(() => {
     if (selectedDepartment) {

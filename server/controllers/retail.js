@@ -110,7 +110,7 @@ async function generateLpo(req, res) {
     }
 
     // Access the variables directly from the company object
-    const vatVariable = 1 + company.variables.vat / 100;
+    const vatVariable = 1 + company.variables[0].vat / 100;
 
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
@@ -251,6 +251,24 @@ const fetchLpoDataForReceive = async (req, res) => {
   }
 };
 
+/// Delete an Lpo from the system
+async function deleteLpo(req, res) {
+  try {
+    const { lpoId } = req.params;
+
+    const deletedLpo = await Supplier.findOneAndDelete({ _id: lpoId });
+
+    if (!deletedLpo) {
+      return res.status(404).json({ error: "LPO not found" });
+    }
+
+    res.status(200).json({ message: "LPO deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting LPO:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   fetchLpoData,
   autocomplete,
@@ -261,4 +279,5 @@ module.exports = {
   fetchLpoDataForReceive,
   postLpoDetails,
   closeLpo,
+  deleteLpo,
 };

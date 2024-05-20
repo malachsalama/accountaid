@@ -1,22 +1,20 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
+
 export default function TbAccounts() {
   const { user } = useAuthContext();
   const accessToken = useAuthToken();
 
-  // State to store form data
   const [formData, setFormData] = useState({
     account_name: "",
     account_number: "",
     acc_no: "",
   });
 
-  // State to store accounts created
   const [accounts, setAccounts] = useState([]);
 
-  // Function to handle form input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -25,12 +23,7 @@ export default function TbAccounts() {
     });
   };
 
-  useEffect(() => {
-    fetchAccounts();
-  });
-
-  // Fetch accounts data from the database
-  const fetchAccounts = async () => {
+  const fetchAccounts = useCallback(async () => {
     try {
       const response = await axios.get("/api/auth/accounts/tbaccounts", {
         headers: {
@@ -44,14 +37,20 @@ export default function TbAccounts() {
     } catch (error) {
       console.error("Error fetching accounts:", error);
     }
-  };
+  }, [accessToken, user]);
 
-  // Function to handle form submission
+  useEffect(() => {
+    fetchAccounts();
+  }, [fetchAccounts]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (accessToken && user) {
       try {
+        // Update UI based on submitted data
+        setAccounts([...accounts, formData]);
+
         await axios.post("/api/auth/accounts/tbaccounts", formData, {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -61,10 +60,7 @@ export default function TbAccounts() {
           },
         });
 
-        // Fetch updated accounts data after submission
-        fetchAccounts();
-
-        // Reset form data
+        // Clear form data after successful submission
         setFormData({
           account_name: "",
           account_number: "",
@@ -72,7 +68,30 @@ export default function TbAccounts() {
         });
       } catch (error) {
         console.error("TB Account not Inserted", error);
+
+        // Revert UI changes to original state if submission fails
+        setAccounts(accounts);
       }
+    }
+  };
+
+  const handleDeleteTBAccount = async (tbaccountId) => {
+    try {
+      const confirmation = window.confirm(
+        "Are you sure you want to delete this TBAccount?"
+      );
+
+      if (confirmation) {
+        await axios.delete(`/api/auth/accounts/tbaccounts/${tbaccountId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+          params: { userData: user.userData },
+        });
+
+        // Update UI directly by filtering accounts array
+        setAccounts(accounts.filter((account) => account._id !== tbaccountId));
+      }
+    } catch (error) {
+      console.error("Error deleting TBAccount", error);
     }
   };
 
@@ -137,11 +156,19 @@ export default function TbAccounts() {
             </tr>
           </thead>
           <tbody>
-            {accounts.map((account, index) => (
+            {accounts.map((tbaccount, index) => (
               <tr key={index}>
-                <td>{account.account_name}</td>
-                <td>{account.account_number}</td>
-                <td>{account.acc_no}</td>
+                <td>{tbaccount.account_name}</td>
+                <td>{tbaccount.account_number}</td>
+                <td>{tbaccount.acc_no}</td>
+                <td>
+                  <button
+                    onClick={() => handleDeleteTBAccount(tbaccount._id)}
+                    className="btn btn-danger"
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
