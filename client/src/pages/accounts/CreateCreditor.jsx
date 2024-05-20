@@ -6,7 +6,7 @@ import { useAuthToken } from "../../hooks/useAuthToken";
 import "../../components/authentication/auth.css";
 
 export default function CreateCreditor() {
-  const { user } = useAuthContext();
+  const { user, loading } = useAuthContext();
   const accessToken = useAuthToken();
 
   const [formData, setFormData] = useState({
@@ -43,16 +43,20 @@ export default function CreateCreditor() {
   }
 
   async function fetchCreditors() {
-    const response = await axios.get("/api/auth/accounts/creditors", {
-      params: { userData: user.userData },
-    });
-    setCreditors(response.data);
+    try {
+      const response = await axios.get("/api/auth/accounts/creditors", {
+        params: { userData: user.userData },
+      });
+      setCreditors(response.data);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   useEffect(() => {
     fetchCreditors();
     fetchAccountNo();
-  }, []);
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,6 +91,8 @@ export default function CreateCreditor() {
         setIsLoading(false);
         setError("Creditor not Inserted");
         console.error("Creditor not Inserted", error);
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -110,6 +116,14 @@ export default function CreateCreditor() {
       console.error("Error deleting creditor", error);
     }
   };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user || !accessToken) {
+    return <div>Please log in to access this page.</div>;
+  }
 
   return (
     <div style={{ display: "flex" }}>
