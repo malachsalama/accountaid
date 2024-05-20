@@ -14,7 +14,7 @@ export default function ProtectedRoute({ children }) {
   }, [isLoading, user, navigate]);
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading, please wait...</div>;
   }
 
   return user ? <>{children}</> : null;
