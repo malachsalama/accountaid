@@ -1,8 +1,12 @@
+<<<<<<< HEAD
 const { Creditor, Logs } = require("../models/accounts");
 const Company = require("../models/company");
 const Lpo = require("../models/lpoDetails");
+=======
+>>>>>>> main
 const Supplier = require("../models/retail");
-const Variables = require("../models/variables");
+const Company = require("../models/company");
+const Logs = require("../models/logs");
 
 const fetchLpoData = async (req, res) => {
   try {
@@ -22,7 +26,6 @@ const fetchLpoData = async (req, res) => {
   }
 };
 
-//fetch the largest lpo number and increment it by 1
 async function getLpoNo(req, res) {
   try {
     const result = await Supplier.findOne().sort({ lpo_no: -1 }).exec();
@@ -39,15 +42,13 @@ async function getLpoNo(req, res) {
       lpoNo = "LPO-" + numericPart.toString().padStart(4, "0");
     }
 
-    // res.status(200).json(lpoNo);
     return lpoNo;
   } catch (error) {
-    console.error("Error getting account number:", error);
+    console.error("Error getting LPO number:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
 
-//fetch the largest lpo number
 async function getLatestLpoNo(req, res) {
   try {
     const result = await Supplier.findOne().sort({ lpo_no: -1 }).exec();
@@ -55,10 +56,9 @@ async function getLatestLpoNo(req, res) {
     let max_no = result ? result.lpo_no : 0;
     const lpoNo = max_no;
 
-    // res.status(200).json(lpoNo);
     return lpoNo;
   } catch (error) {
-    console.error("Error getting account number:", error);
+    console.error("Error getting LPO number:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
@@ -66,14 +66,24 @@ async function getLatestLpoNo(req, res) {
 const autocomplete = async (req, res) => {
   try {
     const query = req.query.q;
+    const { company_no } = req.query.userData;
 
-    const regex = new RegExp(query, "i");
+    const regex = new RegExp(query.trim(), "i");
 
-    const results = await Creditor.find({ company: { $regex: regex } });
+    // Find the company by company_no
+    const company = await Company.findOne({ company_no });
 
-    const suggestionList = results.map((item) => item);
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
 
-    res.json(suggestionList);
+    // Filter creditors of the specified company that match the query
+    const results = company.creditors.filter((creditor) =>
+      creditor.company.match(regex)
+    );
+
+    // Return the complete creditor data objects
+    res.json(results);
   } catch (error) {
     console.error("Error fetching suggestions:", error);
     res
@@ -82,6 +92,7 @@ const autocomplete = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 //fetch variables as per company no
 async function fetchVariables(req, res) {
   try {
@@ -105,6 +116,8 @@ async function fetchVariables(req, res) {
   }
 }
 
+=======
+>>>>>>> main
 async function generateLpo(req, res) {
   try {
     const latestLpoNo = await getLpoNo(req, res);
@@ -121,9 +134,15 @@ async function generateLpo(req, res) {
       vat,
     } = req.body;
 
-    // Fetch VAT variable from Variables collection
-    const result = await fetchVariables(req, res);
-    const vatVariable = 1 + result.vat / 100;
+    // Fetch the company object based on company number
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Access the variables directly from the company object
+    const vatVariable = 1 + company.variables[0].vat / 100;
 
     const action = `${username} created an LPO for ${supplier}`;
     const unique_id = lpo_no;
@@ -143,13 +162,6 @@ async function generateLpo(req, res) {
       status: 1,
     });
 
-    // Validate the request data
-    const validationErrors = newLpo.validateSync();
-    if (validationErrors) {
-      // Return validation errors to the client
-      return res.status(400).json({ errors: validationErrors.errors });
-    }
-    // save log data for the creator of the lpo to the db
     const logData = new Logs({
       company_no,
       user_id,
@@ -159,8 +171,6 @@ async function generateLpo(req, res) {
     });
 
     await logData.save();
-
-    // Save the new Lpo to the database
     await newLpo.save();
 
     res.status(201).json({ message: "Lpo generated successfully" });
@@ -170,7 +180,6 @@ async function generateLpo(req, res) {
   }
 }
 
-// Adding details to the lpo created
 async function postLpoDetails(req, res) {
   try {
     const { user_id } = req.user;
@@ -178,10 +187,9 @@ async function postLpoDetails(req, res) {
     const { lpoUnNo } = req.query;
     const lpo_no = lpoUnNo;
 
-    // Check if the department name already exists for the given company
     const existingLpo = await Supplier.findOne({
-      company_no: company_no,
-      lpo_no: lpo_no,
+      company_no,
+      lpo_no,
       status: 1,
     });
 
@@ -189,7 +197,6 @@ async function postLpoDetails(req, res) {
       return res.status(400).json({ error: "LPO not found" });
     }
 
-    // Create a product object
     const newProduct = {
       user_id,
       unique_id,
@@ -199,11 +206,9 @@ async function postLpoDetails(req, res) {
       price,
     };
 
-    // Update the company document with the new department
-    await Supplier.updateOne(
-      { company_no: company_no, lpo_no: lpo_no, status: 1 },
-      { $push: { products: newProduct } }
-    );
+    existingLpo.products.push(newProduct);
+
+    await existingLpo.save();
 
     res.status(201).json({ message: "product added successfully" });
   } catch (error) {
@@ -212,7 +217,6 @@ async function postLpoDetails(req, res) {
   }
 }
 
-//close lpo from adding more parts by updating the status to 2
 async function closeLpo(req, res) {
   const { lpoUnNo, userData } = req.body;
   const company_no = userData.company_no;
@@ -224,10 +228,9 @@ async function closeLpo(req, res) {
   const type = "lpo";
 
   try {
-    // Check if the department name already exists for the given company
     const existingLpo = await Supplier.findOne({
-      company_no: company_no,
-      lpo_no: lpo_no,
+      company_no,
+      lpo_no,
       status: 1,
     });
 
@@ -235,14 +238,13 @@ async function closeLpo(req, res) {
       return res.status(400).json({ error: "Problem with Lpo" });
     }
 
-    const extractedProducts = existingLpo.products;
-
-    extractedProducts.forEach((product) => {
+    existingLpo.products.forEach((product) => {
       netTotal += product.quantity * product.price;
     });
 
     netTotal = netTotal.toFixed(2);
 
+<<<<<<< HEAD
     // Update the netTotal and status
     await Supplier.updateMany(
       { company_no: company_no, lpo_no: lpo_no },
@@ -273,6 +275,17 @@ async function closeLpo(req, res) {
     res.json("Lpo closed");
   } catch (error) {
     console.log(error);
+=======
+    existingLpo.netTotal = netTotal;
+    existingLpo.status = 2;
+
+    await existingLpo.save();
+
+    res.json("Lpo closed");
+  } catch (error) {
+    console.error("Error closing LPO:", error);
+    res.status(500).json({ error: "Internal server error" });
+>>>>>>> main
   }
 }
 
@@ -290,9 +303,8 @@ async function getAllLposByCompany(req, res) {
 
 const fetchLpoDataForReceive = async (req, res) => {
   try {
-    const lpo_no = req.query.lpo_no;
-    const company_no = req.query.userData;
     const { user_id } = req.user;
+    const { lpo_no, company_no } = req.query;
 
     if (!user_id) {
       return res.status(401).json({ error: "User not authenticated" });
@@ -301,20 +313,31 @@ const fetchLpoDataForReceive = async (req, res) => {
       return res.status(401).json({ error: "Lpo not found" });
     }
     const lpo = await Supplier.find({ lpo_no, company_no });
-    const variables = await Variables.find({ company_no });
 
-    // Create an object containing both variables
-    const lpoData = {
-      lpo,
-      variables,
-    };
-
-    res.json(lpoData);
+    res.json(lpo);
   } catch (error) {
     console.error("Error fetching lpos:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+/// Delete an Lpo from the system
+async function deleteLpo(req, res) {
+  try {
+    const { lpoId } = req.params;
+
+    const deletedLpo = await Supplier.findOneAndDelete({ _id: lpoId });
+
+    if (!deletedLpo) {
+      return res.status(404).json({ error: "LPO not found" });
+    }
+
+    res.status(200).json({ message: "LPO deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting LPO:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
 
 module.exports = {
   fetchLpoData,
@@ -324,7 +347,7 @@ module.exports = {
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
-  fetchVariables,
   postLpoDetails,
   closeLpo,
+  deleteLpo,
 };

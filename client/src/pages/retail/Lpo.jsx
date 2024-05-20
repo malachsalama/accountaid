@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Autosuggest from "react-autosuggest";
@@ -20,7 +20,6 @@ function Lpo() {
     price: "",
   });
 
-  // populating the formData for the supplier details for the LPO
   const [formData, setFormData] = useState({
     supplier: "",
     supplierName: "",
@@ -40,13 +39,16 @@ function Lpo() {
   const getSuggestions = async (inputValue) => {
     try {
       const response = await axios.get("/api/auth/retail/autocomplete", {
-        params: { q: inputValue },
+        params: { q: inputValue, userData: user.userData },
       });
 
-      const data = response.data;
-      const filteredData = data.filter((item) => item.company && item.kra_pin);
+      const suggestedSuppliers = response.data;
 
-      setSuggestions(filteredData.map((item) => item.company));
+      const supplierNames = suggestedSuppliers.map(
+        (supplier) => supplier.company
+      );
+
+      setSuggestions(supplierNames);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
@@ -57,10 +59,10 @@ function Lpo() {
     setFormData((prevData) => ({ ...prevData, supplier: newValue }));
   };
 
-  //handles whatever was selected from the dropdown and sets it to the formData for supplier details
+  //Handle whatever was selected from the dropdown and sets it to the formData for supplier details
   const onSuggestionSelected = async (_, { suggestionValue }) => {
     const response = await axios.get("/api/auth/retail/autocomplete", {
-      params: { q: suggestionValue },
+      params: { q: suggestionValue, userData: user.userData },
     });
 
     const data = response.data[0];
@@ -86,28 +88,24 @@ function Lpo() {
     }));
   };
 
-  const fetchLPODetails = async () => {
+  const fetchLPODetails = useCallback(async () => {
     try {
       const lpo = await axios.get("/api/auth/retail/generatelpo", {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-
-      const lpoData = lpo.data;
-      setLpo(lpoData);
-      //   setLpo((prevData) => ({ ...prevData, lpoData }));
+      setLpo(lpo.data);
     } catch (error) {
       console.error(error);
     }
-  };
+  }, [accessToken]);
 
-  //useEffect to fetch the latest LPO whenever the component mounts
+  //Fetch the latest LPO
   useEffect(() => {
     fetchLPODetails();
-  });
+  }, [fetchLPODetails]);
 
-  // takes all formData from supplier form and sends it to the backend for storage.
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -143,8 +141,6 @@ function Lpo() {
       }
     }
   };
-
-  ///////////////////////////////////////// functions and workflow for lpo details posting///////////////////////////////
 
   //capture data keyed in on to the input fields on the LPO details form and sets it to the "post" use state.
   const handleChange = (event) => {
@@ -325,8 +321,6 @@ function Lpo() {
               Create LPO
             </button>
           </form>
-
-          {/* ///////////////////////////////////////////insert LPO details Form////////////////////////////////////////////////////////////////////////// */}
 
           <div className="lpo-form">
             <h1 className="form-title">Create LPO</h1>

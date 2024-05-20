@@ -1,6 +1,5 @@
 const Company = require("../models/company");
 const RetailName = require("../models/retailname");
-const Variables = require("../models/variables");
 
 // Adding a department
 async function addDepartment(req, res) {
@@ -9,10 +8,15 @@ async function addDepartment(req, res) {
     const { company_no } = req.query;
 
     // Check if the department name already exists for the given company
-    const existingDepartment = await Company.findOne({
-      company_no: company_no,
-      "departments.department": department,
-    });
+    const existingCompany = await Company.findOne({ company_no });
+
+    if (!existingCompany) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    const existingDepartment = existingCompany.departments.find(
+      (dept) => dept.department === department
+    );
 
     if (existingDepartment) {
       return res.status(400).json({ error: "Department already exists" });
@@ -26,10 +30,8 @@ async function addDepartment(req, res) {
     };
 
     // Update the company document with the new department
-    await Company.updateOne(
-      { company_no: company_no },
-      { $push: { departments: newDepartment } }
-    );
+    existingCompany.departments.push(newDepartment);
+    await existingCompany.save();
 
     res.status(201).json({ message: "Department added successfully" });
   } catch (error) {
@@ -129,19 +131,18 @@ async function editVariables(req, res) {
   const { company_no, vat, markup_price } = req.body;
 
   try {
-    const updatedCompany = await Variables.findOneAndUpdate(
-      { company_no },
-      { $set: { vat, markup_price } },
-      { new: true }
-    );
+    const existingCompany = await Company.findOne({ company_no });
 
-    if (!updatedCompany) {
-      const newVariables = new Variables({ company_no, vat, markup_price });
-      await newVariables.save();
-      return res.status(201).json({ message: "New variables created" });
+    if (!existingCompany) {
+      return res.status(404).json({ error: "Company not found" });
     }
 
-    return res.status(200).json({ message: "Variables updated successfully" });
+    // Update the variables array with the new values
+    existingCompany.variables.push({ vat, markup_price });
+
+    await existingCompany.save();
+
+    res.status(200).json({ message: "Variables updated successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Internal Server Error" });

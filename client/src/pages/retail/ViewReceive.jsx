@@ -1,42 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
-import { useAuthToken } from "../../hooks/useAuthToken";
-import { useAuthContext } from "../../hooks/useAuthContext";
 
 function ViewReceive() {
   const location = useLocation();
-  const accessToken = useAuthToken();
-  const { user } = useAuthContext();
   const lpo = location.state && location.state.lpo;
   const [selectedLpos, setSelectedLpos] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [variables, setVariables] = useState([]);
-  const { vat } = lpo[0];
-
-  useEffect(() => {
-    const fetchVariables = async () => {
-      if (accessToken && user) {
-        // Check if user is not null
-        try {
-          const subCompanyNo = user.userData.company_no;
-          const response = await axios.get("/api/auth/retail/fetchVariables", {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              subCompanyNo: subCompanyNo,
-            },
-          });
-
-          setVariables(response.data);
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    };
-    fetchVariables();
-  }, [accessToken, user]);
+  const { vat, vatVariable } = lpo[0];
 
   const handleCheckboxChange = (lpo_id, price, quantity) => {
     // Toggle the selection status of the LPO
@@ -63,7 +33,7 @@ function ViewReceive() {
   return (
     <div>
       <h2>Received LPO Data</h2>
-      {lpo[0].products && lpo[0].products.length > 0 ? (
+      {lpo && lpo.length > 0 ? (
         <table>
           <thead>
             <tr>
@@ -99,19 +69,20 @@ function ViewReceive() {
       ) : (
         <p>No data available</p>
       )}
-      {vat == "N/A" ? (
-        <div>
-          <p>Net : {totalPrice}</p>
-          <p>Vat : {0}</p>
-          <p>Total : {totalPrice}</p>
-        </div>
-      ) : (
-        <div>
-          <p>Net : {totalPrice}</p>
-          <p>Vat : {totalPrice * (variables.vat / 100)}</p>
-          <p>Total : {totalPrice + totalPrice * (variables.vat / 100)}</p>
-        </div>
-      )}
+      <div>
+        <p>Net : {totalPrice}</p>
+        {vat === "N/A" ? (
+          <>
+            <p>Vat : {0}</p>
+            <p>Total : {totalPrice}</p>
+          </>
+        ) : (
+          <>
+            <p>Vat : {totalPrice * (vatVariable - 1).toFixed(2)}</p>
+            <p>Total : {totalPrice + totalPrice * (vatVariable - 1)}</p>
+          </>
+        )}
+      </div>
     </div>
   );
 }

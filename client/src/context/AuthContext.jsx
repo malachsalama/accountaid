@@ -1,7 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
-import { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect, useState } from "react";
 import axios from "axios";
+import jwtDecode from "jwt-decode";
 
 export const AuthContext = createContext();
 
@@ -17,19 +18,32 @@ export function authReducer(state, action) {
   }
 }
 
+const isTokenValid = (token) => {
+  if (!token) return false;
+  try {
+    const { exp } = jwtDecode(token);
+    return Date.now() < exp * 1000;
+  } catch {
+    return false;
+  }
+};
+
 export function AuthContextProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, { user: null });
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        setIsLoading(true); // Set loading state to true before API call
         const user = JSON.parse(localStorage.getItem("user"));
-        if (user) {
-          dispatch({ type: "LOGIN", payload: user });
+        if (user && user.accessToken && isTokenValid(user.accessToken)) {
+          // Check for both user and accessToken
+          dispatch({
+            type: "LOGIN",
+            payload: { userData: user, accessToken: user.accessToken },
+          });
           const accessToken = user.accessToken;
-          if (!accessToken) {
-            throw new Error("Access token not found in user data");
-          }
 
           const response = await axios.get("/api/auth/accountaid/userpayload", {
             headers: {
@@ -43,6 +57,10 @@ export function AuthContextProvider({ children }) {
           } else {
             throw new Error(`Request failed with status ${response.status}`);
           }
+        } else {
+          // Handle case where user data is present but accessToken is missing
+          console.warn("Access token missing in user data. Logging out.");
+          dispatch({ type: "LOGOUT" });
         }
       } catch (error) {
         if (error.response && error.response.status === 403) {
@@ -50,6 +68,8 @@ export function AuthContextProvider({ children }) {
           dispatch({ type: "LOGOUT" });
         }
         console.error("Failed to fetch user data:", error);
+      } finally {
+        setIsLoading(false); // Set loading state to false after operation
       }
     };
 
@@ -57,7 +77,7 @@ export function AuthContextProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, dispatch }}>
+    <AuthContext.Provider value={{ ...state, dispatch, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

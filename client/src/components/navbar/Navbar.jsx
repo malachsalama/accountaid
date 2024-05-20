@@ -74,7 +74,11 @@ export default function Navbar() {
           <>
             <button
               className="notification-button"
+<<<<<<< HEAD
               onClick={() => handleNotification()}
+=======
+              onClick={() => console.log("Clicked!")}
+>>>>>>> main
             >
               <FaBell className="notification-icon" size={24} />
               {unreadMessages > 0 && (

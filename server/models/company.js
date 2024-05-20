@@ -11,30 +11,62 @@ const departmentSchema = new mongoose.Schema(
       required: true,
     },
     designations: {
-      type: [String], // Array of strings to store multiple designations
+      type: [String],
       required: true,
     },
   },
-  { _id: false } // Exclude _id field
+  { _id: false }
 );
 
-const tbAccountsSchema = new mongoose.Schema(
-  {
-    account_name: {
-      type: String,
-      required: true,
-    },
-    account_number: {
-      type: String,
-      required: true,
-    },
-    acc_no: {
-      type: String,
-      required: true,
-    },
+const tbAccountsSchema = new mongoose.Schema({
+  account_name: {
+    type: String,
+    required: true,
   },
-  { _id: false } // Exclude _id field
-);
+  account_number: {
+    type: String,
+    required: true,
+  },
+  acc_no: {
+    type: String,
+    required: true,
+  },
+});
+
+const creditorSchema = new mongoose.Schema({
+  acc_no: {
+    type: String,
+  },
+  name: {
+    type: String,
+  },
+  company: {
+    type: String,
+    required: true,
+  },
+  kra_pin: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+  },
+  phone_no: {
+    type: String,
+  },
+});
+
+const variablesSchema = new mongoose.Schema({
+  company_no: {
+    type: String,
+  },
+  vat: {
+    type: Number,
+  },
+  markup_price: {
+    type: Number,
+  },
+});
 
 const notificationSchema = new mongoose.Schema({
   username: {
@@ -81,9 +113,14 @@ const companySchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  departments: [departmentSchema], // Reference departmentSchema
+  departments: [departmentSchema],
   tbaccounts: [tbAccountsSchema],
+<<<<<<< HEAD
   notifications: [notificationSchema],
+=======
+  creditors: [creditorSchema],
+  variables: [variablesSchema],
+>>>>>>> main
 });
 
 const Company = mongoose.model("Company", companySchema);
