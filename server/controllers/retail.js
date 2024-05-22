@@ -154,6 +154,7 @@ async function postLpoDetails(req, res) {
     const { unique_id, company_no, description, quantity, price } = req.body;
     const { lpoUnNo } = req.query;
     const lpo_no = lpoUnNo;
+    let priceAfterVatCheck;
 
     const existingLpo = await Supplier.findOne({
       company_no,
@@ -165,13 +166,19 @@ async function postLpoDetails(req, res) {
       return res.status(400).json({ error: "LPO not found" });
     }
 
+    if (existingLpo.vat == "Inc") {
+      priceAfterVatCheck = price / existingLpo.vatVariable;
+    } else {
+      priceAfterVatCheck = price;
+    }
+
     const newProduct = {
       user_id,
       unique_id,
       company_no,
       description,
       quantity,
-      price,
+      price: priceAfterVatCheck,
     };
 
     existingLpo.products.push(newProduct);
@@ -186,9 +193,14 @@ async function postLpoDetails(req, res) {
 }
 
 async function closeLpo(req, res) {
-  const { lpoUnNo, company_no } = req.body;
+  const { lpoUnNo, userData } = req.body;
+  const { company_no, username, user_id } = userData;
   const lpo_no = lpoUnNo;
   let netTotal = 0;
+  const unique_id = lpo_no;
+  const doc_type = "LPO";
+  const heading = "LPO APPROVAL";
+  const today = new Date();
 
   try {
     const existingLpo = await Supplier.findOne({
@@ -197,9 +209,23 @@ async function closeLpo(req, res) {
       status: 1,
     });
 
+    const company = await Company.findOne({
+      company_no,
+    });
+
     if (!existingLpo) {
       return res.status(400).json({ error: "Problem with Lpo" });
     }
+
+    if (!company) {
+      return res
+        .status(400)
+        .json({ error: "Problem with finding the company" });
+    }
+
+    const supplier = existingLpo.supplier;
+
+    const action = `${username} created LPO number ${lpo_no} for ${supplier}`;
 
     existingLpo.products.forEach((product) => {
       netTotal += product.quantity * product.price;
@@ -210,6 +236,33 @@ async function closeLpo(req, res) {
     existingLpo.netTotal = netTotal;
     existingLpo.status = 2;
 
+    if (existingLpo.vat == "Inc") {
+      existingLpo.vat = "Exc";
+    }
+
+    const logData = new Logs({
+      company_no,
+      user_id,
+      action,
+      unique_id,
+      doc_type,
+    });
+
+    const newNotification = {
+      user_id,
+      username,
+      heading,
+      body: action,
+      date: today,
+      status: 1,
+      type: doc_type,
+      unique_id: lpo_no,
+    };
+
+    company.notifications.push(newNotification);
+
+    await logData.save();
+    await company.save();
     await existingLpo.save();
 
     res.json("Lpo closed");

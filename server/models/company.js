@@ -1,22 +1,19 @@
 const mongoose = require("mongoose");
 
-const departmentSchema = new mongoose.Schema(
-  {
-    department_no: {
-      type: String,
-      required: true,
-    },
-    department: {
-      type: String,
-      required: true,
-    },
-    designations: {
-      type: [String],
-      required: true,
-    },
+const departmentSchema = new mongoose.Schema({
+  department_no: {
+    type: String,
+    required: true,
   },
-  { _id: false }
-);
+  department: {
+    type: String,
+    required: true,
+  },
+  designations: {
+    type: [String],
+    required: true,
+  },
+});
 
 const tbAccountsSchema = new mongoose.Schema({
   account_name: {
@@ -68,6 +65,33 @@ const variablesSchema = new mongoose.Schema({
   },
 });
 
+const notificationsSchema = new mongoose.Schema({
+  heading: {
+    type: String,
+  },
+  body: {
+    type: String,
+  },
+  date: {
+    type: Date,
+  },
+  status: {
+    type: Number,
+  },
+  type: {
+    type: String,
+  },
+  user_id: {
+    type: String,
+  },
+  username: {
+    type: String,
+  },
+  unique_id: {
+    type: String,
+  },
+});
+
 const companySchema = new mongoose.Schema({
   company_name: {
     type: String,
@@ -93,6 +117,7 @@ const companySchema = new mongoose.Schema({
   tbaccounts: [tbAccountsSchema],
   creditors: [creditorSchema],
   variables: [variablesSchema],
+  notifications: [notificationsSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);

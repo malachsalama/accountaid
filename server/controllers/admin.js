@@ -149,6 +149,28 @@ async function editVariables(req, res) {
   }
 }
 
+//function to fetch notifications
+async function fetchNotifications(req, res) {
+  const company_no = req.query.userData.company_no;
+  if (!company_no) {
+    return res.status(404).json({ error: "Company no required" });
+  }
+
+  try {
+    const existingCompany = await Company.findOne({ company_no });
+
+    if (!existingCompany) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    const notificationNumber = existingCompany.notifications.length;
+    res.json(notificationNumber);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 module.exports = {
   addDepartment,
   getAllDepartments,
@@ -156,4 +178,5 @@ module.exports = {
   getRetailNames,
   getDesignations,
   editVariables,
+  fetchNotifications,
 };

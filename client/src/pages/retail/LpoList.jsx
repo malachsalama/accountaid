@@ -117,7 +117,14 @@ export default function LpoList() {
                   >
                     Delete
                   </button>
-                  <button onClick={() => handleReceive(lpo.lpo_no)}>
+                  <button
+                    onClick={() => handleReceive(lpo.lpo_no)}
+                    disabled={lpo.status !== 3}
+                    // style={{
+                    //   backgroundColor: lpo.status === 3 ? "initial" : "gray",
+                    //   cursor: lpo.status === 3 ? "pointer" : "not-allowed",
+                    // }}
+                  >
                     Receive
                   </button>
                 </td>

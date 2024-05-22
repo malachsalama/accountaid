@@ -1,7 +1,10 @@
 import { FaBell } from "react-icons/fa";
 import { useLogout } from "../../hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import { useAuthToken } from "../../hooks/useAuthToken";
+import axios from "axios";
 import "./navbar.css";
 
 export default function Navbar() {
@@ -9,11 +12,50 @@ export default function Navbar() {
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const unreadMessages = 5;
+  const accessToken = useAuthToken();
+
+  const [notifications, setNotifications] = useState(0);
+
+  let unreadMessages = notifications;
 
   const handleLogin = () => {
     navigate("/");
   };
+
+  const handleNotification = () => {
+    navigate("/retail/");
+  };
+
+  //function with API to fetch notifications
+  const fetchNotifications = useCallback(async () => {
+    if (user && accessToken) {
+      try {
+        const fetchNotifications = await axios.get(
+          "/api/auth/fetchnotifications",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              userData: user.userData,
+            },
+          }
+        );
+
+        const notificationsData = fetchNotifications.data;
+
+        setNotifications(notificationsData);
+      } catch (error) {
+        console.error("Error fetching notification", error);
+      }
+    }
+  }, [accessToken, user]);
+
+  useEffect(() => {
+    if (user && accessToken) {
+      fetchNotifications();
+    }
+  }, [user, accessToken, fetchNotifications]);
 
   const handleLogout = () => {
     logout();
@@ -30,7 +72,7 @@ export default function Navbar() {
           <>
             <button
               className="notification-button"
-              onClick={() => console.log("Clicked!")}
+              onClick={() => handleNotification()}
             >
               <FaBell className="notification-icon" size={24} />
               {unreadMessages > 0 && (
