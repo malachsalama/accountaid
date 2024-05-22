@@ -192,7 +192,7 @@ function Lpo() {
         "/api/auth/retail/closelpo",
         {
           lpoUnNo: lpoData.lpo_no,
-          company_no: user.userData.company_no,
+          userData: user.userData,
         },
         {
           headers: {
