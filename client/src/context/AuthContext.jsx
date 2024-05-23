@@ -58,8 +58,6 @@ export function AuthContextProvider({ children }) {
             throw new Error(`Request failed with status ${response.status}`);
           }
         } else {
-          // Handle case where user data is present but accessToken is missing
-          console.warn("Access token missing in user data. Logging out.");
           dispatch({ type: "LOGOUT" });
         }
       } catch (error) {

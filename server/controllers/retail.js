@@ -201,6 +201,7 @@ async function closeLpo(req, res) {
   const doc_type = "LPO";
   const heading = "LPO APPROVAL";
   const today = new Date();
+  const department = "Management";
 
   try {
     const existingLpo = await Supplier.findOne({
@@ -257,6 +258,7 @@ async function closeLpo(req, res) {
       status: 1,
       type: doc_type,
       unique_id: lpo_no,
+      department,
     };
 
     company.notifications.push(newNotification);
@@ -276,7 +278,7 @@ async function getAllLposByCompany(req, res) {
   const { company_no } = req.params;
 
   try {
-    const lpos = await Supplier.find({ company_no, status: 2 });
+    const lpos = await Supplier.find({ company_no, status: { $in: [2, 3] } });
     res.status(200).json(lpos);
   } catch (error) {
     console.error("Error fetching LPOs:", error);
