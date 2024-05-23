@@ -151,7 +151,9 @@ async function editVariables(req, res) {
 
 //function to fetch notifications
 async function fetchNotifications(req, res) {
-  const company_no = req.query.userData.company_no;
+  const userData = req.query.userData;
+  const { company_no, department } = userData;
+
   if (!company_no) {
     return res.status(404).json({ error: "Company no required" });
   }
@@ -163,7 +165,12 @@ async function fetchNotifications(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    const notificationNumber = existingCompany.notifications.length;
+    const notificationsForDepartment = existingCompany.notifications.filter(
+      (notification) => notification.department == department
+    );
+
+    const notificationNumber = notificationsForDepartment.length;
+
     res.json(notificationNumber);
   } catch (error) {
     console.error(error);

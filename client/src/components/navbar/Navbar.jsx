@@ -1,7 +1,7 @@
 import { FaBell } from "react-icons/fa";
 import { useLogout } from "../../hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import axios from "axios";
@@ -27,7 +27,7 @@ export default function Navbar() {
   };
 
   //function with API to fetch notifications
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = async () => {
     if (user && accessToken) {
       try {
         const fetchNotifications = await axios.get(
@@ -49,13 +49,13 @@ export default function Navbar() {
         console.error("Error fetching notification", error);
       }
     }
-  }, [accessToken, user]);
+  };
 
   useEffect(() => {
     if (user && accessToken) {
       fetchNotifications();
     }
-  }, [user, accessToken, fetchNotifications]);
+  });
 
   const handleLogout = () => {
     logout();

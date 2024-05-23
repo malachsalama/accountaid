@@ -90,6 +90,9 @@ const notificationsSchema = new mongoose.Schema({
   unique_id: {
     type: String,
   },
+  department: {
+    type: String,
+  },
 });
 
 const companySchema = new mongoose.Schema({
