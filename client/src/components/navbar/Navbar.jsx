@@ -1,7 +1,7 @@
 import { FaBell } from "react-icons/fa";
 import { useLogout } from "../../hooks/useLogout";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import axios from "axios";
@@ -27,35 +27,30 @@ export default function Navbar() {
   };
 
   //function with API to fetch notifications
-  const fetchNotifications = async () => {
-    if (user && accessToken) {
+  const fetchNotifications = useCallback(async () => {
+    if (user && accessToken && user.userData) {
       try {
-        const fetchNotifications = await axios.get(
-          "/api/auth/fetchnotifications",
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-            params: {
-              userData: user.userData,
-            },
-          }
-        );
+        const response = await axios.get("/api/auth/fetchnotifications", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            userData: user.userData,
+          },
+        });
 
-        const notificationsData = fetchNotifications.data;
-
-        setNotifications(notificationsData);
+        setNotifications(response.data);
       } catch (error) {
-        console.error("Error fetching notification", error);
+        console.error("Error fetching notifications", error);
       }
     }
-  };
+  }, [accessToken, user]);
 
   useEffect(() => {
     if (user && accessToken) {
       fetchNotifications();
     }
-  });
+  }, [accessToken, fetchNotifications, user]);
 
   const handleLogout = () => {
     logout();

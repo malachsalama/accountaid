@@ -151,12 +151,7 @@ async function editVariables(req, res) {
 
 //function to fetch notifications
 async function fetchNotifications(req, res) {
-  const userData = req.query.userData;
-  const { company_no, department } = userData;
-
-  if (!company_no) {
-    return res.status(404).json({ error: "Company no required" });
-  }
+  const { company_no, department } = req.query.userData;
 
   try {
     const existingCompany = await Company.findOne({ company_no });
