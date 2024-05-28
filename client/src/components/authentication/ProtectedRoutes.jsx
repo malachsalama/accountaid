@@ -2,8 +2,9 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import Navbar from "../navbar/Navbar";
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoutes({ children }) {
   const { user, isLoading } = useAuthContext();
   const navigate = useNavigate();
 
@@ -17,5 +18,10 @@ export default function ProtectedRoute({ children }) {
     return <div>Loading, please wait...</div>;
   }
 
-  return user ? <>{children}</> : null;
+  return (
+    <>
+      {user && <Navbar />}
+      {children}
+    </>
+  );
 }
