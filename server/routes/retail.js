@@ -13,6 +13,8 @@ const {
   postLpoDetails,
   closeLpo,
   deleteLpo,
+  updateLpo,
+  checkInvoiceNumber,
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
@@ -24,7 +26,9 @@ router.get(
   authenticateToken,
   fetchLpoDataForReceive
 );
+router.get("/retail/check-invoice-number", checkInvoiceNumber);
 router.post("/retail/generatelpo", authenticateToken, generateLpo);
+router.put("/retail/generatelpo/:lpo_no", authenticateToken, updateLpo);
 router.post("/retail/postlpodetails", authenticateToken, postLpoDetails);
 router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
 router.delete("/retail/lpos/:lpoId", authenticateToken, deleteLpo);

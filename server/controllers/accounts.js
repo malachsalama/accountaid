@@ -157,10 +157,11 @@ async function tbAccounts(req, res) {
   }
 }
 
-// Fetch all TB accounts for a company
+// Fetch all TB accounts for a company or multiple TB accounts by acc_no
 async function fetchTbAccounts(req, res) {
   try {
     const { company_no } = req.query.userData;
+    const { account_id, acc_no } = req.query;
 
     // Fetch company using company number
     const company = await Company.findOne({ company_no });
@@ -169,7 +170,33 @@ async function fetchTbAccounts(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    const allTbAccounts = company.tbaccounts;
+    // Check if a specific TB account ID is provided
+    if (account_id) {
+      // Find the TB account with the specified ID
+      const account = company.tbaccounts.find(
+        (acc) => acc._id.toString() === account_id
+      );
+
+      if (!account) {
+        return res.status(404).json({ error: "TB account not found" });
+      }
+
+      // Return the found TB account
+      return res.json(account);
+    }
+
+    // Fetch all TB accounts, optionally filtered by multiple acc_no values
+    let allTbAccounts = company.tbaccounts;
+    if (acc_no) {
+      // Convert acc_no to an array if it's not already
+      const accNos = Array.isArray(acc_no) ? acc_no : [acc_no];
+      const accNosInt = accNos.map((no) => parseInt(no, 10));
+      allTbAccounts = allTbAccounts.filter((acc) =>
+        accNosInt.includes(acc.acc_no)
+      );
+    }
+
+    // Return the filtered or unfiltered TB accounts
     res.json(allTbAccounts);
   } catch (error) {
     console.error("Error fetching TB Accounts:", error);

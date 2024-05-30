@@ -1,11 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation } from "react-router-dom";
+import Downshift from "downshift";
+import axios from "axios";
+import { useAuthContext } from "../../hooks/useAuthContext";
+import { useAuthToken } from "../../hooks/useAuthToken";
 
 function ViewReceive() {
+  const { user } = useAuthContext();
+  const accessToken = useAuthToken();
   const location = useLocation();
   const lpo = location.state && location.state.lpo;
-  const [selectedLpos, setSelectedLpos] = useState([]);
+  const [ReceivedParts, setReceivedParts] = useState([]);
   const [quantities, setQuantities] = useState({});
+  const [accounts, setAccounts] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [acc_no, setAccNo] = useState(null);
+  const [invoiceExists, setInvoiceExists] = useState(false);
+
   const {
     kra_pin,
     usd_rate,
@@ -17,12 +28,44 @@ function ViewReceive() {
   } = lpo[0];
 
   const [formData, setFormData] = useState({
-    kra_pin: "",
-    usd_rate: "",
-    supplier: "",
-    supplierName: "",
-    vat: "",
+    kra_pin: kra_pin || "",
+    usd_rate: usd_rate || "",
+    supplier: supplier || "",
+    supplierName: supplierName || "",
+    vat: vat || "",
+    invoice_no: "",
+    date_received: "",
+    expense_type: "",
   });
+
+  const fetchAccountsByAccNos = useCallback(
+    async (accNos) => {
+      if (!user && !user.userData) return;
+      try {
+        const response = await axios.get("/api/auth/accounts/tbaccounts", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            userData: user.userData,
+            acc_no: accNos, // Specify the array of acc_no values to filter by
+          },
+        });
+        const accountsData = response.data.map((item) => ({
+          id: item._id,
+          name: item.account_name,
+        }));
+        setAccounts(accountsData);
+      } catch (error) {
+        console.error("Error fetching accounts:", error);
+      }
+    },
+    [accessToken, user]
+  );
+
+  useEffect(() => {
+    fetchAccountsByAccNos([1]);
+  }, [fetchAccountsByAccNos]);
 
   useEffect(() => {
     if (lpo && lpo.length > 0) {
@@ -32,19 +75,21 @@ function ViewReceive() {
       });
       setQuantities(initialQuantities);
 
-      // Set form data initially
-      setFormData({
-        kra_pin,
-        usd_rate,
-        supplier,
-        supplierName,
-        vat,
-      });
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        kra_pin: kra_pin || "",
+        usd_rate: usd_rate || "",
+        supplier: supplier || "",
+        supplierName: supplierName || "",
+        vat: vat || "",
+        invoice_no: "",
+        date_received: "",
+      }));
     }
   }, [lpo, kra_pin, usd_rate, supplier, supplierName, vat]);
 
   const handleCheckboxChange = (lpo_id) => {
-    setSelectedLpos((prevSelected) => {
+    setReceivedParts((prevSelected) => {
       if (prevSelected.includes(lpo_id)) {
         return prevSelected.filter((id) => id !== lpo_id);
       } else {
@@ -68,7 +113,7 @@ function ViewReceive() {
         ...prevQuantities,
         [lpo_id]: 0,
       }));
-      setSelectedLpos((prevSelected) =>
+      setReceivedParts((prevSelected) =>
         prevSelected.filter((id) => id !== lpo_id)
       );
     } else {
@@ -77,7 +122,7 @@ function ViewReceive() {
         ...prevQuantities,
         [lpo_id]: newQuantityInt,
       }));
-      setSelectedLpos((prevSelected) => {
+      setReceivedParts((prevSelected) => {
         if (!prevSelected.includes(lpo_id)) {
           return [...prevSelected, lpo_id];
         } else {
@@ -87,16 +132,35 @@ function ViewReceive() {
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = async (e) => {
     const { name, value } = e.target;
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
     }));
+
+    if (name === "invoice_no") {
+      try {
+        const response = await axios.get(
+          "/api/auth/retail/check-invoice-number",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              invoice_no: value,
+            },
+          }
+        );
+        setInvoiceExists(response.data.exists);
+      } catch (error) {
+        console.error("Error checking invoice number:", error);
+      }
+    }
   };
 
   const calculateTotalPrice = () => {
-    return selectedLpos.reduce((acc, id) => {
+    return ReceivedParts.reduce((acc, id) => {
       const product = lpo[0].products.find((product) => product._id === id);
       const quantity = quantities[id] || product.quantity;
       return acc + product.price * quantity;
@@ -119,11 +183,38 @@ function ViewReceive() {
     return totalPrice + calculateVatAmount();
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (invoiceExists) {
+      alert("Invoice number already exists. Please use a different one.");
+      return;
+    }
+
+    const finalLpo = {
+      ...formData,
+      acc_no,
+    };
+
+    try {
+      await axios.put(
+        `/api/auth/retail/generatelpo/${lpo_no}`,
+        { ...finalLpo },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error updating LPO:", error);
+    }
+  };
+
   return (
     <div style={{ display: "flex" }}>
       <div style={{ flex: "1" }}>
         <h3>Edit LPO Details({lpo_no})</h3>
-        <form>
+        <form onSubmit={handleSubmit}>
           <label>
             KRA PIN:
             <input
@@ -131,6 +222,7 @@ function ViewReceive() {
               name="kra_pin"
               value={formData.kra_pin}
               onChange={handleInputChange}
+              required
             />
           </label>
           <br />
@@ -141,6 +233,7 @@ function ViewReceive() {
               name="usd_rate"
               value={formData.usd_rate}
               onChange={handleInputChange}
+              required
             />
           </label>
           <br />
@@ -151,6 +244,7 @@ function ViewReceive() {
               name="supplier"
               value={formData.supplier}
               onChange={handleInputChange}
+              required
             />
           </label>
           <br />
@@ -161,6 +255,7 @@ function ViewReceive() {
               name="supplierName"
               value={formData.supplierName}
               onChange={handleInputChange}
+              required
             />
           </label>
           <br />
@@ -171,9 +266,132 @@ function ViewReceive() {
               name="vat"
               value={formData.vat}
               onChange={handleInputChange}
+              required
             />
           </label>
           <br />
+          <label>
+            Invoice Number:
+            <input
+              type="text"
+              name="invoice_no"
+              value={formData.invoice_no}
+              onChange={handleInputChange}
+              required
+            />
+            {invoiceExists && (
+              <span style={{ color: "red" }}>
+                Invoice number already exists
+              </span>
+            )}
+          </label>
+          <br />
+          <label>
+            Date Received:
+            <input
+              type="date"
+              name="date_received"
+              value={formData.date_received}
+              onChange={handleInputChange}
+              required
+            />
+          </label>
+          <br />
+          <label>
+            Type of Expense:
+            <select
+              name="expense_type"
+              value={formData.expense_type}
+              onChange={handleInputChange}
+              required
+            >
+              <option value="">Select Expense Type</option>
+              <option value="Capital Expense">Capital Expense</option>
+              <option value="Miscellaneous Expense">
+                Miscellaneous Expense
+              </option>
+            </select>
+          </label>
+          <br />
+          <label>
+            TB Account:
+            <Downshift
+              onChange={async (selection) => {
+                // Fetch info about the selected account
+                try {
+                  const response = await axios.get(
+                    "/api/auth/accounts/tbaccounts",
+                    {
+                      headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                      },
+                      params: {
+                        userData: user.userData,
+                        account_id: selection.id,
+                      },
+                    }
+                  );
+                  const acc_no = response.data.acc_no;
+                  setAccNo(acc_no);
+                } catch (error) {
+                  console.error("Error fetching account information:", error);
+                }
+              }}
+              inputValue={inputValue}
+              onInputValueChange={(value) => setInputValue(value)}
+              itemToString={(item) => (item ? item.name : "")}
+            >
+              {({
+                getInputProps,
+                getItemProps,
+                isOpen,
+                inputValue,
+                highlightedIndex,
+                selectedItem,
+              }) => (
+                <div>
+                  <input
+                    {...getInputProps({ placeholder: "Type a TB Account" })}
+                    required
+                  />
+                  {isOpen ? (
+                    <div style={{ border: "1px solid #ccc" }}>
+                      {accounts
+                        .filter(
+                          (item) =>
+                            !inputValue ||
+                            item.name
+                              .toLowerCase()
+                              .includes(inputValue.toLowerCase())
+                        )
+                        .map((item, index) => (
+                          <div
+                            key={item.id}
+                            {...getItemProps({
+                              key: item.id,
+                              index,
+                              item,
+                              style: {
+                                backgroundColor:
+                                  highlightedIndex === index
+                                    ? "lightgray"
+                                    : "white",
+                                fontWeight:
+                                  selectedItem === item ? "bold" : "normal",
+                              },
+                            })}
+                          >
+                            {item.name}
+                          </div>
+                        ))}
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </Downshift>
+          </label>
+          <br />
+
           <button type="submit">Submit</button>
         </form>
       </div>
@@ -199,7 +417,7 @@ function ViewReceive() {
                     <input
                       type="checkbox"
                       onChange={() => handleCheckboxChange(item._id)}
-                      checked={selectedLpos.includes(item._id)}
+                      checked={ReceivedParts.includes(item._id)}
                     />
                   </td>
                   <td>{item.unique_id}</td>
