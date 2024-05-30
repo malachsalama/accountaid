@@ -25,7 +25,7 @@ const tbAccountsSchema = new mongoose.Schema({
     required: true,
   },
   acc_no: {
-    type: String,
+    type: Number,
     required: true,
   },
 });

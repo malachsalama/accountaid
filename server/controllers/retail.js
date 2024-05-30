@@ -148,6 +148,45 @@ async function generateLpo(req, res) {
   }
 }
 
+// Check for existing invoice number in the DB
+const checkInvoiceNumber = async (req, res) => {
+  const { invoice_no } = req.query;
+
+  try {
+    const lpo = await Supplier.findOne({ invoice_no });
+
+    if (lpo) {
+      return res.status(200).json({ exists: true });
+    }
+
+    return res.status(200).json({ exists: false });
+  } catch (error) {
+    console.error("Error checking invoice number:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+// Update LPO
+const updateLpo = async (req, res) => {
+  const { lpo_no } = req.params;
+  const updatedData = req.body;
+
+  try {
+    const lpo = await Supplier.findOneAndUpdate({ lpo_no }, updatedData, {
+      new: true,
+    });
+
+    if (!lpo) {
+      return res.status(404).json({ error: "LPO not found" });
+    }
+
+    res.json(lpo);
+  } catch (error) {
+    console.error("Error updating LPO:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 async function postLpoDetails(req, res) {
   try {
     const { user_id } = req.user;
@@ -329,7 +368,9 @@ module.exports = {
   autocomplete,
   getLpoNo,
   getLatestLpoNo,
+  checkInvoiceNumber,
   generateLpo,
+  updateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
   postLpoDetails,

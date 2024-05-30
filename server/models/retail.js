@@ -29,61 +29,51 @@ const supplierSchema = new mongoose.Schema({
   supplier: {
     type: String,
   },
-
   supplierName: {
     type: String,
   },
-
   company_no: {
     type: String,
   },
-
   kra_pin: {
     type: String,
   },
-
   usd_rate: {
     type: Number,
   },
-
   lpo_no: {
     type: String,
     required: true,
   },
-
   netTotal: {
     type: Number,
     required: false,
   },
-
   acc_no: {
-    type: String,
+    type: Number,
   },
-
   invoice_no: {
     type: String,
   },
-
   grn_no: {
     type: String,
   },
-
   ret_no: {
     type: String,
   },
-
   session: {
     type: String,
   },
-
   returned_at: {
+    type: Date,
+  },
+  date_received: {
+    type: Date,
+    default: Date.now,
+  },
+  expense_type: {
     type: String,
   },
-
-  received_at: {
-    type: String,
-  },
-
   date_created: {
     type: Date,
     required: true,
