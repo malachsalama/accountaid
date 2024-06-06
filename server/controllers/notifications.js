@@ -39,6 +39,7 @@ async function approveLpo(req, res) {
   const heading = "LPO Approval";
   const today = new Date();
   const department = "Retail";
+  let action;
 
   if (!company_no) {
     return res.status(404).json({ error: "Company no required" });
@@ -60,8 +61,13 @@ async function approveLpo(req, res) {
 
     const supplier = existingLpo.supplier;
 
-    const action = `${username} Approved LPO number ${lpo_no} for ${supplier}`;
-    existingLpo.status = 3;
+    if (userData.department == "Admin") {
+      action = `${username} Approved LPO number ${lpo_no} for ${supplier}`;
+      existingLpo.status = 3;
+    } else if (userData.department == "Retail") {
+      action = `${username} Viewed approval for LPO number ${lpo_no} for ${supplier}`;
+      existingLpo.status = 4;
+    }
 
     const logData = new Logs({
       company_no,
@@ -94,11 +100,15 @@ async function approveLpo(req, res) {
       return res.status(404).json({ error: "Notification not deleted" });
     }
 
-    company.notifications.push(newNotification);
-
-    await logData.save();
-    await company.save();
-    await existingLpo.save();
+    if (userData.department == "Admin") {
+      company.notifications.push(newNotification);
+      await logData.save();
+      await company.save();
+      await existingLpo.save();
+    } else if (userData.department == "Retail") {
+      await logData.save();
+      await existingLpo.save();
+    }
 
     res.json("Lpo Approved");
   } catch (error) {

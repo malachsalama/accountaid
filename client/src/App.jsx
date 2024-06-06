@@ -54,6 +54,7 @@ function App() {
             <Route path="lpo" element={<Lpo />} />
             <Route path="lpolist" element={<LpoList />} />
             <Route path="viewReceive" element={<ViewReceive />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
           <Route
             path="/accounts"

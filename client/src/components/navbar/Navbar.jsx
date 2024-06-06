@@ -14,9 +14,7 @@ export default function Navbar() {
   const location = useLocation();
   const accessToken = useAuthToken();
 
-  const [notifications, setNotifications] = useState(0);
-
-  let unreadMessages = notifications;
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   const handleLogin = () => {
     navigate("/");
@@ -65,7 +63,7 @@ export default function Navbar() {
 
         const notificationsData = fetchNotifications.data.length;
 
-        setNotifications(notificationsData);
+        setUnreadMessages(notificationsData);
       } catch (error) {
         console.error("Error fetching notifications", error);
       }
@@ -76,7 +74,7 @@ export default function Navbar() {
     if (user && accessToken) {
       fetchNotifications();
     }
-  }, [accessToken, fetchNotifications, user]);
+  });
 
   const handleLogout = () => {
     logout();
