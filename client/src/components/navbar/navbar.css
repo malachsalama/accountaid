@@ -1,0 +1,45 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-logout {
+  background: none;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  margin-left: 1rem;
+  padding: 0.3rem 0.8rem;
+  color: #007bff;
+  border: 1px solid #007bff;
+  font-size: 1rem;
+  transition: ease-in 0.3s;
+}
+
+.btn-logout:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.welcome-text {
+  font-size: 1.2rem;
+}
+
+.notification-icon {
+  color: #0000ff;
+  margin-right: 10px;
+  font-size: 24px;
+}
+.notification-button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
+.unread-count {
+  color: #2600ff; /* Set color for unread count */
+  font-size: 15px; /* Adjust font size for the superscript */
+  font-weight: bold;
+  position: relative; /* Set position to relative */
+  top: -0.9em; /* Adjust vertical position */
+  left: -0.8em; /* Adjust horizontal position */
+}
