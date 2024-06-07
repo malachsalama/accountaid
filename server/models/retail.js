@@ -49,10 +49,7 @@ const supplierSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
-  acc_no: {
-    type: Number,
-  },
-  invoice_no: {
+  TBAccount_name: {
     type: String,
   },
   grn_no: {

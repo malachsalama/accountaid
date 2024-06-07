@@ -11,7 +11,7 @@ export default function CreateCreditor() {
 
   const [formData, setFormData] = useState({
     name: "",
-    company: "",
+    creditor_name: "",
     kra_pin: "",
     email: "",
     phone_no: "",
@@ -56,7 +56,7 @@ export default function CreateCreditor() {
   useEffect(() => {
     fetchCreditors();
     fetchAccountNo();
-  });
+  }, [user.userData]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -81,7 +81,7 @@ export default function CreateCreditor() {
         // Clear the form fields except for the account number
         setFormData({
           name: "",
-          company: "",
+          creditor_name: "",
           kra_pin: "",
           email: "",
           phone_no: "",
@@ -157,13 +157,13 @@ export default function CreateCreditor() {
               />
             </div>
             <div className="form-group">
-              <label className="form-label">Company:</label>
+              <label className="form-label">Creditor Name:</label>
               <input
                 type="text"
                 className="form-control"
-                id="company"
-                name="company"
-                value={formData.company}
+                id="creditor_name"
+                name="creditor_name"
+                value={formData.creditor_name}
                 onChange={handleChange}
                 required
               />
@@ -224,7 +224,7 @@ export default function CreateCreditor() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Company</th>
+                <th>Creditor Name</th>
                 <th>KRA PIN</th>
                 <th>Email</th>
                 <th>Phone No</th>
@@ -235,7 +235,7 @@ export default function CreateCreditor() {
               {creditors.map((creditor, index) => (
                 <tr key={index}>
                   <td>{creditor.name}</td>
-                  <td>{creditor.company}</td>
+                  <td>{creditor.creditor_name}</td>
                   <td>{creditor.kra_pin}</td>
                   <td>{creditor.email}</td>
                   <td>{creditor.phone_no}</td>

@@ -1,5 +1,60 @@
 const mongoose = require("mongoose");
 
+// Define the schema for invoices
+const invoiceSchema = new mongoose.Schema({
+  invoice_no: {
+    type: String,
+    required: true,
+  },
+  total_value: {
+    type: Number,
+  },
+  date_created: {
+    type: Date,
+  },
+});
+
+// Define the schema for receipts
+const receiptSchema = new mongoose.Schema({
+  receipt_no: {
+    type: String,
+    required: true,
+  },
+  total_value: {
+    type: Number, // Net value + VAT
+  },
+  date_created: {
+    type: Date,
+  },
+  invoices: [invoiceSchema], // Embed invoices schema for reports
+});
+
+const creditorSchema = new mongoose.Schema({
+  acc_no: {
+    type: String,
+  },
+  name: {
+    type: String,
+  },
+  creditor_name: {
+    type: String,
+  },
+  kra_pin: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+  },
+  phone_no: {
+    type: String,
+  },
+  ledger: {
+    invoices: [invoiceSchema], // Add invoices array
+    receipts: [receiptSchema], // Add receipts array
+  },
+});
+
 const departmentSchema = new mongoose.Schema({
   department_no: {
     type: String,
@@ -27,29 +82,6 @@ const tbAccountsSchema = new mongoose.Schema({
   acc_no: {
     type: Number,
     required: true,
-  },
-});
-
-const creditorSchema = new mongoose.Schema({
-  acc_no: {
-    type: String,
-  },
-  name: {
-    type: String,
-  },
-  company: {
-    type: String,
-    required: true,
-  },
-  kra_pin: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-  },
-  phone_no: {
-    type: String,
   },
 });
 
@@ -95,6 +127,72 @@ const notificationsSchema = new mongoose.Schema({
   },
 });
 
+const stockSchema = new mongoose.Schema({
+  unique_id: {
+    type: String,
+    required: true,
+  },
+  company_no: {
+    type: String,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  date_received: {
+    type: Date,
+    required: true,
+  },
+});
+
+const entriesSchema = new mongoose.Schema({
+  account_name: {
+    type: String,
+    required: true,
+  },
+  account_number: {
+    type: String,
+    required: true,
+  },
+  type: {
+    type: String,
+    required: true,
+  },
+  usd_rate: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: Date,
+    required: true,
+  },
+  narration: {
+    type: String,
+    required: true,
+  },
+  doc_ref: {
+    type: String,
+    required: true,
+  },
+  amount: {
+    type: Number,
+    required: true,
+  },
+  created_at: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
 const companySchema = new mongoose.Schema({
   company_name: {
     type: String,
@@ -121,6 +219,8 @@ const companySchema = new mongoose.Schema({
   creditors: [creditorSchema],
   variables: [variablesSchema],
   notifications: [notificationsSchema],
+  stock: [stockSchema],
+  entries: [entriesSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);

@@ -4,8 +4,10 @@ const { authenticateToken } = require("../middleware/userAuth");
 
 const {
   createCreditor,
+  updateCreditorLedger,
+  getGRNNo,
   getAccountNo,
-  getAllCreditors,
+  getCreditors,
   tbAccounts,
   fetchTbAccounts,
   deleteCreditor,
@@ -13,6 +15,11 @@ const {
 } = require("../controllers/accounts");
 
 router.post("/accounts/createcreditor", authenticateToken, createCreditor);
+router.put(
+  "/accounts/updatecreditorledger/:creditor_name",
+  authenticateToken,
+  updateCreditorLedger
+);
 router.delete(
   "/accounts/creditors/:creditorId",
   authenticateToken,
@@ -25,7 +32,8 @@ router.delete(
   authenticateToken,
   deleteTbAccount
 );
-router.get("/accounts/creditors", getAllCreditors);
+router.get("/accounts/creditors", getCreditors);
 router.get("/accounts/account_no", getAccountNo);
+router.get("/accounts/grn_no", getGRNNo);
 
 module.exports = router;

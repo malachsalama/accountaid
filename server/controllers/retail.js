@@ -148,14 +148,24 @@ async function generateLpo(req, res) {
   }
 }
 
-// Check for existing invoice number in the DB
+// Check for existing invoice number in the company's creditors
 const checkInvoiceNumber = async (req, res) => {
-  const { invoice_no } = req.query;
+  const { invoice_no, company_no } = req.query;
 
   try {
-    const lpo = await Supplier.findOne({ invoice_no });
+    const company = await Company.findOne({ company_no });
 
-    if (lpo) {
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    const invoiceExists = company.creditors.some((creditor) =>
+      creditor.ledger.invoices.some(
+        (invoice) => invoice.invoice_no === invoice_no
+      )
+    );
+
+    if (invoiceExists) {
       return res.status(200).json({ exists: true });
     }
 
@@ -345,6 +355,35 @@ const fetchLpoDataForReceive = async (req, res) => {
   }
 };
 
+// Update the stock
+async function updateStockAndEntries(req, res) {
+  try {
+    const { stock, entries } = req.body;
+    const { company_no } = req.query;
+
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Add the new stock items to the company's stock array
+    company.stock.push(...stock);
+
+    // Add the new entries to the company's entries array
+    company.entries.push(...entries);
+
+    await company.save();
+
+    res
+      .status(200)
+      .json({ message: "Stock and entries updated successfully!" });
+  } catch (error) {
+    console.error("Error updating stock and entries:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
 /// Delete an Lpo from the system
 async function deleteLpo(req, res) {
   try {
@@ -375,5 +414,6 @@ module.exports = {
   fetchLpoDataForReceive,
   postLpoDetails,
   closeLpo,
+  updateStockAndEntries,
   deleteLpo,
 };
