@@ -1,0 +1,37 @@
+.notifications-container {
+  display: flex;
+  height: 100vh;
+}
+
+.notifications-list {
+  width: 30%;
+  background-color: #f0f0f0;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.notification-item {
+  padding: 10px;
+  margin: 5px 0;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #0000ff; /* Default background color */
+  color: #fdfbfb; /* Default text color */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.notification-item.selected {
+  background-color: #8992f5; /* Blue background for selected item */
+  color: rgb(5, 5, 5); /* White text for selected item */
+}
+
+.notification-card {
+  width: 70%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.notification-card h2 {
+  margin-top: 0;
+}

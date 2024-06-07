@@ -8,6 +8,7 @@ import { EditVariables, ManagementHome, RegDepartment } from "./pages/admin";
 import { AccountsHome, CreateCreditor, TbAccounts } from "./pages/accounts";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import "./App.css";
+import Notifications from "./components/notifications/Notifications";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
             <Route path="user-registration" element={<Register />} />
             <Route path="department-registration" element={<RegDepartment />} />
             <Route path="edit-variables" element={<EditVariables />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
 
           <Route
@@ -52,6 +54,7 @@ function App() {
             <Route path="lpo" element={<Lpo />} />
             <Route path="lpolist" element={<LpoList />} />
             <Route path="viewReceive" element={<ViewReceive />} />
+            <Route path="notifications" element={<Notifications />} />
           </Route>
           <Route
             path="/accounts"

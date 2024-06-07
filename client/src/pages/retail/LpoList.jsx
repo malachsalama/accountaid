@@ -119,11 +119,12 @@ export default function LpoList() {
                   </button>
                   <button
                     onClick={() => handleReceive(lpo.lpo_no)}
-                    // disabled={lpo.status !== 3}
-                    // style={{
-                    //   backgroundColor: lpo.status === 3 ? "initial" : "gray",
-                    //   cursor: lpo.status === 3 ? "pointer" : "not-allowed",
-                    // }}
+                    disabled={lpo.status !== 4}
+                    style={{
+                      backgroundColor:
+                        lpo.status === 4 ? "initial" : "light-gray",
+                      cursor: lpo.status === 4 ? "pointer" : "not-allowed",
+                    }}
                   >
                     Receive
                   </button>
