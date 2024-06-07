@@ -14,32 +14,56 @@ export default function Navbar() {
   const location = useLocation();
   const accessToken = useAuthToken();
 
-  const [notifications, setNotifications] = useState(0);
-
-  let unreadMessages = notifications;
+  const [unreadMessages, setUnreadMessages] = useState(0);
 
   const handleLogin = () => {
     navigate("/");
   };
 
-  const handleNotification = () => {
-    navigate("/retail/");
+  const handleNotification = async () => {
+    if (user && accessToken) {
+      try {
+        const fetchNotifications = await axios.get(
+          "/api/auth/notifications/fetchnotifications",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              userData: user.userData,
+            },
+          }
+        );
+
+        //navigate to the notification page
+        navigate("notifications", {
+          state: { notifications: fetchNotifications.data },
+        });
+      } catch (error) {
+        console.error("Error fetching notification", error);
+      }
+    }
   };
 
   // Function with API to fetch notifications
   const fetchNotifications = useCallback(async () => {
     if (user && accessToken && user.userData) {
       try {
-        const response = await axios.get("/api/auth/fetchnotifications", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          params: {
-            userData: user.userData,
-          },
-        });
+        const fetchNotifications = await axios.get(
+          "/api/auth/notifications/fetchnotifications",
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            params: {
+              userData: user.userData,
+            },
+          }
+        );
 
-        setNotifications(response.data);
+        const notificationsData = fetchNotifications.data.length;
+
+        setUnreadMessages(notificationsData);
       } catch (error) {
         console.error("Error fetching notifications", error);
       }
@@ -51,6 +75,7 @@ export default function Navbar() {
       fetchNotifications();
     }
   }, [isLoading, accessToken, fetchNotifications, user]);
+
 
   const handleLogout = () => {
     logout();
