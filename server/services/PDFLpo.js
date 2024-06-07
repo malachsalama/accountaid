@@ -77,13 +77,17 @@ function generatePDF(header, details) {
         .fontSize(10)
         .text(`${detail.description}`, 133, height, { width: 200 });
       doc.fontSize(10).text(`${detail.quantity}`, 303, height, { width: 100 });
-      doc.fontSize(10).text(`${detail.price}`, 403, height, { width: 100 });
       doc
         .fontSize(10)
-        .text(`${detail.price * detail.quantity}`, 503, height, { width: 100 });
+        .text(`${detail.price.toFixed(2)}`, 403, height, { width: 100 });
+      doc
+        .fontSize(10)
+        .text(`${(detail.price * detail.quantity).toFixed(2)}`, 503, height, {
+          width: 100,
+        });
       height += 15;
 
-      total = parseFloat(detail.price * detail.quantity).toFixed(2);
+      total = parseFloat(detail.price * detail.quantity);
 
       net += parseFloat(total);
     });

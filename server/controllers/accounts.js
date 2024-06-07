@@ -1,17 +1,18 @@
 const Company = require("../models/company");
 const Logs = require("../models/logs");
+const Supplier = require("../models/retail");
 
 // Adding a creditor to the system
 async function createCreditor(req, res) {
   try {
-    const { acc_no, name, company, kra_pin, email, phone_no } = req.body;
+    const { acc_no, name, creditor_name, kra_pin, email, phone_no } = req.body;
     const { user_id } = req.user;
     const { company_no, username } = req.query.userData;
 
     // Check if the Creditor name already exists
     const existingCompany = await Company.findOne({ company_no });
 
-    const action = `${username} created an account for ${company}`;
+    const action = `${username} created an account for ${creditor_name}`;
     const doc_type = `New account`;
     const unique_id = acc_no;
 
@@ -30,7 +31,7 @@ async function createCreditor(req, res) {
 
     const newCreditor = {
       name,
-      company,
+      creditor_name,
       kra_pin,
       email,
       phone_no,
@@ -56,11 +57,62 @@ async function createCreditor(req, res) {
   }
 }
 
-// Get the next available account number for a creditor
+async function updateCreditorLedger(req, res) {
+  try {
+    const { company_no, newInvoice } = req.body;
+    const { creditor_name } = req.params;
+
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    const creditor = company.creditors.find(
+      (cred) => cred.creditor_name === creditor_name
+    );
+
+    if (!creditor) {
+      return res.status(404).json({ error: "Creditor not found" });
+    }
+
+    // Update creditor's ledger
+    creditor.ledger.invoices.push(newInvoice);
+
+    await company.save();
+    res.status(200).json({ message: "Creditor ledger updated successfully" });
+  } catch (error) {
+    console.error("Error updating creditor's ledger:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// Get an account number OR the next available account number for a creditor
 async function getAccountNo(req, res) {
   try {
-    const { company_no } = req.query.userData;
+    const { company_no, account_name } = req.query.userData;
 
+    // Check if both company_no and account_name are provided
+    if (company_no && account_name) {
+      const company = await Company.findOne({ company_no });
+      if (!company) {
+        return res.status(404).json({ error: "Company not found" });
+      }
+
+      const creditor = company.creditors.find(
+        (creditor) => creditor.name === account_name
+      );
+      if (!creditor) {
+        return res.status(404).json({
+          error: "Creditor not found for the provided company and account name",
+        });
+      }
+
+      const accountNo = creditor.acc_no;
+      return res.status(200).json(accountNo);
+    }
+
+    // If only company_no is provided or none are provided, proceed with the existing logic
     const maxAccount = await Company.findOne({ company_no })
       .select("creditors.acc_no")
       .sort({ "creditors.acc_no": -1 })
@@ -84,23 +136,61 @@ async function getAccountNo(req, res) {
   }
 }
 
-// Get all creditors
-async function getAllCreditors(req, res) {
+async function getGRNNo(req, res) {
+  const { company_no } = req.query;
+
   try {
-    const { company_no } = req.query.userData;
+    // Find the supplier with the highest GRN number for the specified company
+    const result = await Supplier.findOne({ company_no })
+      .sort({ grn_no: -1 })
+      .exec();
+
+    let max_no = result && result.grn_no ? result.grn_no : "GRN-0000";
+    let grnNo;
+
+    if (max_no === "GRN-0000") {
+      grnNo = "GRN-0001";
+    } else {
+      let numericPart = max_no.substring(4);
+
+      numericPart++;
+      grnNo = "GRN-" + numericPart.toString().padStart(4, "0");
+    }
+
+    res.status(200).json(grnNo);
+  } catch (error) {
+    console.error("Error getting GRN number:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// Get all creditors or a single creditor
+async function getCreditors(req, res) {
+  try {
+    const { company_no, cred_id } = req.query.userData;
     const company = await Company.findOne({ company_no });
 
     if (!company) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    const allCreditors = company.creditors;
-    res.status(200).json(allCreditors);
+    if (cred_id) {
+      const creditor = company.creditors._id(cred_id);
+      if (!creditor) {
+        return res.status(404).json({ error: "Creditor not found" });
+      }
+      res.status(200).json(creditor);
+    } else {
+      const allCreditors = company.creditors;
+      res.status(200).json(allCreditors);
+    }
   } catch (error) {
     console.error("Error fetching creditors:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 }
+
+module.exports = { getCreditors };
 
 // Add a new TB account
 async function tbAccounts(req, res) {
@@ -260,8 +350,10 @@ async function deleteTbAccount(req, res) {
 
 module.exports = {
   createCreditor,
+  updateCreditorLedger,
   getAccountNo,
-  getAllCreditors,
+  getGRNNo,
+  getCreditors,
   tbAccounts,
   fetchTbAccounts,
   deleteCreditor,

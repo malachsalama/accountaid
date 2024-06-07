@@ -1,9 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Autosuggest from "react-autosuggest";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import { useCombobox } from "downshift";
 import "./retail.css";
 
 function Lpo() {
@@ -31,7 +31,7 @@ function Lpo() {
     vat: "",
   });
 
-  //populates the dropdown menu on typing for the suplier details
+  //populates the dropdown menu on typing for the supplier details
   const [suggestions, setSuggestions] = useState([]);
   const [lpoData, setLpo] = useState();
 
@@ -55,30 +55,34 @@ function Lpo() {
   };
 
   //capture data selected on to the input fields on the supplier form and sets it to the formData use state.
-  const onInputChange = (_, { newValue }) => {
-    setFormData((prevData) => ({ ...prevData, supplier: newValue }));
-  };
+  const handleSelectedItemChange = async ({ selectedItem }) => {
+    if (selectedItem) {
+      const response = await axios.get("/api/auth/retail/autocomplete", {
+        params: { q: selectedItem, userData: user.userData },
+      });
 
-  //Handle whatever was selected from the dropdown and sets it to the formData for supplier details
-  const onSuggestionSelected = async (_, { suggestionValue }) => {
-    const response = await axios.get("/api/auth/retail/autocomplete", {
-      params: { q: suggestionValue, userData: user.userData },
-    });
+      const data = response.data[0];
 
-    const data = response.data[0];
-
-    setFormData((prevData) => ({
-      ...prevData,
-      supplier: suggestionValue,
-      supplierName: data.name || "",
-      kra_pin: data.kra_pin || "",
-      acc_no: data.acc_no || "",
-      vat: data.vat || "",
-      date_created: data.date_created || "",
-    }));
+      setFormData((prevData) => ({
+        ...prevData,
+        supplier: selectedItem,
+        supplierName: data.name || "",
+        kra_pin: data.kra_pin || "",
+        acc_no: data.acc_no || "",
+        vat: data.vat || "",
+        date_created: data.date_created || "",
+      }));
+    }
   };
 
   //capture data keyed in on to the input fields on the supplier form and sets it to the formData use state.
+  const handleInputValueChange = ({ inputValue }) => {
+    setFormData((prevData) => ({ ...prevData, supplier: inputValue }));
+    if (inputValue) {
+      getSuggestions(inputValue);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -206,6 +210,18 @@ function Lpo() {
     }
   };
 
+  const {
+    isOpen,
+    getMenuProps,
+    getInputProps,
+    getItemProps,
+    highlightedIndex,
+  } = useCombobox({
+    items: suggestions,
+    onSelectedItemChange: handleSelectedItemChange,
+    onInputValueChange: handleInputValueChange,
+  });
+
   return (
     <div>
       <div style={{ display: "flex" }}>
@@ -214,27 +230,29 @@ function Lpo() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label className="form-label">Supplier:</label>
-              <Autosuggest
-                suggestions={suggestions}
-                onSuggestionsFetchRequested={({ value }) =>
-                  getSuggestions(value)
-                }
-                onSuggestionsClearRequested={() => setSuggestions([])}
-                onSuggestionSelected={onSuggestionSelected}
-                getSuggestionValue={(suggestion) => suggestion}
-                renderSuggestion={(suggestion) => (
-                  <div className="suggestion-box-container">{suggestion}</div>
-                )}
-                inputProps={{
-                  value: formData.supplier,
-                  onChange: onInputChange,
+              <input
+                {...getInputProps({
                   type: "text",
                   className: "form-control",
                   id: "supplier",
                   name: "supplier",
                   required: true,
-                }}
+                })}
               />
+              <ul {...getMenuProps()} className="suggestion-box">
+                {isOpen &&
+                  suggestions.map((item, index) => (
+                    <li
+                      {...getItemProps({ item, index })}
+                      key={index}
+                      className={
+                        highlightedIndex === index ? "highlighted-item" : ""
+                      }
+                    >
+                      {item}
+                    </li>
+                  ))}
+              </ul>
             </div>
 
             <div className="form-group">
@@ -335,6 +353,7 @@ function Lpo() {
                   name="unique_id"
                   value={post.unique_id}
                   onChange={handleChange}
+                  required
                 />
               </div>
               <div className="form-group">
@@ -347,6 +366,7 @@ function Lpo() {
                   name="description"
                   value={post.description}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -360,6 +380,7 @@ function Lpo() {
                   name="quantity"
                   value={post.quantity}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -373,6 +394,7 @@ function Lpo() {
                   name="price"
                   value={post.price}
                   onChange={handleChange}
+                  required
                 />
               </div>
 
@@ -410,7 +432,7 @@ function Lpo() {
                       <td>{product.unique_id}</td>
                       <td>{product.description}</td>
                       <td>{product.quantity}</td>
-                      <td>{product.price}</td>
+                      <td>{product.price.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>

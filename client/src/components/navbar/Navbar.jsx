@@ -9,7 +9,7 @@ import "./navbar.css";
 
 export default function Navbar() {
   const { logout } = useLogout();
-  const { user } = useAuthContext();
+  const { user, isLoading } = useAuthContext();
   const navigate = useNavigate();
   const location = useLocation();
   const accessToken = useAuthToken();
@@ -26,7 +26,7 @@ export default function Navbar() {
     navigate("/retail/");
   };
 
-  //function with API to fetch notifications
+  // Function with API to fetch notifications
   const fetchNotifications = useCallback(async () => {
     if (user && accessToken && user.userData) {
       try {
@@ -47,10 +47,10 @@ export default function Navbar() {
   }, [accessToken, user]);
 
   useEffect(() => {
-    if (user && accessToken) {
+    if (!isLoading && user && accessToken) {
       fetchNotifications();
     }
-  }, [accessToken, fetchNotifications, user]);
+  }, [isLoading, accessToken, fetchNotifications, user]);
 
   const handleLogout = () => {
     logout();
@@ -67,7 +67,7 @@ export default function Navbar() {
           <>
             <button
               className="notification-button"
-              onClick={() => handleNotification()}
+              onClick={handleNotification}
             >
               <FaBell className="notification-icon" size={24} />
               {unreadMessages > 0 && (
