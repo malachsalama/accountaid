@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import "./notifications.css";
@@ -6,6 +7,7 @@ import axios from "axios";
 
 export default function Notifications() {
   const { user } = useAuthContext();
+  const navigate = useNavigate();
   const accessToken = useAuthToken();
   const [selectedNotification, setSelectedNotification] = useState(null);
   const [lpoProducts, setLpoProducts] = useState([]);
@@ -70,7 +72,8 @@ export default function Notifications() {
     }
   };
 
-  const handleApprove = async () => {
+  const handleProceed = async () => {
+    const company_no = user.userData.company_no;
     if (!selectedNotification) return;
 
     try {
@@ -84,6 +87,20 @@ export default function Notifications() {
           Authorization: `Bearer ${accessToken}`,
         },
       });
+
+      if (user.userData.department === "Retail") {
+        const response = await axios.get(
+          "/api/auth/retail/fetchLpoDataForReceive",
+          {
+            params: { lpo_no: selectedNotification.unique_id, company_no },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        navigate("/retail/viewReceive", { state: { lpo: response.data } });
+      }
 
       fetchNotifications();
       setLpoProducts([]);
@@ -135,8 +152,6 @@ export default function Notifications() {
                 <tbody>
                   {lpoProducts.map((item) => (
                     <tr key={item.unique_id}>
-                      {" "}
-                      {/* Ensure unique key */}
                       <td>{item.unique_id}</td>
                       <td>{item.company_no}</td>
                       <td>{item.description}</td>
@@ -164,8 +179,8 @@ export default function Notifications() {
                 </>
               )}
             </div>
-            <button onClick={handleApprove} className="btn btn-success">
-              Approve LPO
+            <button onClick={handleProceed} className="btn btn-success">
+              Proceed
             </button>
           </>
         )}

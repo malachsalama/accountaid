@@ -465,6 +465,7 @@ function ViewReceive() {
                   value={formData.vat}
                   onChange={handleInputChange}
                   required
+                  readOnly
                 />
               </label>
               <br />

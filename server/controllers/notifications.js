@@ -66,7 +66,7 @@ async function approveLpo(req, res) {
       existingLpo.status = 3;
     } else if (userData.department == "Retail") {
       action = `${username} Viewed approval for LPO number ${lpo_no} for ${supplier}`;
-      existingLpo.status = 4;
+      existingLpo.status = 3;
     }
 
     const logData = new Logs({
