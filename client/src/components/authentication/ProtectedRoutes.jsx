@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import Dashboard from "../dashboard/Dashboard";
 
 export default function ProtectedRoutes({ children }) {
   const { user, isLoading } = useAuthContext();
@@ -17,5 +18,10 @@ export default function ProtectedRoutes({ children }) {
     return <div>Loading, please wait...</div>;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {user && <Dashboard />}
+      {children}
+    </>
+  );
 }

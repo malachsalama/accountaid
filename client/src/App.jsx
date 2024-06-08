@@ -11,7 +11,6 @@ import { AccountsHome, CreateCreditor, TbAccounts } from "./pages/accounts";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import "./App.css";
 import Notifications from "./components/notifications/Notifications";
-import Dashboard from "./components/dashboard/Dashboard";
 
 function App() {
   const { isLoading } = useAuthContext();
@@ -24,7 +23,6 @@ function App() {
     <div className="app">
       <AuthContextProvider>
         <Navbar />
-        <Dashboard />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
