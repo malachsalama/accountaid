@@ -44,7 +44,7 @@ export default function Login() {
     if (user && user.userData && user.userData.department) {
       const { department } = user.userData;
       switch (department) {
-        case "Management":
+        case "Admin":
           navigate("/admin");
           break;
         case "Retail":
