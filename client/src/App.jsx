@@ -9,6 +9,7 @@ import { AccountsHome, CreateCreditor, TbAccounts } from "./pages/accounts";
 import HumanResourceHome from "./pages/human_resource/HumanResourceHome";
 import "./App.css";
 import Notifications from "./components/notifications/Notifications";
+import Dashboard from "./components/dashboard/Dashboard";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             path="/accountaid"
             element={
               <ProtectedRoutes>
+                <Dashboard />
                 <SuperAdminHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -31,6 +33,7 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoutes>
+                <Dashboard />
                 <ManagementHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -46,6 +49,7 @@ function App() {
             path="/retail"
             element={
               <ProtectedRoutes>
+                <Dashboard />
                 <RetailHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -60,6 +64,7 @@ function App() {
             path="/accounts"
             element={
               <ProtectedRoutes>
+                <Dashboard />
                 <AccountsHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -72,6 +77,7 @@ function App() {
             path="/humanresource"
             element={
               <ProtectedRoutes>
+                <Dashboard />
                 <HumanResourceHome />
               </ProtectedRoutes>
             }
