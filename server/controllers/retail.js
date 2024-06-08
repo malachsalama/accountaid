@@ -73,7 +73,7 @@ const autocomplete = async (req, res) => {
 
     // Filter creditors of the specified company that match the query
     const results = company.creditors.filter((creditor) =>
-      creditor.company.match(regex)
+      creditor.creditor_name.match(regex)
     );
 
     // Return the complete creditor data objects

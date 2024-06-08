@@ -24,13 +24,13 @@ function App() {
     <div className="app">
       <AuthContextProvider>
         <Navbar />
+        <Dashboard />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
             path="/accountaid"
             element={
               <ProtectedRoutes>
-                <Dashboard />
                 <SuperAdminHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -42,7 +42,6 @@ function App() {
             path="/admin"
             element={
               <ProtectedRoutes>
-                <Dashboard />
                 <ManagementHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -51,14 +50,12 @@ function App() {
             <Route path="user-registration" element={<Register />} />
             <Route path="department-registration" element={<RegDepartment />} />
             <Route path="edit-variables" element={<EditVariables />} />
-            <Route path="notifications" element={<Notifications />} />
           </Route>
 
           <Route
             path="/retail"
             element={
               <ProtectedRoutes>
-                <Dashboard />
                 <RetailHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -67,13 +64,11 @@ function App() {
             <Route path="lpo" element={<Lpo />} />
             <Route path="lpolist" element={<LpoList />} />
             <Route path="viewReceive" element={<ViewReceive />} />
-            <Route path="notifications" element={<Notifications />} />
           </Route>
           <Route
             path="/accounts"
             element={
               <ProtectedRoutes>
-                <Dashboard />
                 <AccountsHome />
                 <Outlet />
               </ProtectedRoutes>
@@ -86,8 +81,15 @@ function App() {
             path="/humanresource"
             element={
               <ProtectedRoutes>
-                <Dashboard />
                 <HumanResourceHome />
+              </ProtectedRoutes>
+            }
+          />
+          <Route
+            path="/notifications"
+            element={
+              <ProtectedRoutes>
+                <Notifications />
               </ProtectedRoutes>
             }
           />
