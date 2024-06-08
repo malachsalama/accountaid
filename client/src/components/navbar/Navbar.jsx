@@ -76,7 +76,6 @@ export default function Navbar() {
     }
   }, [isLoading, accessToken, fetchNotifications, user]);
 
-
   const handleLogout = () => {
     logout();
     navigate("/");

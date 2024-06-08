@@ -45,7 +45,7 @@ function Lpo() {
       const suggestedSuppliers = response.data;
 
       const supplierNames = suggestedSuppliers.map(
-        (supplier) => supplier.company
+        (supplier) => supplier.creditor_name
       );
 
       setSuggestions(supplierNames);
