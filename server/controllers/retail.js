@@ -250,7 +250,7 @@ async function closeLpo(req, res) {
   const doc_type = "LPO";
   const heading = "LPO APPROVAL";
   const today = new Date();
-  const department = "Management";
+  const department = "Admin";
 
   try {
     const existingLpo = await Supplier.findOne({
@@ -402,6 +402,24 @@ async function deleteLpo(req, res) {
   }
 }
 
+async function fetchStock(req, res) {
+  const { company_no } = req.query;
+  try {
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      res.status(200).json("Company not Found");
+    }
+
+    const stock = company.stock;
+
+    res.status(200).json(stock);
+  } catch (error) {
+    console.error("Error accessing Company:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 module.exports = {
   fetchLpoData,
   autocomplete,
@@ -416,4 +434,5 @@ module.exports = {
   closeLpo,
   updateStockAndEntries,
   deleteLpo,
+  fetchStock,
 };

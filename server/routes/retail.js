@@ -16,9 +16,24 @@ const {
   deleteLpo,
   updateLpo,
   checkInvoiceNumber,
+  fetchStock,
 } = require("../controllers/retail");
 
 router.post("/retail/retailnames", addRetailName);
+
+router.post("/retail/generatelpo", authenticateToken, generateLpo);
+
+router.post("/retail/postlpodetails", authenticateToken, postLpoDetails);
+router.post(
+  "/retail/update-stock-and-entries",
+  authenticateToken,
+  updateStockAndEntries
+);
+
+router.post("/retail/closelpo", authenticateToken, closeLpo);
+
+router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
+router.get("/retail/check-invoice-number", checkInvoiceNumber);
 router.get("/retail/retailnames", getRetailNames);
 
 router.get("/retail/generatelpo", authenticateToken, fetchLpoData);
@@ -27,20 +42,12 @@ router.get(
   authenticateToken,
   fetchLpoDataForReceive
 );
-router.get("/retail/check-invoice-number", checkInvoiceNumber);
-router.post("/retail/generatelpo", authenticateToken, generateLpo);
-router.put("/retail/updatelpo/:lpo_no", authenticateToken, updateLpo);
-router.post("/retail/postlpodetails", authenticateToken, postLpoDetails);
-router.post(
-  "/retail/update-stock-and-entries",
-  authenticateToken,
-  updateStockAndEntries
-);
-router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
-router.delete("/retail/lpos/:lpoId", authenticateToken, deleteLpo);
-router.post("/retail/closelpo", authenticateToken, closeLpo);
-
 router.get("/retail/autocomplete", autocomplete);
 router.get("/retail/lpo_no", getLpoNo);
+router.get("/retail/fetchstock", authenticateToken, fetchStock);
+
+router.put("/retail/updatelpo/:lpo_no", authenticateToken, updateLpo);
+
+router.delete("/retail/lpos/:lpoId", authenticateToken, deleteLpo);
 
 module.exports = router;

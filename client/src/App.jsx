@@ -4,7 +4,7 @@ import { AuthContextProvider } from "./context/AuthContext";
 import { useAuthContext } from "./hooks/useAuthContext";
 import Navbar from "./components/navbar/Navbar";
 import { Register, Login, ProtectedRoutes } from "./components/authentication";
-import { Lpo, LpoList, RetailHome, ViewReceive } from "./pages/retail";
+import { Lpo, LpoList, RetailHome, ViewReceive, Stock } from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
 import { EditVariables, ManagementHome, RegDepartment } from "./pages/admin";
 import { AccountsHome, CreateCreditor, TbAccounts } from "./pages/accounts";
@@ -62,6 +62,7 @@ function App() {
             <Route path="lpo" element={<Lpo />} />
             <Route path="lpolist" element={<LpoList />} />
             <Route path="viewReceive" element={<ViewReceive />} />
+            <Route path="stock" element={<Stock />} />
           </Route>
           <Route
             path="/accounts"
