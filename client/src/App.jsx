@@ -1,6 +1,8 @@
 /* eslint-disable react/prop-types */
 import { Route, Routes, Outlet } from "react-router-dom";
 import { AuthContextProvider } from "./context/AuthContext";
+import { useAuthContext } from "./hooks/useAuthContext";
+import Navbar from "./components/navbar/Navbar";
 import { Register, Login, ProtectedRoutes } from "./components/authentication";
 import { Lpo, LpoList, RetailHome, ViewReceive } from "./pages/retail";
 import { RegCompany, SuperAdminHome } from "./pages/accountaid";
@@ -12,9 +14,16 @@ import Notifications from "./components/notifications/Notifications";
 import Dashboard from "./components/dashboard/Dashboard";
 
 function App() {
+  const { isLoading } = useAuthContext();
+
+  if (isLoading) {
+    return <div className="loading">Loading, please wait...</div>;
+  }
+
   return (
     <div className="app">
       <AuthContextProvider>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Login />} />
           <Route
