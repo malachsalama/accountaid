@@ -39,3 +39,30 @@
 .view-receive-lpo-entries {
   margin-top: 2rem;
 }
+.stock-container {
+  padding: 20px;
+}
+
+.stock-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.stock-table th,
+.stock-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: right;
+}
+
+.stock-table th {
+  background-color: #f2f2f2;
+}
+
+.stock-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.stock-table tr:hover {
+  background-color: #ddd;
+}
