@@ -6,7 +6,6 @@ const { addRetailName, getRetailNames } = require("../controllers/admin");
 const {
   fetchLpoData,
   autocomplete,
-  getLpoNo,
   generateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
@@ -31,6 +30,7 @@ router.post(
 );
 
 router.post("/retail/closelpo", authenticateToken, closeLpo);
+router.patch("/retail/updatelpo/:lpo_no", authenticateToken, updateLpo);
 
 router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
 router.get("/retail/check-invoice-number", checkInvoiceNumber);
@@ -43,10 +43,7 @@ router.get(
   fetchLpoDataForReceive
 );
 router.get("/retail/autocomplete", autocomplete);
-router.get("/retail/lpo_no", getLpoNo);
 router.get("/retail/fetchstock", authenticateToken, fetchStock);
-
-router.put("/retail/updatelpo/:lpo_no", authenticateToken, updateLpo);
 
 router.delete("/retail/lpos/:lpoId", authenticateToken, deleteLpo);
 

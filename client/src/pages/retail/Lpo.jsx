@@ -11,58 +11,50 @@ function Lpo() {
   const navigate = useNavigate();
   const { user } = useAuthContext();
 
-  // populating the posts for the lpo details for the LPO
-  const [post, setPost] = useState({
-    unique_id: "",
-    company_no: "",
-    description: "",
-    quantity: "",
-    price: "",
-  });
-
+  // State for supplier form
   const [formData, setFormData] = useState({
     supplier: "",
     supplierName: "",
     kra_pin: "",
-    company_no: "",
     usd_rate: "",
     acc_no: "",
     date_created: "",
     vat: "",
   });
 
-  //populates the dropdown menu on typing for the supplier details
+  // State for LPO details form
+  const [post, setPost] = useState({
+    unique_id: "",
+    description: "",
+    quantity: "",
+    price: "",
+  });
+
   const [suggestions, setSuggestions] = useState([]);
   const [lpoData, setLpo] = useState();
+  const [error, setError] = useState(null);
 
-  //function to fetch list of suppliers from the database and set them to the suggestion state above
   const getSuggestions = async (inputValue) => {
     try {
       const response = await axios.get("/api/auth/retail/autocomplete", {
         params: { q: inputValue, userData: user.userData },
       });
-
       const suggestedSuppliers = response.data;
-
       const supplierNames = suggestedSuppliers.map(
         (supplier) => supplier.creditor_name
       );
-
       setSuggestions(supplierNames);
     } catch (error) {
       console.error("Error fetching suggestions:", error);
     }
   };
 
-  //capture data selected on to the input fields on the supplier form and sets it to the formData use state.
   const handleSelectedItemChange = async ({ selectedItem }) => {
     if (selectedItem) {
       const response = await axios.get("/api/auth/retail/autocomplete", {
         params: { q: selectedItem, userData: user.userData },
       });
-
       const data = response.data[0];
-
       setFormData((prevData) => ({
         ...prevData,
         supplier: selectedItem,
@@ -75,7 +67,6 @@ function Lpo() {
     }
   };
 
-  //capture data keyed in on to the input fields on the supplier form and sets it to the formData use state.
   const handleInputValueChange = ({ inputValue }) => {
     setFormData((prevData) => ({ ...prevData, supplier: inputValue }));
     if (inputValue) {
@@ -93,26 +84,40 @@ function Lpo() {
   };
 
   const fetchLPODetails = useCallback(async () => {
-    try {
-      const lpo = await axios.get("/api/auth/retail/generatelpo", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-      setLpo(lpo.data);
-    } catch (error) {
-      console.error(error);
+    if (user && user.userData) {
+      try {
+        const lpo = await axios.get("/api/auth/retail/generatelpo", {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          params: {
+            company_no: user.userData.company_no,
+          },
+        });
+        setLpo(lpo.data);
+        setError(null); // Clear any previous errors
+      } catch (error) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.error
+        ) {
+          // If response has an error message, use that
+          setError(error.response.data.error);
+        } else {
+          // Otherwise, use the default error message
+          setError(error.message);
+        }
+      }
     }
-  }, [accessToken]);
+  }, [accessToken, user]);
 
-  //Fetch the latest LPO
   useEffect(() => {
     fetchLPODetails();
   }, [fetchLPODetails]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     if (accessToken) {
       try {
         await axios.post("/api/auth/retail/generatelpo", formData, {
@@ -123,22 +128,19 @@ function Lpo() {
             userData: user.userData,
           },
         });
-
         setFormData({
           supplier: "",
           supplierName: "",
           kra_pin: "",
-          company_no: "",
           usd_rate: "",
           acc_no: "",
           date_created: "",
           vat: "",
         });
-
         fetchLPODetails();
       } catch (error) {
         if (error.response && error.response.status === 400) {
-          // If a validation error response is received
+          // Handle validation error
         } else {
           console.error("An error occurred:", error);
         }
@@ -146,23 +148,17 @@ function Lpo() {
     }
   };
 
-  //capture data keyed in on to the input fields on the LPO details form and sets it to the "post" use state.
   const handleChange = (event) => {
     const { name, value } = event.target;
-
-    setPost((prev) => {
-      return {
-        ...prev,
-        [name]: value,
-        company_no: user.userData.company_no,
-      };
-    });
+    setPost((prev) => ({
+      ...prev,
+      [name]: value,
+      company_no: user.userData.company_no,
+    }));
   };
 
-  // takes all "post" usestate data from lpo details form and sends it to the backend for storage.
   const handleClick = async (event) => {
     event.preventDefault();
-
     if (accessToken) {
       try {
         await axios.post("/api/auth/retail/postlpodetails", post, {
@@ -173,13 +169,9 @@ function Lpo() {
             lpoUnNo: lpoData.lpo_no,
           },
         });
-
         fetchLPODetails();
-
-        // Reset the post state to clear the form
         setPost({
           unique_id: "",
-          company_no: user.userData.company_no,
           description: "",
           quantity: "",
           price: "",
@@ -414,7 +406,7 @@ function Lpo() {
                 <li>Supplier : {lpoData.supplier}</li>
               </>
             ) : (
-              <li>Create Lpo</li>
+              <div>{error}</div>
             )}
             {lpoData && lpoData.products && lpoData.products.length > 0 && (
               <table>
