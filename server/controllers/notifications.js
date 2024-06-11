@@ -1,5 +1,4 @@
 const Company = require("../models/company");
-const Supplier = require("../models/retail");
 const Logs = require("../models/logs");
 
 //function to fetch notifications
@@ -40,18 +39,14 @@ async function approveLpo(req, res) {
   const today = new Date();
   const department = "Retail";
   let action;
+  let status;
 
   if (!company_no) {
     return res.status(404).json({ error: "Company no required" });
   }
 
   try {
-    const existingLpo = await Supplier.findOne({ lpo_no, company_no });
     const company = await Company.findOne({ company_no });
-
-    if (!existingLpo) {
-      return res.status(400).json({ error: "Problem with Lpo" });
-    }
 
     if (!company) {
       return res
@@ -59,14 +54,16 @@ async function approveLpo(req, res) {
         .json({ error: "Problem with finding the company" });
     }
 
+    const existingLpo = company.lpos.find((lpo) => lpo.lpo_no === lpo_no);
+
     const supplier = existingLpo.supplier;
 
     if (userData.department == "Admin") {
       action = `${username} Approved LPO number ${lpo_no} for ${supplier}`;
-      existingLpo.status = 3;
+      status = 3;
     } else if (userData.department == "Retail") {
       action = `${username} Viewed approval for LPO number ${lpo_no} for ${supplier}`;
-      existingLpo.status = 3;
+      status = 3;
     }
 
     const logData = new Logs({
@@ -95,6 +92,12 @@ async function approveLpo(req, res) {
       { new: true } // Return the updated document
     );
 
+    const updatedLpo = await Company.findOneAndUpdate(
+      { company_no, "lpos.lpo_no": lpo_no },
+      { $set: { "lpos.$.status": status } },
+      { new: true } // Return the updated document
+    );
+
     if (!updatedCompany) {
       console.log(updatedCompany);
       return res.status(404).json({ error: "Notification not deleted" });
@@ -104,10 +107,9 @@ async function approveLpo(req, res) {
       company.notifications.push(newNotification);
       await logData.save();
       await company.save();
-      await existingLpo.save();
     } else if (userData.department == "Retail") {
       await logData.save();
-      await existingLpo.save();
+      await company.save();
     }
 
     res.json("Lpo Approved");

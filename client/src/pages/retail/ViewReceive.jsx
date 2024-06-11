@@ -25,7 +25,6 @@ function ViewReceive() {
   const [tableData, setTableData] = useState([]);
 
   const {
-    company_no,
     kra_pin,
     usd_rate,
     lpo_no,
@@ -34,6 +33,8 @@ function ViewReceive() {
     vat,
     vatVariable,
   } = lpo[0];
+
+  const company_no = user.userData.company_no;
 
   const [formData, setFormData] = useState({
     kra_pin: kra_pin || "",
@@ -56,6 +57,7 @@ function ViewReceive() {
           },
         },
       });
+
       setAccountNumber(response.data);
     } catch (error) {
       console.error("Error fetching account number:", error);
@@ -68,6 +70,7 @@ function ViewReceive() {
         params: { company_no },
       });
       const grn_no = response.data;
+
       setGrnNo(grn_no);
     } catch (error) {
       console.error("Error fetching GRN number:", error);
@@ -228,24 +231,23 @@ function ViewReceive() {
     [vat]
   );
 
-  const updateLpoDetails = async (updatedData, lpoStatus) => {
+  const updateLpoDetails = async (formData, lpoStatus) => {
     try {
-      const finalLpo = {
-        ...updatedData,
+      // Construct the update payload with only the fields that need to be updated
+      const updatePayload = {
         TBAccount_name,
         grn_no: grnNo,
         status: lpoStatus,
+        ...formData,
       };
 
-      await axios.put(
-        `/api/auth/retail/updatelpo/${lpo_no}`,
-        { ...finalLpo },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      // Perform the partial update using PATCH
+      await axios.patch(`/api/auth/retail/updatelpo/${lpo_no}`, updatePayload, {
+        params: { company_no },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
     } catch (error) {
       console.error("Error updating LPO details:", error);
     }
@@ -258,9 +260,11 @@ function ViewReceive() {
       return;
     }
 
-    // Fetch account number and GRN number
     await fetchAccountNumber();
-    await fetchGRNNo();
+    await fetchGRNNo(company_no);
+
+    // Update LPO details
+    await updateLpoDetails(formData, 2);
 
     // Show table after successful form submission
     setShowTable(true);

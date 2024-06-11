@@ -193,6 +193,87 @@ const entriesSchema = new mongoose.Schema({
   },
 });
 
+const productSchema = new mongoose.Schema({
+  user_id: {
+    type: String,
+    required: true,
+  },
+  unique_id: {
+    type: String,
+  },
+  company_no: {
+    type: String,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+});
+
+const lpoSchema = new mongoose.Schema({
+  supplier: {
+    type: String,
+  },
+  supplierName: {
+    type: String,
+  },
+  kra_pin: {
+    type: String,
+  },
+  usd_rate: {
+    type: Number,
+  },
+  lpo_no: {
+    type: String,
+  },
+  netTotal: {
+    type: Number,
+  },
+  TBAccount_name: {
+    type: String,
+  },
+  grn_no: {
+    type: String,
+  },
+  ret_no: {
+    type: String,
+  },
+  session: {
+    type: String,
+  },
+  returned_at: {
+    type: Date,
+  },
+  date_received: {
+    type: Date,
+    default: Date.now,
+  },
+  expense_type: {
+    type: String,
+  },
+  date_created: {
+    type: Date,
+  },
+  vat: {
+    type: String,
+  },
+  vatVariable: {
+    type: Number,
+  },
+  status: {
+    type: Number,
+  },
+  products: [productSchema],
+});
+
 const companySchema = new mongoose.Schema({
   company_name: {
     type: String,
@@ -221,6 +302,7 @@ const companySchema = new mongoose.Schema({
   notifications: [notificationsSchema],
   stock: [stockSchema],
   entries: [entriesSchema],
+  lpos: [lpoSchema],
 });
 
 const Company = mongoose.model("Company", companySchema);

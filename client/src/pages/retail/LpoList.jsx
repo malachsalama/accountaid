@@ -31,10 +31,10 @@ export default function LpoList() {
     fetchLpos();
   }, [accessToken, user]);
 
-  const handlePdf = async (lpo_no) => {
+  const handlePdf = async (lpo_no, company_no) => {
     try {
       const response = await axios.get("/api/auth/pdflpo", {
-        params: { lpo_no },
+        params: { lpo_no, company_no },
         responseType: "blob", // Request binary data
       });
 
@@ -66,16 +66,19 @@ export default function LpoList() {
     }
   };
 
-  const handleDeleteLpo = async (lpoId) => {
+  const handleDeleteLpo = async (lpoId, company_no) => {
     try {
       const confirmation = window.confirm(
         "Are you sure you want to delete this LPO?"
       );
 
       if (confirmation) {
-        await axios.delete(`/api/auth/retail/lpos/${lpoId}`, {
-          headers: { Authorization: `Bearer ${accessToken}` },
-        });
+        await axios.delete(
+          `/api/auth/retail/lpos/${lpoId}?company_no=${company_no}`,
+          {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }
+        );
         // Update UI after successful deletion
         setLpos(lpos.filter((lpo) => lpo._id !== lpoId));
       }

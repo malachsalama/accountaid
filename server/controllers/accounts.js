@@ -1,6 +1,5 @@
 const Company = require("../models/company");
 const Logs = require("../models/logs");
-const Supplier = require("../models/retail");
 
 // Adding a creditor to the system
 async function createCreditor(req, res) {
@@ -95,6 +94,7 @@ async function getAccountNo(req, res) {
     // Check if both company_no and account_name are provided
     if (company_no && account_name) {
       const company = await Company.findOne({ company_no });
+
       if (!company) {
         return res.status(404).json({ error: "Company not found" });
       }
@@ -136,23 +136,40 @@ async function getAccountNo(req, res) {
   }
 }
 
+// Function to get the next GRN number
 async function getGRNNo(req, res) {
   const { company_no } = req.query;
 
   try {
-    // Find the supplier with the highest GRN number for the specified company
-    const result = await Supplier.findOne({ company_no })
-      .sort({ grn_no: -1 })
-      .exec();
+    // Find the company by company_no
+    const company = await Company.findOne({ company_no });
 
-    let max_no = result && result.grn_no ? result.grn_no : "GRN-0000";
+    if (!company) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    // Extract the lpos array and find the max grn_no
+    const lpos = company.lpos || [];
+    let max_no = "GRN-0000";
+
+    if (lpos.length > 0) {
+      max_no =
+        lpos
+          .map((lpo) => lpo.grn_no)
+          .filter((grn_no) => grn_no) // Ensure grn_no is not undefined or null
+          .sort((a, b) => {
+            const numA = parseInt(a.substring(4));
+            const numB = parseInt(b.substring(4));
+            return numB - numA;
+          })[0] || "GRN-0000";
+    }
+
     let grnNo;
 
     if (max_no === "GRN-0000") {
       grnNo = "GRN-0001";
     } else {
-      let numericPart = max_no.substring(4);
-
+      let numericPart = parseInt(max_no.substring(4));
       numericPart++;
       grnNo = "GRN-" + numericPart.toString().padStart(4, "0");
     }
