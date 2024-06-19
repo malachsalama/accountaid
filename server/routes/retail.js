@@ -11,7 +11,8 @@ const {
   fetchLpoDataForReceive,
   postLpoDetails,
   closeLpo,
-  updateStockAndEntries,
+  updateStock,
+  updateEntries,
   deleteLpo,
   updateLpo,
   checkInvoiceNumber,
@@ -23,11 +24,8 @@ router.post("/retail/retailnames", addRetailName);
 router.post("/retail/generatelpo", authenticateToken, generateLpo);
 
 router.post("/retail/postlpodetails", authenticateToken, postLpoDetails);
-router.post(
-  "/retail/update-stock-and-entries",
-  authenticateToken,
-  updateStockAndEntries
-);
+router.post("/retail/update-stock", authenticateToken, updateStock);
+router.post("/retail/update-entries", authenticateToken, updateEntries);
 
 router.post("/retail/closelpo", authenticateToken, closeLpo);
 router.patch("/retail/updatelpo/:lpo_no", authenticateToken, updateLpo);
@@ -36,7 +34,7 @@ router.get("/retail/lpos/:company_no", authenticateToken, getAllLposByCompany);
 router.get("/retail/check-invoice-number", checkInvoiceNumber);
 router.get("/retail/retailnames", getRetailNames);
 
-router.get("/retail/generatelpo", authenticateToken, fetchLpoData);
+router.get("/retail/fetchlpodata", authenticateToken, fetchLpoData);
 router.get(
   "/retail/fetchLpoDataForReceive",
   authenticateToken,

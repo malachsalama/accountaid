@@ -95,6 +95,9 @@ const variablesSchema = new mongoose.Schema({
   markup_price: {
     type: Number,
   },
+  costing: {
+    type: String,
+  },
 });
 
 const notificationsSchema = new mongoose.Schema({
@@ -132,10 +135,6 @@ const stockSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  company_no: {
-    type: String,
-    required: true,
-  },
   description: {
     type: String,
     required: true,
@@ -148,6 +147,15 @@ const stockSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  cost: {
+    type: Number,
+    required: true,
+  },
+  average_cost: {
+    type: Number,
+    required: true,
+  },
+
   date_received: {
     type: Date,
     required: true,
@@ -218,6 +226,30 @@ const productSchema = new mongoose.Schema({
   },
 });
 
+// Define the schema for received products
+const receivedProductSchema = new mongoose.Schema({
+  unique_id: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  date_received: {
+    type: Date,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  description: {
+    type: String,
+    required: true,
+  },
+});
+
 const lpoSchema = new mongoose.Schema({
   supplier: {
     type: String,
@@ -238,6 +270,9 @@ const lpoSchema = new mongoose.Schema({
     type: Number,
   },
   TBAccount_name: {
+    type: String,
+  },
+  TBAccount_number: {
     type: String,
   },
   grn_no: {
@@ -268,10 +303,17 @@ const lpoSchema = new mongoose.Schema({
   vatVariable: {
     type: Number,
   },
+  invoice_no: {
+    type: String,
+  },
+  invoiceTotal: {
+    type: Number,
+  },
   status: {
     type: Number,
   },
   products: [productSchema],
+  receivedProducts: [receivedProductSchema],
 });
 
 const companySchema = new mongoose.Schema({

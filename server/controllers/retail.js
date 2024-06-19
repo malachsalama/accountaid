@@ -24,7 +24,7 @@ const fetchLpoData = async (req, res) => {
     });
 
     if (!company) {
-      return res.status(404).json({ error: "No LPO initiated!" });
+      return res.status(204).send(); // No content
     }
 
     const lpoItems = company.lpos.find(
@@ -420,9 +420,73 @@ const fetchLpoDataForReceive = async (req, res) => {
 };
 
 // Update the stock
-async function updateStockAndEntries(req, res) {
+async function updateStock(req, res) {
   try {
-    const { stock, entries } = req.body;
+    const { stock } = req.body;
+    const { company_no } = req.query;
+
+    // Fetch the company data including variables
+    const company = await Company.findOne({ company_no });
+
+    if (!company) {
+      return res.status(404).json({ message: "Company not found" });
+    }
+
+    // Extract variables for the company
+    const { markup_price, costing } = company.variables[0];
+
+    stock.forEach((newStockItem) => {
+      const existingStockItem = company.stock.find(
+        (item) => item.unique_id === newStockItem.unique_id
+      );
+
+      if (existingStockItem) {
+        const currentAverageCost = existingStockItem.average_cost;
+
+        const newAverageCost = (
+          (currentAverageCost + newStockItem.price) /
+          2
+        ).toFixed(2);
+
+        existingStockItem.quantity += newStockItem.quantity;
+        existingStockItem.cost = newStockItem.price;
+        existingStockItem.average_cost = newAverageCost;
+
+        // Determine the price based on the company's costing method
+        if (costing === "Latest Cost") {
+          existingStockItem.price = (newStockItem.price * markup_price).toFixed(
+            2
+          );
+        } else if (costing === "Average Cost") {
+          existingStockItem.price = (newAverageCost * markup_price).toFixed(2);
+        }
+      } else {
+        // For new stock items, set the price based on the costing method
+        newStockItem.cost = newStockItem.price.toFixed(2);
+        newStockItem.average_cost = newStockItem.price.toFixed(2);
+        if (costing === "Latest Cost") {
+          newStockItem.price = (newStockItem.price * markup_price).toFixed(2);
+        } else if (costing === "Average Cost") {
+          newStockItem.price = (newStockItem.price * markup_price).toFixed(2);
+        }
+        // Ensure new stock items have the cost field set
+        company.stock.push(newStockItem);
+      }
+    });
+
+    await company.save();
+
+    res.status(200).json({ message: "Stock updated successfully!" });
+  } catch (error) {
+    console.error("Error updating stock:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+// Update the entries
+async function updateEntries(req, res) {
+  try {
+    const { entries } = req.body;
     const { company_no } = req.query;
 
     const company = await Company.findOne({ company_no });
@@ -431,19 +495,14 @@ async function updateStockAndEntries(req, res) {
       return res.status(404).json({ message: "Company not found" });
     }
 
-    // Add the new stock items to the company's stock array
-    company.stock.push(...stock);
-
     // Add the new entries to the company's entries array
     company.entries.push(...entries);
 
     await company.save();
 
-    res
-      .status(200)
-      .json({ message: "Stock and entries updated successfully!" });
+    res.status(200).json({ message: "Entries updated successfully!" });
   } catch (error) {
-    console.error("Error updating stock and entries:", error);
+    console.error("Error updating entries:", error);
     res.status(500).json({ message: "Server error" });
   }
 }
@@ -506,9 +565,10 @@ module.exports = {
   updateLpo,
   getAllLposByCompany,
   fetchLpoDataForReceive,
+  updateStock,
+  updateEntries,
   postLpoDetails,
   closeLpo,
-  updateStockAndEntries,
   deleteLpo,
   fetchStock,
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { useAuthContext } from "../../hooks/useAuthContext";
@@ -11,10 +11,44 @@ export default function EditVariables() {
   const company_no = user?.userData?.company_no;
 
   const [formData, setFormData] = useState({
+    _id: "",
     company_no: company_no,
     vat: "",
     markup_price: "",
+    costing: "",
   });
+
+  useEffect(() => {
+    const fetchVariables = async () => {
+      try {
+        const response = await axios.get(
+          `/api/auth/get-variables?company_no=${company_no}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+
+        const variables = response.data[0];
+        if (variables) {
+          setFormData({
+            _id: variables._id || "",
+            company_no: company_no || "",
+            vat: variables.vat || "",
+            markup_price: variables.markup_price || "",
+            costing: variables.costing || "",
+          });
+        }
+      } catch (error) {
+        console.error("An error occurred", error);
+      }
+    };
+
+    if (company_no) {
+      fetchVariables();
+    }
+  }, [company_no, accessToken]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -23,13 +57,17 @@ export default function EditVariables() {
       return {
         ...prev,
         [name]: value,
-        company_no: company_no,
       };
     });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
+    if (!formData.costing) {
+      setIsError("Please choose a costing price.");
+      return;
+    }
 
     if (accessToken) {
       try {
@@ -39,19 +77,15 @@ export default function EditVariables() {
           },
         });
 
-        // Reset form data
-        setFormData({
-          company_no: "",
-          vat: "",
-          markup_price: "",
-        });
         setIsSuccess(true); // Set state for success message
+        setIsError(null); // Clear any previous error messages
       } catch (error) {
-        console.error("An error occured", error);
+        console.error("An error occurred", error);
         setIsError(error.message);
       }
     }
   };
+
   return (
     <>
       {isSuccess && (
@@ -72,7 +106,6 @@ export default function EditVariables() {
               id="company_no"
               name="company_no"
               value={company_no}
-              onChange={handleChange}
               readOnly
             />
           </div>
@@ -91,7 +124,7 @@ export default function EditVariables() {
           </div>
 
           <div className="form-group">
-            <label className="form-label">Markup:</label>
+            <label className="form-label">Markup Price:</label>
             <input
               type="text"
               className="form-control"
@@ -100,6 +133,24 @@ export default function EditVariables() {
               value={formData.markup_price}
               onChange={handleChange}
             />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Costing:</label>
+            <select
+              className="form-control"
+              id="costing"
+              name="costing"
+              value={formData.costing}
+              onChange={handleChange}
+              required
+            >
+              <option value="" disabled>
+                Choose the costing price
+              </option>
+              <option value="Latest Cost">Latest Cost</option>
+              <option value="Average Cost">Average Cost</option>
+            </select>
           </div>
 
           <button type="submit" className="btn btn-primary">

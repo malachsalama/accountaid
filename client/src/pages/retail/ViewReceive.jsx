@@ -6,7 +6,7 @@ import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import "./retail.css";
 
-function ViewReceive() {
+export default function ViewReceive() {
   const { user } = useAuthContext();
   const accessToken = useAuthToken();
   const location = useLocation();
@@ -34,7 +34,7 @@ function ViewReceive() {
     vatVariable,
   } = lpo[0];
 
-  const company_no = user.userData.company_no;
+  const company_no = user?.userData?.company_no;
 
   const [formData, setFormData] = useState({
     kra_pin: kra_pin || "",
@@ -86,8 +86,9 @@ function ViewReceive() {
 
   const fetchAccountsByAccNos = useCallback(
     async (accNos) => {
+      if (!user || !user.userData) return;
+
       try {
-        if (!user && !user.userData) return;
         const response = await axios.get("/api/auth/accounts/tbaccounts", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -264,7 +265,7 @@ function ViewReceive() {
     await fetchGRNNo(company_no);
 
     // Update LPO details
-    await updateLpoDetails(formData, 2);
+    await updateLpoDetails(formData, 3);
 
     // Show table after successful form submission
     setShowTable(true);
@@ -357,18 +358,39 @@ function ViewReceive() {
       const vatAmount = calculateVatAmount(netAmount);
       const totalAmount = calculateTotalAmount(netAmount, vatAmount);
 
-      // Extract the parts to be added to stock
-      const receivedPartsData = ReceivedParts.map((partId) => {
+      // Extract the parts to be added to stock and calculate the invoice total
+      let invoiceTotal = 0;
+      const receivedProducts = ReceivedParts.map((partId) => {
         const part = lpo[0].products.find((p) => p._id === partId);
+        const quantity = quantities[partId] || 0;
+        const price = parseFloat(part.price.toFixed(2));
+        invoiceTotal += parseFloat((quantity * price).toFixed(2));
+
         return {
           unique_id: part.unique_id,
-          company_no: part.company_no,
           description: part.description,
-          quantity: quantities[partId] || 0,
-          price: part.price,
+          quantity: quantity,
+          price: price,
           date_received: formData.date_received,
         };
       });
+
+      // Update the LPO with received parts and invoice total
+      const lpoUpdatePayload = {
+        receivedProducts: receivedProducts,
+        invoiceTotal: invoiceTotal,
+      };
+
+      await axios.patch(
+        `/api/auth/retail/updatelpo/${lpo_no}`,
+        lpoUpdatePayload,
+        {
+          params: { company_no },
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
 
       // Create the new invoice entry for the creditor's ledger
       const newInvoice = {
@@ -377,10 +399,25 @@ function ViewReceive() {
         date_created: new Date(formData.date_received),
       };
 
-      // Update the company's stock and entries
+      // Only update stock if the expense type is not Miscellaneous
+      if (formData.expense_type !== "Miscellaneous Expense") {
+        // Update the company's stock
+        await axios.post(
+          "/api/auth/retail/update-stock",
+          { stock: receivedProducts },
+          {
+            params: { company_no },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+      }
+
+      // Update entries in the database
       await axios.post(
-        "/api/auth/retail/update-stock-and-entries",
-        { stock: receivedPartsData, entries: tableData },
+        "/api/auth/retail/update-entries",
+        { entries: tableData },
         {
           params: { company_no },
           headers: {
@@ -400,7 +437,7 @@ function ViewReceive() {
         }
       );
 
-      alert("Stock, entries, and creditor's ledger updated successfully!");
+      alert("Entries and creditor's ledger updated successfully!");
       navigate("/retail/lpolist");
     } catch (error) {
       console.error(
@@ -609,7 +646,6 @@ function ViewReceive() {
                   <tr>
                     <th>Select</th>
                     <th>Unique ID</th>
-                    <th>Company Number</th>
                     <th>Description</th>
                     <th>Quantity</th>
                     <th>Final Quantity</th>
@@ -627,7 +663,6 @@ function ViewReceive() {
                         />
                       </td>
                       <td>{lpo.unique_id}</td>
-                      <td>{lpo.company_no}</td>
                       <td>{lpo.description}</td>
                       <td>{lpo.quantity}</td>
                       <td>
@@ -704,5 +739,3 @@ function ViewReceive() {
     </>
   );
 }
-
-export default ViewReceive;

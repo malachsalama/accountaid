@@ -10,12 +10,14 @@ export default function LpoList() {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
+  const company_no = user?.userData?.company_no;
+
   useEffect(() => {
     const fetchLpos = async () => {
       if (accessToken && user) {
         try {
           const response = await axios.get(
-            `/api/auth/retail/lpos/${user.userData.company_no}`,
+            `/api/auth/retail/lpos/${company_no}`,
             {
               headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -49,7 +51,6 @@ export default function LpoList() {
 
   const handleReceive = async (lpo_no) => {
     try {
-      const company_no = user.userData.company_no;
       const response = await axios.get(
         "/api/auth/retail/fetchLpoDataForReceive",
         {

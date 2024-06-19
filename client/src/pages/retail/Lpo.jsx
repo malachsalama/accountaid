@@ -86,7 +86,7 @@ function Lpo() {
   const fetchLPODetails = useCallback(async () => {
     if (user && user.userData) {
       try {
-        const lpo = await axios.get("/api/auth/retail/generatelpo", {
+        const response = await axios.get("/api/auth/retail/fetchlpodata", {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
@@ -94,8 +94,13 @@ function Lpo() {
             company_no: user.userData.company_no,
           },
         });
-        setLpo(lpo.data);
-        setError(null); // Clear any previous errors
+        if (response.status === 204) {
+          setError("No LPO initiated!");
+          setLpo(null);
+        } else {
+          setLpo(response.data);
+          setError(null); // Clear any previous errors
+        }
       } catch (error) {
         if (
           error.response &&
@@ -215,232 +220,252 @@ function Lpo() {
   });
 
   return (
-    <div>
-      <div style={{ display: "flex" }}>
-        <div style={{ flex: 1 }}>
-          <h1>Supplier Details</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label className="form-label">Supplier:</label>
-              <input
-                {...getInputProps({
-                  type: "text",
-                  className: "form-control",
-                  id: "supplier",
-                  name: "supplier",
-                  required: true,
-                })}
-              />
-              <ul {...getMenuProps()} className="suggestion-box">
-                {isOpen &&
-                  suggestions.map((item, index) => (
-                    <li
-                      {...getItemProps({ item, index })}
-                      key={index}
-                      className={
-                        highlightedIndex === index ? "highlighted-item" : ""
-                      }
-                    >
-                      {item}
-                    </li>
-                  ))}
-              </ul>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Name:</label>
-              <input
-                type="text"
-                className="form-control"
-                id="supplierName"
-                name="supplierName"
-                value={formData.supplierName || ""}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Account No:</label>
-              <input
-                type="text"
-                className="form-control"
-                id="acc_no"
-                name="acc_no"
-                value={formData.acc_no || ""}
-                required
-                readOnly
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">KRA PIN:</label>
-              <input
-                type="text"
-                className="form-control"
-                id="kra_pin"
-                name="kra_pin"
-                value={formData.kra_pin || ""}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">USD RATE:</label>
-              <input
-                type="number"
-                className="form-control"
-                id="usd_rate"
-                name="usd_rate"
-                value={formData.usd_rate || ""}
-                required
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">VAT:</label>
-              <select
-                className="form-control"
-                id="vat"
-                name="vat"
-                value={formData.vat || ""}
-                required
-                onChange={handleInputChange}
-              >
-                <option value="">Select</option>
-                <option value="Inc">Inc</option>
-                <option value="Exc">Exc</option>
-                <option value="N/A">N/A</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Date:</label>
-              <input
-                type="date"
-                className="form-control"
-                id="date_created"
-                name="date_created"
-                value={formData.date_created || ""}
-                required
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <button type="submit" className="btn btn-primary">
-              Create LPO
-            </button>
-          </form>
-
-          <div className="lpo-form">
-            <h1 className="form-title">Create LPO</h1>
-            <form onSubmit={handleClick}>
+    <>
+      <div>
+        <div className="lpo-top">
+          <div className="lpo-supplier-details-form">
+            <h1>Supplier Details</h1>
+            <form onSubmit={handleSubmit}>
               <div className="form-group">
-                <label htmlFor="unique_id" className="form-label">
-                  Unique ID:
+                <label htmlFor="supplier" className="form-label">
+                  Supplier:
+                </label>
+                <input
+                  {...getInputProps({
+                    type: "text",
+                    className: "form-control",
+                    id: "supplier",
+                    name: "supplier",
+                    required: true,
+                  })}
+                />
+                <ul {...getMenuProps()} className="suggestion-box">
+                  {isOpen &&
+                    suggestions.map((item, index) => (
+                      <li
+                        {...getItemProps({ item, index })}
+                        key={index}
+                        className={
+                          highlightedIndex === index ? "highlighted-item" : ""
+                        }
+                      >
+                        {item}
+                      </li>
+                    ))}
+                </ul>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="supplierName" className="form-label">
+                  Name:
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  name="unique_id"
-                  value={post.unique_id}
-                  onChange={handleChange}
+                  id="supplierName"
+                  name="supplierName"
+                  value={formData.supplierName || ""}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="description" className="form-label">
-                  Description:
+                <label htmlFor="acc_no" className="form-label">
+                  Account No:
                 </label>
                 <input
                   type="text"
                   className="form-control"
-                  name="description"
-                  value={post.description}
-                  onChange={handleChange}
+                  id="acc_no"
+                  name="acc_no"
+                  value={formData.acc_no || ""}
                   required
+                  readOnly
                 />
               </div>
-
-              <div className="form-geoup">
-                <label htmlFor="quantity" className="form-label">
-                  Quantity:
+              <div className="form-group">
+                <label htmlFor="kra_pin" className="form-label">
+                  KRA PIN:
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   className="form-control"
-                  name="quantity"
-                  value={post.quantity}
-                  onChange={handleChange}
+                  id="kra_pin"
+                  name="kra_pin"
+                  value={formData.kra_pin || ""}
+                  onChange={handleInputChange}
                   required
                 />
               </div>
 
               <div className="form-group">
-                <label htmlFor="price" className="form-label">
-                  Price:
+                <label htmlFor="usd_rate" className="form-label">
+                  USD RATE:
                 </label>
                 <input
                   type="number"
                   className="form-control"
-                  name="price"
-                  value={post.price}
-                  onChange={handleChange}
+                  id="usd_rate"
+                  name="usd_rate"
+                  value={formData.usd_rate || ""}
                   required
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="vat" className="form-label">
+                  VAT:
+                </label>
+                <select
+                  className="form-control"
+                  id="vat"
+                  name="vat"
+                  value={formData.vat || ""}
+                  required
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select</option>
+                  <option value="Inc">Inc</option>
+                  <option value="Exc">Exc</option>
+                  <option value="N/A">N/A</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="date_created" className="form-label">
+                  Date:
+                </label>
+                <input
+                  type="date"
+                  className="form-control"
+                  id="date_created"
+                  name="date_created"
+                  value={formData.date_created || ""}
+                  required
+                  onChange={handleInputChange}
                 />
               </div>
 
               <button type="submit" className="btn btn-primary">
-                Create Post
+                Create LPO
               </button>
             </form>
           </div>
-        </div>
-        <div className="recent-data-container" style={{ flex: 1 }}>
-          <h2>LPO Data</h2>
 
-          <ul>
-            {lpoData ? (
-              <>
-                <li>LPO_No : {lpoData.lpo_no}</li>
-                <li>Supplier : {lpoData.supplier}</li>
-              </>
-            ) : (
-              <div>{error}</div>
-            )}
-            {lpoData && lpoData.products && lpoData.products.length > 0 && (
-              <table>
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {lpoData.products.map((product, index) => (
-                    <tr key={index}>
-                      <td>{product.unique_id}</td>
-                      <td>{product.description}</td>
-                      <td>{product.quantity}</td>
-                      <td>{product.price.toFixed(2)}</td>
+          <div className="lpo-initiated-data">
+            <h2>LPO Data</h2>
+            <ul>
+              {lpoData ? (
+                <>
+                  <li>LPO_No : {lpoData.lpo_no}</li>
+                  <li>Supplier : {lpoData.supplier}</li>
+                </>
+              ) : (
+                <div>{error}</div>
+              )}
+              {lpoData && lpoData.products && lpoData.products.length > 0 && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Description</th>
+                      <th>Quantity</th>
+                      <th>Price</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </ul>
-          <button
-            onClick={handleClose}
-            className="btn btn-primary"
-            disabled={!lpoData || !lpoData.lpo_no}
-          >
-            Close Lpo
-          </button>
+                  </thead>
+                  <tbody>
+                    {lpoData.products.map((product, index) => (
+                      <tr key={index}>
+                        <td>{product.unique_id}</td>
+                        <td>{product.description}</td>
+                        <td>{product.quantity}</td>
+                        <td>{product.price.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </ul>
+            <button
+              onClick={handleClose}
+              className="btn btn-primary"
+              disabled={!lpoData || !lpoData.lpo_no}
+            >
+              Close LPO
+            </button>
+          </div>
+        </div>
+
+        <div className="lpo-creation-form">
+          <h1 className="form-title">Create LPO</h1>
+          <form onSubmit={handleClick}>
+            <div className="form-group">
+              <label htmlFor="unique_id" className="form-label">
+                Unique ID:
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="unique_id"
+                name="unique_id"
+                value={post.unique_id}
+                onChange={handleChange}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="description" className="form-label">
+                Description:
+              </label>
+              <input
+                type="text"
+                className="form-control"
+                id="description"
+                name="description"
+                value={post.description}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="quantity" className="form-label">
+                Quantity:
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                id="quantity"
+                name="quantity"
+                value={post.quantity}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="price" className="form-label">
+                Price:
+              </label>
+              <input
+                type="number"
+                className="form-control"
+                id="price"
+                name="price"
+                value={post.price}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <button type="submit" className="btn btn-primary">
+              Create Post
+            </button>
+          </form>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

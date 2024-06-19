@@ -30,6 +30,25 @@
   position: relative;
 }
 
+.lpo-top {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 3rem;
+}
+
+.lpo-supplier-details-form {
+  width: 50%;
+}
+
+.lpo-initiated-data {
+  width: 40%;
+}
+
+.lpo-creation-form {
+  margin-top: 3rem;
+  width: 50%;
+}
+
 .view-receive_top {
   display: flex;
   justify-content: space-between;
