@@ -126,9 +126,31 @@ async function getRetailNames(req, res) {
   }
 }
 
+// Fetch variables
+async function fetchVariables(req, res) {
+  const { company_no } = req.query;
+
+  try {
+    if (!company_no) {
+      return res.status(400).json({ error: "Company number is required" });
+    }
+
+    const existingCompany = await Company.findOne({ company_no });
+
+    if (!existingCompany) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    res.status(200).json(existingCompany.variables);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+}
+
 // Edit variables
 async function editVariables(req, res) {
-  const { company_no, vat, markup_price } = req.body;
+  const { company_no, _id, vat, markup_price, costing } = req.body;
 
   try {
     const existingCompany = await Company.findOne({ company_no });
@@ -137,8 +159,22 @@ async function editVariables(req, res) {
       return res.status(404).json({ error: "Company not found" });
     }
 
-    // Update the variables array with the new values
-    existingCompany.variables.push({ vat, markup_price });
+    if (_id) {
+      // Find the existing variable by `_id`
+      const existingVariable = existingCompany.variables.id(_id);
+
+      if (existingVariable) {
+        // Update the existing variable
+        existingVariable.vat = vat;
+        existingVariable.markup_price = markup_price;
+        existingVariable.costing = costing;
+      } else {
+        return res.status(404).json({ error: "Variable not found" });
+      }
+    } else {
+      // Add new variables
+      existingCompany.variables.push({ vat, markup_price, costing });
+    }
 
     await existingCompany.save();
 
@@ -179,6 +215,7 @@ module.exports = {
   addRetailName,
   getRetailNames,
   getDesignations,
+  fetchVariables,
   editVariables,
   fetchNotifications,
 };

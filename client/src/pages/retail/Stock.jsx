@@ -6,10 +6,13 @@ import { useAuthContext } from "../../hooks/useAuthContext";
 export default function Stock() {
   const accessToken = useAuthToken();
   const { user } = useAuthContext();
-  const { company_no } = user.userData;
   const [stockData, setStockData] = useState([]);
+  const [variables, setVariables] = useState([]);
+  const company_no = user?.userData?.company_no;
 
   const fetchStock = useCallback(async () => {
+    if (!user || !user.userData) return;
+
     try {
       const response = await axios.get("/api/auth/retail/fetchstock", {
         params: { company_no },
@@ -25,17 +28,40 @@ export default function Stock() {
         price: Number(item.price),
         quantity: Number(item.quantity),
         uniqueId: item.unique_id,
+        cost: item.cost,
+        average_cost: item.average_cost,
       }));
 
       setStockData(cleanedStockData);
     } catch (error) {
       console.error("Error fetching stock:", error);
     }
-  }, [accessToken, company_no]);
+  }, [accessToken, company_no, user]);
 
   useEffect(() => {
     fetchStock();
   }, [fetchStock]);
+
+  useEffect(() => {
+    if (!user || !user.userData) return;
+    const fetchVariables = async () => {
+      try {
+        const response = await axios.get(
+          `/api/auth/get-variables?company_no=${company_no}`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        );
+        setVariables(response.data[0]);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchVariables();
+  }, [company_no, accessToken, user]);
 
   return (
     <div className="stock-container">
@@ -47,8 +73,8 @@ export default function Stock() {
               <th>Unique ID</th>
               <th>Description</th>
               <th>Quantity</th>
+              <th>Cost</th>
               <th>Price</th>
-
               <th>Date Received</th>
             </tr>
           </thead>
@@ -58,6 +84,11 @@ export default function Stock() {
                 <td>{item.uniqueId}</td>
                 <td>{item.description}</td>
                 <td>{item.quantity}</td>
+                {variables.costing === "Latest Cost" ? (
+                  <td>{item.cost}</td>
+                ) : (
+                  <td>{item.average_cost}</td>
+                )}
                 <td>{item.price}</td>
                 <td>{item.dateReceived}</td>
               </tr>

@@ -199,6 +199,11 @@ async function getCreditors(req, res) {
       res.status(200).json(creditor);
     } else {
       const allCreditors = company.creditors;
+      if (!allCreditors.length) {
+        return res
+          .status(404)
+          .json({ error: "Your creditors will show here..." });
+      }
       res.status(200).json(allCreditors);
     }
   } catch (error) {

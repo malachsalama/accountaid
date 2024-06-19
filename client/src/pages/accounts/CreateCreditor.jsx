@@ -48,8 +48,9 @@ export default function CreateCreditor() {
         params: { userData: user.userData },
       });
       setCreditors(response.data);
+      setError(null); // Clear any previous errors
     } catch (error) {
-      console.error(error);
+      setError(error.response.data.error || "Error fetching creditors");
     }
   }
 
@@ -89,7 +90,7 @@ export default function CreateCreditor() {
         });
       } catch (error) {
         setIsLoading(false);
-        setError("Creditor not Inserted");
+        setError(error.response.data.error || "Creditor not Inserted");
         console.error("Creditor not Inserted", error);
       } finally {
         setIsLoading(false);
@@ -213,45 +214,49 @@ export default function CreateCreditor() {
             >
               Register
             </button>
-            {error && <div className="error">{error}</div>}
           </form>
         </div>
       </div>
       <div style={{ flex: 1 }}>
         <h2>Here are our Creditors</h2>
         <div className="table-container">
-          <table className="lpo-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Creditor Name</th>
-                <th>KRA PIN</th>
-                <th>Email</th>
-                <th>Phone No</th>
-                <th>Account No</th>
-              </tr>
-            </thead>
-            <tbody>
-              {creditors.map((creditor, index) => (
-                <tr key={index}>
-                  <td>{creditor.name}</td>
-                  <td>{creditor.creditor_name}</td>
-                  <td>{creditor.kra_pin}</td>
-                  <td>{creditor.email}</td>
-                  <td>{creditor.phone_no}</td>
-                  <td>{creditor.acc_no}</td>
-                  <td>
-                    <button
-                      onClick={() => handleDeleteCreditor(creditor._id)}
-                      className="btn btn-danger"
-                    >
-                      Delete
-                    </button>
-                  </td>
+          {error ? (
+            <div>{error}</div>
+          ) : (
+            <table className="lpo-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Creditor Name</th>
+                  <th>KRA PIN</th>
+                  <th>Email</th>
+                  <th>Phone No</th>
+                  <th>Account No</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {creditors.map((creditor, index) => (
+                  <tr key={index}>
+                    <td>{creditor.name}</td>
+                    <td>{creditor.creditor_name}</td>
+                    <td>{creditor.kra_pin}</td>
+                    <td>{creditor.email}</td>
+                    <td>{creditor.phone_no}</td>
+                    <td>{creditor.acc_no}</td>
+                    <td>
+                      <button
+                        onClick={() => handleDeleteCreditor(creditor._id)}
+                        className="btn btn-danger"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
