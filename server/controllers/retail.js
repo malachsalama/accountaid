@@ -361,6 +361,9 @@ async function closeLpo(req, res) {
     await logData.save();
     await company.save();
 
+    // Emit a notification event to all connected clients
+    req.io.emit("lpoClosed", { message: "An LPO has been closed!" });
+
     res.json("LPO closed");
   } catch (error) {
     console.error("Error closing LPO:", error);

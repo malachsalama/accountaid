@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { useAuthContext } from "../../hooks/useAuthContext";
+import socketIOClient from "socket.io-client";
+
+const ENDPOINT = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 
 export default function LpoList() {
   const [lpos, setLpos] = useState([]);
@@ -31,7 +34,24 @@ export default function LpoList() {
       }
     };
     fetchLpos();
-  }, [accessToken, user]);
+
+    // Setup Socket.IO client
+    const socket = socketIOClient(ENDPOINT);
+
+    // Listen for 'lpoApproved' event
+    socket.on("lpoApproved", (data) => {
+      setLpos((prevLpos) =>
+        prevLpos.map((lpo) =>
+          lpo.lpo_no === data.lpo_no ? { ...lpo, status: data.status } : lpo
+        )
+      );
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, [accessToken, user, company_no]);
 
   const handlePdf = async (lpo_no, company_no) => {
     try {
@@ -114,9 +134,11 @@ export default function LpoList() {
                 <td>{lpo.lpo_no}</td>
                 <td>{lpo.netTotal}</td>
                 <td>
-                  <button onClick={() => handlePdf(lpo.lpo_no)}>View</button>
+                  <button onClick={() => handlePdf(lpo.lpo_no, company_no)}>
+                    View
+                  </button>
                   <button
-                    onClick={() => handleDeleteLpo(lpo._id)}
+                    onClick={() => handleDeleteLpo(lpo._id, company_no)}
                     className="btn btn-danger"
                   >
                     Delete

@@ -5,7 +5,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuthContext } from "../../hooks/useAuthContext";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import axios from "axios";
+import socketIOClient from "socket.io-client";
 import "./navbar.css";
+
+const ENDPOINT = import.meta.env.VITE_BASE_URL || "http://localhost:8000";
 
 export default function Navbar() {
   const { logout } = useLogout();
@@ -35,7 +38,7 @@ export default function Navbar() {
           }
         );
 
-        //navigate to the notification page
+        // Navigate to the notification page
         navigate("notifications", {
           state: { notifications: fetchNotifications.data },
         });
@@ -75,6 +78,21 @@ export default function Navbar() {
       fetchNotifications();
     }
   }, [isLoading, accessToken, fetchNotifications, user]);
+
+  useEffect(() => {
+    const socket = socketIOClient(ENDPOINT);
+
+    socket.on("lpoClosed", (data) => {
+      console.log("LPO Closed Notification:", data); // Log the data for debugging
+      // Increment the unread messages count when an LPO is closed
+      setUnreadMessages((prevCount) => prevCount + 1);
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const handleLogout = () => {
     logout();

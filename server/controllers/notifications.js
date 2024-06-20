@@ -112,6 +112,9 @@ async function approveLpo(req, res) {
       await company.save();
     }
 
+    // Emit an LPO approved event to all connected clients
+    req.io.emit("lpoApproved", { lpo_no, status });
+
     res.json("Lpo Approved");
   } catch (error) {
     console.error("Error approving LPO:", error);
